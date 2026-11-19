@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<base href="/">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minh Thắng ❤ Linh Trang | 29.11.2026</title>
+<meta name="description" content="Trân trọng kính mời quý khách tới dự Lễ Thành Hôn của Minh Thắng và Linh Trang - Chủ Nhật, 29/11/2026.">
+<meta property="og:title" content="Thiệp cưới Minh Thắng ❤ Linh Trang">
+<meta property="og:description" content="Trân trọng kính mời quý khách tới dự Lễ Thành Hôn - Chủ Nhật, 29/11/2026.">
+<meta property="og:image" content="https://thiepcuoithangtrang.web.app/images/xemtruoc.jpg">
+<meta property="og:type" content="website">
+<meta property="og:image:secure_url" content="https://thiepcuoithangtrang.web.app/images/xemtruoc.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Minh Thắng và Linh Trang">
+<meta property="og:site_name" content="Thiệp cưới Minh Thắng &amp; Linh Trang">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#7a0c12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23a4161a'/%3E%3Ctext x='32' y='47' font-size='42' text-anchor='middle' fill='%23e6c27a' font-family='serif' font-weight='700'%3E囍%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Dancing+Script:wght@500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=11151154">
+</head>
+<body class="locked">
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<button id="music" class="music" aria-label="Bật hoặc tắt nhạc" hidden><span>♪</span></button>
+<button id="love" class="love" aria-label="Thả tim" hidden><span>❤</span><b id="loveN">0</b></button>
+
+<!-- ===== BÌA ===== -->
+<div id="cover" class="cover">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <div class="cover-in">
+    <div class="lantern a"></div>
+    <div class="lantern b"></div>
+    <p class="c-top">Thiệp mời cưới</p>
+    <div class="seal"><span>囍</span></div>
+    <h1 class="c-names">Minh Thắng <em>&amp;</em> Linh Trang</h1>
+    <p class="c-date">29 · 11 · 2026</p>
+    <p class="c-guest">Trân trọng kính mời <b id="guest">Quý khách</b></p>
+    <button id="open" class="btn gold">Mở thiệp</button>
+  </div>
+</div>
+
+<main id="card">
+
+  <!-- ===== MỞ ĐẦU ===== -->
+  <header class="hero">
+    <div class="cloud c1"></div><div class="cloud c2"></div>
+    <div class="hero-text">
+      <p class="hy shine">囍</p>
+      <p class="kicker">Lễ Thành Hôn</p>
+      <h1 class="names">
+        <span class="write">Minh Thắng</span>
+        <span class="amp">&amp;</span>
+        <span class="write w2">Linh Trang</span>
+      </h1>
+      <p class="hero-date">Chủ Nhật · 29 tháng 11 năm 2026</p>
+    </div>
+    <div class="hero-photo"><img id="heroImg" src="images/anh1.jpg" alt="Minh Thắng và Linh Trang trong áo dài đỏ"></div>
+    <div class="scroll-hint" aria-hidden="true"><i></i></div>
+  </header>
+
+  <!-- ===== LỜI MỜI ===== -->
+  <section class="sec paper">
+    <p class="orn" data-rv="zoom">❦</p>
+    <div class="families">
+      <div data-rv="left">
+        <h3>Nhà trai</h3>
+        <p>Ông <b>Lê Khắc Thăng</b></p>
+        <p>Bà <b>Trịnh Thị Thêu</b></p>
+        <small>Thôn Phú Trung, Xã Hoằng Phú,<br>Tỉnh Thanh Hóa</small>
+      </div>
+      <div data-rv="right">
+        <h3>Nhà gái</h3>
+        <p>Ông <b>Nguyễn Trần Vinh</b></p>
+        <p>Bà <b>Lê Thị Thúy</b></p>
+        <small>Thôn Cụ Thôn, Xã Lĩnh Toại,<br>Tỉnh Thanh Hóa</small>
+      </div>
+    </div>
+    <p class="lead" data-rv="up">Trân trọng báo tin Lễ Thành Hôn của chúng tôi</p>
+    <div class="couple-names" data-rv="zoom">
+      <span class="shine dark">Minh Thắng</span>
+      <i class="beat">❤</i>
+      <span class="shine dark">Linh Trang</span>
+    </div>
+    <div class="arch" data-rv="flip"><img class="zoomable" src="images/anh2.jpg" alt="Cô dâu chú rể nắm tay" loading="lazy"></div>
+    <p class="body" data-rv="up">Sự hiện diện của quý khách là niềm vinh hạnh<br>của chúng tôi.</p>
+  </section>
+
+  <!-- ===== CÔ DÂU CHÚ RỂ ===== -->
+  <section class="sec red">
+    <h2 class="title shine" data-rv="up">Cô dâu &amp; Chú rể</h2>
+    <div class="arch wide" data-rv="zoom"><img class="zoomable" src="images/anh4.jpg" alt="Chú rể Minh Thắng và cô dâu Linh Trang" loading="lazy"></div>
+    <div class="duo">
+      <div data-rv="left"><small>Chú rể</small><b>Minh Thắng</b></div>
+      <span class="hy-mini" data-rv="zoom">囍</span>
+      <div data-rv="right"><small>Cô dâu</small><b>Linh Trang</b></div>
+    </div>
+    <p class="quote" data-rv="up">“Hạnh phúc là khi đi cùng nhau thật lâu,<br>và hôm nay là ngày đầu tiên của mãi mãi.”</p>
+  </section>
+
+  <!-- ===== DẢI ẢNH ===== -->
+  <div class="band" data-rv="zoom"><img class="zoomable" src="images/anh3.jpg" alt="Cô dâu chú rể giữa vườn hoa trắng" loading="lazy"></div>
+
+  <!-- ===== SỰ KIỆN ===== -->
+  <section class="sec paper">
+    <h2 class="title shine dark" data-rv="up">Sự kiện cưới</h2>
+    <div class="event" data-rv="left">
+      <div class="ev-date"><b>27</b><span>Tháng 11</span></div>
+      <div class="ev-info">
+        <h3>Lễ Ăn Hỏi</h3>
+        <p class="time">09:00 · Thứ Sáu, 27/11/2026</p>
+        <p>Tức ngày 19 tháng 10 năm Bính Ngọ</p>
+        <p>Tại tư gia nhà gái<br><small>Dốc Gũ, Thôn Cụ Thôn, Xã Lĩnh Toại, Tỉnh Thanh Hóa</small></p>
+      </div>
+    </div>
+    <div class="event main" data-rv="right">
+      <div class="ev-date"><b>29</b><span>Tháng 11</span></div>
+      <div class="ev-info">
+        <h3>Lễ Thành Hôn</h3>
+        <p class="time">10:30 · Chủ Nhật, 29/11/2026</p>
+        <p>Tức ngày 21 tháng 10 năm Bính Ngọ</p>
+        <p>Tại tư gia nhà trai<br><small>Số nhà 16/03, Đường 02, Thôn Phú Trung, Xã Hoằng Phú, Tỉnh Thanh Hóa</small></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ĐẾM NGƯỢC ===== -->
+  <section class="sec red">
+    <h2 class="title shine" data-rv="up">Cùng đếm ngược</h2>
+    <div class="cd" id="cd" data-rv="zoom">
+      <div class="u"><b id="cd-d">00</b><span>Ngày</span></div>
+      <div class="u"><b id="cd-h">00</b><span>Giờ</span></div>
+      <div class="u"><b id="cd-m">00</b><span>Phút</span></div>
+      <div class="u"><b id="cd-s">00</b><span>Giây</span></div>
+    </div>
+    <p class="cd-done" id="cdDone" hidden>Chúng tôi đã về chung một nhà ❤</p>
+    <div class="cal" data-rv="up">
+      <h3>Tháng 11 · 2026</h3>
+      <div class="cal-grid" id="cal"></div>
+    </div>
+    <a class="btn gold" id="gcal" target="_blank" rel="noopener" data-rv="up">Thêm vào Google Calendar</a>
+  </section>
+
+  <!-- ===== ALBUM ===== -->
+  <section class="sec paper">
+    <h2 class="title shine dark" data-rv="up">Album ảnh cưới</h2>
+    <div class="show" id="show" data-rv="zoom"></div>
+    <div class="thumbs" id="thumbs" data-rv="up"></div>
+    <p class="hint" data-rv="up">Chạm vào ảnh để xem toàn màn hình</p>
+  </section>
+
+  <!-- ===== ĐỊA ĐIỂM ===== -->
+  <section class="sec paper alt">
+    <h2 class="title shine dark" data-rv="up">Địa điểm</h2>
+    <div class="tabs" id="tabs" data-rv="up"></div>
+    <p class="addr" id="addr" data-rv="up"></p>
+    <div class="map" data-rv="zoom"><iframe id="map" title="Bản đồ" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    <a class="btn red-btn" id="dir" target="_blank" rel="noopener" data-rv="up">Chỉ đường</a>
+  </section>
+
+  <!-- ===== XÁC NHẬN ===== -->
+  <section class="sec red">
+    <h2 class="title shine" data-rv="up">Xác nhận tham dự</h2>
+    <p class="body" data-rv="up">Quý khách sẽ đến chung vui cùng chúng tôi chứ?</p>
+    <form id="rsvp" class="form" data-rv="up">
+      <input name="name" placeholder="Tên của quý khách" required maxlength="60" autocomplete="name">
+      <div class="choice">
+        <label><input type="radio" name="attend" value="Có" checked><span>Sẽ tham dự</span></label>
+        <label><input type="radio" name="attend" value="Không"><span>Rất tiếc, không thể</span></label>
+      </div>
+      <div class="row">
+        <select name="guests" aria-label="Số người tham dự">
+          <option value="1">1 người</option><option value="2">2 người</option>
+          <option value="3">3 người</option><option value="4">4 người</option><option value="5">5 người trở lên</option>
+        </select>
+        <select name="side" aria-label="Quý khách là khách của">
+          <option>Khách nhà trai</option><option>Khách nhà gái</option>
+        </select>
+      </div>
+      <button class="btn gold" type="submit">Gửi xác nhận</button>
+      <p class="msg" role="status"></p>
+    </form>
+  </section>
+
+  <!-- ===== SỔ LƯU BÚT ===== -->
+  <section class="sec paper">
+    <h2 class="title shine dark" data-rv="up">Sổ lưu bút</h2>
+    <form id="wish" class="form light" data-rv="up">
+      <input name="name" placeholder="Tên của quý khách" required maxlength="60" autocomplete="name">
+      <textarea name="message" placeholder="Gửi lời chúc tới cô dâu chú rể..." required maxlength="500" rows="3"></textarea>
+      <button class="btn red-btn" type="submit">Gửi lời chúc</button>
+      <p class="msg" role="status"></p>
+    </form>
+    <div class="wishes" id="wishes"></div>
+  </section>
+
+  <!-- ===== HỘP QUÀ (ẩn nếu chưa có tài khoản trong config.js) ===== -->
+  <section class="sec paper alt" id="gift" hidden>
+    <h2 class="title shine dark" data-rv="up">Hộp quà mừng</h2>
+    <button class="giftbox" id="giftBtn" aria-label="Mở hộp quà"><i class="lid"></i><i class="box"></i></button>
+    <p class="hint" id="giftHint">Chạm để mở</p>
+    <div class="accounts" id="accounts" hidden></div>
+  </section>
+
+  <!-- ===== CẢM ƠN ===== -->
+  <section class="thanks">
+    <img src="images/anh6.jpg" alt="Cô dâu chú rể giữa hoa trắng" loading="lazy">
+    <div class="thanks-text">
+      <h2 class="shine" data-rv="up">Thank you!</h2>
+      <p data-rv="up">Chúng tôi rất mong được đón tiếp quý khách<br>trong ngày vui trọng đại này.</p>
+      <p class="sign" data-rv="up">Minh Thắng &amp; Linh Trang</p>
+    </div>
+  </section>
+
+  <footer>囍 · 29.11.2026 · 囍</footer>
+</main>
+
+<!-- Xem ảnh toàn màn hình -->
+<div id="lb" class="lb" hidden>
+  <button class="lb-x" aria-label="Đóng">×</button>
+  <button class="lb-p" aria-label="Ảnh trước">‹</button>
+  <img alt="">
+  <button class="lb-n" aria-label="Ảnh sau">›</button>
+  <span class="lb-c"></span>
+</div>
+
+<script src="js/config.js?v=11151154"></script>
+<script src="js/main.js?v=11151154"></script>
+</body>
+</html>
