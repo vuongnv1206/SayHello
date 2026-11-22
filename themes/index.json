@@ -55,5 +55,20 @@
       "Ảnh treo lan can cầu",
       "Ném chìa xuống sông"
     ]
+  },
+  {
+    "id": "den-long",
+    "name": "Đèn Lồng",
+    "demo": "demo-den-long",
+    "tagline": "Thắp nến, thả hoa đăng trên sông Hoài để mở thiệp cưới phố Hội",
+    "mood": "Hoài cổ · Tường vàng · Đèn lồng lụa",
+    "effects": [
+      "Thả hoa đăng mở thiệp",
+      "Dây đèn lồng sáng dần",
+      "Đèn lồng ôm ảnh đôi",
+      "Cửa chớp gỗ mở album",
+      "Lời chúc thành hoa đăng",
+      "Thả đèn trời"
+    ]
   }
 ]

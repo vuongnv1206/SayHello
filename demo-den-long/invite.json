@@ -1,0 +1,121 @@
+{
+  "theme": "den-long",
+  "slug": "demo-den-long",
+  "groom": {
+    "short": "Đức Anh",
+    "full": "Võ Đức Anh",
+    "bio": "Thợ làm đèn lồng đời thứ ba, tay lúc nào cũng dính hồ dán."
+  },
+  "bride": {
+    "short": "Hoài Thương",
+    "full": "Lê Hoài Thương",
+    "bio": "Hướng dẫn viên phố cổ, thuộc tên từng con hẻm."
+  },
+  "order": "groom-first",
+  "city": "Hội An",
+  "date": "2027-09-15T18:00:00+07:00",
+  "themeColor": "#0f1a2b",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Võ Văn Lộc",
+      "mother": "Trương Thị Mai",
+      "address": "Phường Minh An,\nHội An"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Lê Quang Vinh",
+      "mother": "Hồ Thị Sen",
+      "address": "Phường Cẩm Phô,\nHội An"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-09-15T08:30:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 21 đường Ví Dụ, Phường Cẩm Phô, Hội An",
+      "lunar": "Nhằm ngày 15 tháng 8 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-09-15T18:00:00+07:00",
+      "venue": "Nhà hàng Ví Dụ bên sông Hoài",
+      "address": "Số 5 đường Ví Dụ, Phường Minh An, Hội An",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới · Minh An",
+      "address": "Số 5 đường Ví Dụ, Phường Minh An, Hội An",
+      "coords": "15.8770,108.3280"
+    },
+    {
+      "label": "Lễ vu quy · Cẩm Phô",
+      "address": "Số 21 đường Ví Dụ, Phường Cẩm Phô, Hội An",
+      "coords": "15.8786,108.3234"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh4.jpg",
+    "bride": "images/anh5.jpg",
+    "thanks": "images/anh6.jpg",
+    "album": [
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh1.jpg",
+      "images/anh5.jpg",
+      "images/anh4.jpg"
+    ],
+    "captions": [
+      "Phố lên đèn",
+      "Sông Hoài",
+      "Ngày cầu hôn",
+      "Chùa Cầu",
+      "Chụp ảnh cưới"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "../assets/music/binh-minh.mp3",
+  "sheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "0000000000",
+      "name": "VO DUC ANH"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "0000000000",
+      "name": "LE HOAI THUONG"
+    }
+  ],
+  "story": [
+    {
+      "year": "2019",
+      "title": "Chiếc đèn lồng bị rách",
+      "text": "Em mang chiếc đèn rách tới tiệm sửa, anh dán lại và không lấy tiền."
+    },
+    {
+      "year": "2021",
+      "title": "Đêm rằm đầu tiên",
+      "text": "Hai đứa thả chung một đóa hoa đăng trên sông Hoài."
+    },
+    {
+      "year": "2026",
+      "title": "Chiếc đèn có tên em",
+      "text": "Anh làm một chiếc đèn lồng thêu tên em, bên trong là chiếc nhẫn."
+    },
+    {
+      "year": "2027",
+      "title": "Về chung một mái hiên",
+      "text": "Từ nay, căn nhà vàng trong phố có hai người cùng thắp đèn."
+    }
+  ]
+}
