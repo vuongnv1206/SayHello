@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Khách mời · SayHello</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f6f2ec; --panel: #fffdf9; --ink: #26211d; --soft: #7b6f63; --line: #e6ddd1; --accent: #8e1b2c; --ok: #2f7a4f; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font: 14.5px/1.5 'Be Vietnam Pro', system-ui, sans-serif; }
+  button, a { font: inherit; color: inherit; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 22px 16px 60px; }
+  header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 20px; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 34px; flex: 1; }
+  header a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .stat b { display: block; font-size: 30px; font-weight: 600; line-height: 1.1; }
+  .stat span { color: var(--soft); font-size: 13px; }
+  .stat.hi b { color: var(--accent); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tabs button { border: 1px solid var(--line); background: #fff; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+  .tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tabs .csv { margin-left: auto; color: var(--accent); }
+  .tabs input { font: inherit; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; min-width: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: .05em; position: sticky; top: 0; background: var(--panel); }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .yes { color: var(--ok); font-weight: 500; }
+  .no { color: var(--soft); }
+  .hidden-wish { opacity: .45; }
+  .msg { padding: 30px; text-align: center; color: var(--soft); }
+  time { color: var(--soft); font-size: 12.5px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1 id="title">Khách mời</h1><a id="studio">Sửa thiệp →</a><a id="refresh" href="#">Tải lại</a></header>
+  <div class="stats" id="stats"></div>
+  <div class="tabs">
+    <button type="button" class="on" data-t="rsvps">Xác nhận</button>
+    <button type="button" data-t="wishes">Lời chúc</button>
+    <input id="search" type="search" placeholder="Tìm tên…" aria-label="Tìm tên">
+    <button type="button" class="csv" id="csv">Tải file Excel (CSV)</button>
+  </div>
+  <div class="card" id="list"><p class="msg">Đang tải…</p></div>
+</div>
+<script type="module">
+  const $ = s => document.querySelector(s);
+  const q = new URLSearchParams(location.search);
+  const slug = (q.get('thiep') || '').toLowerCase().replace(/[^a-z0-9-]/g, ''), key = q.get('ma') || '';
+  let data = { rsvps: [], wishes: [] }, tab = 'rsvps';
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const when = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); };
+  $('#studio').href = `./?thiep=${slug}&ma=${key}`;
+
+  // Mỗi khách chỉ tính lần xác nhận mới nhất (theo tên)
+  const latest = list => [...list.reduce((m, r) => m.set(r.name.trim().toLowerCase(), r), new Map()).values()];
+
+  function render() {
+    const rs = latest(data.rsvps), yes = rs.filter(r => r.attend === 'Có'), people = yes.reduce((s, r) => s + r.guests, 0);
+    const bySide = yes.reduce((m, r) => (m[r.side] = (m[r.side] || 0) + r.guests, m), {});
+    $('#stats').innerHTML = [
+      ['hi', people, 'người sẽ đến'], ['', yes.length, 'lượt xác nhận đến'], ['', rs.length - yes.length, 'không đến được'],
+      ...Object.entries(bySide).map(([s, n]) => ['', n, s]), ['', data.wishes.filter(w => !w.hidden).length, 'lời chúc'],
+    ].map(([c, n, t]) => `<div class="stat ${c}"><b>${n}</b><span>${esc(t)}</span></div>`).join('');
+    const f = $('#search').value.trim().toLowerCase(), match = x => !f || x.name.toLowerCase().includes(f);
+    if (tab === 'rsvps') {
+      const rows = rs.filter(match).sort((a, b) => b.at.localeCompare(a.at));
+      $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Tham dự</th><th>Số người</th><th>Khách của</th><th>Lúc</th></tr></thead><tbody>${rows.map(r =>
+        `<tr><td>${esc(r.name)}</td><td class="${r.attend === 'Có' ? 'yes' : 'no'}">${r.attend === 'Có' ? 'Sẽ đến' : 'Không đến'}</td><td class="n">${r.attend === 'Có' ? r.guests : ''}</td><td>${esc(r.side)}</td><td><time>${when(r.at)}</time></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có ai xác nhận.</p>';
+    } else {
+      const rows = data.wishes.filter(match).sort((a, b) => b.at.localeCompare(a.at));
+      $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Lời chúc</th><th>Lúc</th></tr></thead><tbody>${rows.map(w =>
+        `<tr class="${w.hidden ? 'hidden-wish' : ''}"><td>${esc(w.name)}</td><td>${esc(w.message)}${w.hidden ? ' <i>(đã ẩn)</i>' : ''}</td><td><time>${when(w.at)}</time></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có lời chúc nào.</p>';
+    }
+  }
+
+  document.querySelectorAll('.tabs [data-t]').forEach(b => b.addEventListener('click', () => {
+    tab = b.dataset.t; document.querySelectorAll('.tabs [data-t]').forEach(x => x.classList.toggle('on', x === b)); render();
+  }));
+  $('#search').addEventListener('input', render);
+  $('#csv').addEventListener('click', () => {
+    const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = tab === 'rsvps'
+      ? [['Tên', 'Tham dự', 'Số người', 'Khách của', 'Lúc'], ...latest(data.rsvps).map(r => [r.name, r.attend, r.guests, r.side, when(r.at)])]
+      : [['Tên', 'Lời chúc', 'Lúc'], ...data.wishes.map(w => [w.name, w.message, when(w.at)])];
+    const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${slug}-${tab === 'rsvps' ? 'xac-nhan' : 'loi-chuc'}.csv`; a.click();
+  });
+
+  async function load() {
+    try {
+      const inv = await (await fetch(`../${slug}/invite.json`, { cache: 'no-cache' })).json();
+      $('#title').textContent = `Khách mời · ${inv.groom.short} & ${inv.bride.short}`;
+      if (!inv.sheetUrl) { $('#list').innerHTML = '<p class="msg">Thiệp chưa nối Google Sheets.</p>'; return; }
+      const u = inv.sheetUrl + (inv.sheetUrl.includes('?') ? '&' : '?') + new URLSearchParams({ invite: slug, type: 'guests', key });
+      const d = await (await fetch(u)).json();
+      if (d.error) { $('#list').innerHTML = '<p class="msg">Link không đúng. Hãy dùng đúng link được gửi.</p>'; return; }
+      data = d; render();
+    } catch { $('#list').innerHTML = '<p class="msg">Không tải được. Kiểm tra mạng rồi thử lại.</p>'; }
+  }
+  $('#refresh').addEventListener('click', e => { e.preventDefault(); load(); });
+  load();
+</script>
+</body>
+</html>
