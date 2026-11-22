@@ -2,7 +2,7 @@
 // Cặp đôi chỉ sửa được các trường trong EDITABLE; ảnh, nhạc, sheetUrl, slug luôn lấy từ invite.json.
 import { merge } from './util.js';
 
-export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'texts', 'sections', 'effects', 'accounts', 'rsvp'];
+export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp'];
 
 export function pickEditable(obj) {
   const out = {};

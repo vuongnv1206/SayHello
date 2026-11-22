@@ -17,12 +17,15 @@ const SECTION_NAMES = {
   invite: 'Lời mời & hai gia đình', couple: 'Cô dâu & chú rể', band: 'Dải ảnh lớn', events: 'Lịch lễ', countdown: 'Đếm ngược & lịch',
   album: 'Album ảnh', map: 'Bản đồ', rsvp: 'Xác nhận tham dự', guestbook: 'Sổ lưu bút', gift: 'Hộp quà mừng cưới', thanks: 'Lời cảm ơn',
   letter: 'Lá thư mời', date: 'Cào xem ngày & đếm ngược', families: 'Hai gia đình',
+  hero: 'Mở đầu', story: 'Hành trình tình yêu', board: 'Bảng giờ bay (lịch lễ & đếm ngược)', passport: 'Hộ chiếu cô dâu chú rể & gia đình',
 };
 const TEXT_NAMES = {
   kicker: 'Dòng chữ nhỏ trên tên', invite: 'Câu báo tin', presence: 'Câu mời', quote: 'Câu trích dẫn', thanks: 'Lời cảm ơn cuối thiệp',
   greeting: 'Lời chào đầu thư', letter: 'Nội dung lá thư', dateTitle: 'Tiêu đề phần ngày cưới', scratch: 'Chữ trên lớp nhũ cào',
   coupleTitle: 'Tiêu đề phần cô dâu chú rể', eventsTitle: 'Tiêu đề phần lịch lễ', albumTitle: 'Tiêu đề album', albumHint: 'Hướng dẫn dưới album',
   rsvpTitle: 'Tiêu đề phần xác nhận', rsvpLead: 'Câu hỏi xác nhận', guestbookTitle: 'Tiêu đề sổ lưu bút', giftTitle: 'Tiêu đề hộp quà', closing: 'Lời kết',
+  airline: 'Tên hãng bay', heroKicker: 'Dòng chữ nhỏ trên tiêu đề', heroTitle: 'Tiêu đề lớn', heroLead: 'Câu mở đầu', storyTitle: 'Tiêu đề hành trình',
+  boardTitle: 'Tiêu đề bảng giờ bay', passportTitle: 'Tiêu đề phần hộ chiếu',
 };
 const AMBIENT = [['petals', 'Cánh hoa'], ['sparkles', 'Kim tuyến'], ['hearts', 'Trái tim bay lên'], ['snow', 'Tuyết'], ['leaves', 'Lá vàng'], ['bokeh', 'Đốm sáng mờ']];
 const BANKS = ['VCB', 'TCB', 'MB', 'ACB', 'BIDV', 'ICB', 'VPB', 'TPB', 'STB', 'VIB', 'HDB', 'SHB', 'MSB', 'OCB', 'AGRIBANK', 'SCB', 'EIB', 'LPB', 'NAB', 'SEAB'];
@@ -112,7 +115,7 @@ async function buildForm() {
     el('div', { class: 'row2' }, input(state, 'groom.short', { label: 'Tên chú rể (hiện to)' }), input(state, 'bride.short', { label: 'Tên cô dâu (hiện to)' })),
     el('div', { class: 'row2' }, input(state, 'groom.full', { label: 'Họ tên đầy đủ chú rể' }), input(state, 'bride.full', { label: 'Họ tên đầy đủ cô dâu' })),
     input(state, 'order', { label: 'Tên ai đứng trước', type: 'select', options: [['groom-first', 'Chú rể trước (thiệp nhà trai)'], ['bride-first', 'Cô dâu trước (thiệp nhà gái)']] }),
-    input(state, 'groom.bio', { label: 'Đôi dòng về chú rể', type: 'textarea', rows: 2, hint: 'Hiện ở mẫu Thư Tay. Để trống nếu không cần.' }),
+    input(state, 'groom.bio', { label: 'Đôi dòng về chú rể', type: 'textarea', rows: 2, hint: 'Hiện ở mẫu Thư Tay và Vé Máy Bay. Để trống nếu không cần.' }),
     input(state, 'bride.bio', { label: 'Đôi dòng về cô dâu', type: 'textarea', rows: 2 })), true));
 
   // Ngày cưới
@@ -136,6 +139,12 @@ async function buildForm() {
     input(e, 'address', { label: 'Địa chỉ', type: 'textarea', rows: 2 }),
     checkbox(e, 'main', 'Đây là lễ chính (làm nổi bật)', false),
   ], { title: '', date: state.date || '', venue: '', address: '' })));
+
+  // Hành trình
+  if ((def.sections || []).includes('story')) form.append(group('Hành trình tình yêu', 'các cột mốc của hai bạn', list('story', 'Cột mốc', s => [
+    el('div', { class: 'row2' }, input(s, 'year', { label: 'Năm', placeholder: 'vd. 2021' }), input(s, 'title', { label: 'Tiêu đề', placeholder: 'vd. Lần đầu gặp' })),
+    input(s, 'text', { label: 'Đôi dòng', type: 'textarea', rows: 2 }),
+  ], { year: '', title: '', text: '' })));
 
   // Địa điểm
   form.append(group('Bản đồ chỉ đường', null, list('places', 'Địa điểm', p => [
