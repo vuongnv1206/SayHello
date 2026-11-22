@@ -1,0 +1,53 @@
+{
+  "_ghi_chu": "Thông tin bán thiệp. Sửa giá, tài khoản nhận tiền và số Zalo ở đây. Khi đã đặt giá thật, đổi giaTam thành false để ẩn dòng báo giá tạm.",
+  "giaTam": true,
+  "orderSheetUrl": "",
+  "zalo": "0000000000",
+  "bank": { "bankCode": "MB", "bank": "MB Bank", "number": "0000000000", "name": "TEN CHU TAI KHOAN" },
+  "packages": [
+    {
+      "id": "co-ban",
+      "name": "Cơ bản",
+      "price": 199000,
+      "tagline": "Đủ đẹp, đủ tiện cho một đám cưới ấm cúng.",
+      "features": [
+        "Chọn 1 mẫu có sẵn, đổi màu chữ và câu chữ",
+        "Đường dẫn riêng dạng /ten-cap-doi",
+        "Khách xác nhận tham dự và gửi lời chúc",
+        "Hộp mừng cưới có mã QR ngân hàng",
+        "Tự sửa thiệp trong Studio, xem trước ngay",
+        "Thiệp mở trong 6 tháng"
+      ]
+    },
+    {
+      "id": "nang-cao",
+      "name": "Nâng cao",
+      "price": 399000,
+      "featured": true,
+      "tagline": "Mỗi khách một tấm thiệp ghi đúng tên mình.",
+      "features": [
+        "Mọi thứ trong gói Cơ bản",
+        "Link riêng ghi sẵn tên từng khách mời",
+        "Ảnh xem trước đẹp khi gửi qua Zalo, Facebook",
+        "Nhạc nền tự chọn hoặc bài của hai bạn",
+        "Tới 20 ảnh cưới, tối ưu để mở nhanh",
+        "Trang quản lý khách, tải danh sách ra Excel",
+        "Thiệp mở trong 12 tháng"
+      ]
+    },
+    {
+      "id": "rieng",
+      "name": "Riêng",
+      "price": 1490000,
+      "priceFrom": true,
+      "tagline": "Một mẫu thiệp làm riêng theo câu chuyện của hai bạn.",
+      "features": [
+        "Mọi thứ trong gói Nâng cao",
+        "Mẫu thiết kế riêng, hiệu ứng riêng",
+        "Gắn tên miền riêng nếu muốn",
+        "Hỗ trợ trọn gói tới ngày cưới",
+        "Thiệp giữ làm kỷ niệm, không hết hạn"
+      ]
+    }
+  ]
+}

@@ -41,6 +41,24 @@
   .how b { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 52px; color: var(--accent); display: block; line-height: 1; }
   .how h3 { font-weight: 500; font-size: 17px; margin: 8px 0 4px; }
   .how p { color: var(--soft); font-size: 14.5px; }
+  .cta { display: inline-block; margin-top: 28px; background: var(--accent); color: #1a140f; text-decoration: none; font-weight: 500; padding: 13px 28px; border-radius: 999px; transition: transform .2s; }
+  .cta:hover { transform: translateY(-2px); }
+  .prices { border-top: 1px solid var(--line); padding: 60px 0 80px; }
+  .prices > h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(36px, 6vw, 56px); line-height: 1; margin-bottom: 10px; }
+  .prices > p { color: var(--soft); margin-bottom: 30px; }
+  .packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .pack { display: grid; gap: 8px; align-content: start; padding: 24px; border: 1px solid var(--line); border-radius: 18px; text-decoration: none; transition: border-color .2s, transform .2s; }
+  .pack:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .pack.hot { border-color: var(--accent); background: rgba(217, 168, 108, .06); }
+  .pack h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 34px; line-height: 1; }
+  .pack .pr { font-size: 26px; font-weight: 500; }
+  .pack .pr small { font-size: 13px; color: var(--soft); font-weight: 300; }
+  .pack .tg { color: var(--soft); font-size: 14px; }
+  .pack ul { list-style: none; display: grid; gap: 6px; margin: 8px 0 14px; font-size: 14px; }
+  .pack li { padding-left: 20px; position: relative; }
+  .pack li::before { content: "✦"; position: absolute; left: 0; top: 3px; color: var(--accent); font-size: 11px; }
+  .pack .go { margin-top: auto; }
+  .tmp { font-size: 13px; color: var(--accent); border: 1px dashed var(--accent); padding: 4px 10px; border-radius: 8px; display: inline-block; margin-bottom: 18px; }
   footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--soft); font-size: 13px; }
   @keyframes drift { to { transform: translate(6%, -4%) rotate(8deg); } }
   @media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
@@ -52,6 +70,7 @@
     <p class="brand">SayHello</p>
     <h1>Mỗi tấm thiệp, <em>một câu chuyện</em>.</h1>
     <p class="lead">Thiệp cưới online mở ra như một món quà: cửa son hé mở, dấu sáp được bóc, ngày cưới hiện ra dưới lớp nhũ. Khách xác nhận tham dự và gửi lời chúc ngay trên điện thoại.</p>
+    <a class="cta" href="dat-thiep/">Đặt thiệp ngay</a>
   </header>
   <section class="grid" id="themes" aria-label="Các mẫu thiệp"></section>
   <section class="how" aria-label="Quy trình">
@@ -59,6 +78,12 @@
     <div><b>02</b><h3>Gửi ảnh và thông tin</h3><p>Tên, ngày giờ, địa điểm, ảnh cưới, tài khoản mừng cưới.</p></div>
     <div><b>03</b><h3>Nhận đường dẫn riêng</h3><p>Dạng <i>/ten-cap-doi</i>, có thể ghi sẵn tên từng khách mời.</p></div>
     <div><b>04</b><h3>Theo dõi khách</h3><p>Xác nhận tham dự và lời chúc về thẳng Google Sheets.</p></div>
+  </section>
+  <section class="prices" aria-label="Bảng giá">
+    <h2>Bảng giá</h2>
+    <p>Trả một lần cho mỗi thiệp, không thuê bao. Chuyển khoản bằng mã QR.</p>
+    <p class="tmp" id="tmp" hidden>Giá đang để tạm, sẽ cập nhật sớm.</p>
+    <div class="packs" id="packs"></div>
   </section>
 </div>
 <footer><div class="wrap">SayHello · Thiệp cưới online</div></footer>
@@ -80,6 +105,20 @@
     });
     const fit = () => document.querySelectorAll('.screen').forEach(s => { s.firstChild.style.transform = `scale(${s.clientWidth / 400})`; });
     fit(); addEventListener('resize', fit);
+  });
+  fetch('shop.json').then(r => r.json()).then(shop => {
+    document.getElementById('tmp').hidden = !shop.giaTam;
+    const vnd = n => n.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('packs').append(...shop.packages.map(p => {
+      const a = document.createElement('a');
+      a.className = 'pack' + (p.featured ? ' hot' : ''); a.href = 'dat-thiep/?goi=' + p.id;
+      a.innerHTML = '<h3></h3><p class="pr"></p><p class="tg"></p><ul></ul><span class="go">Chọn gói này →</span>';
+      a.querySelector('h3').textContent = p.name;
+      a.querySelector('.pr').innerHTML = (p.priceFrom ? '<small>từ </small>' : '') + vnd(p.price);
+      a.querySelector('.tg').textContent = p.tagline;
+      p.features.forEach(f => { const li = document.createElement('li'); li.textContent = f; a.querySelector('ul').append(li); });
+      return a;
+    }));
   });
 </script>
 </body>
