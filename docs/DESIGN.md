@@ -1,0 +1,61 @@
+# Thiết kế · SayHello
+
+Nguyên tắc chung (rút từ skill *frontend-design* của Anthropic): mỗi mẫu có **một ý tưởng trung tâm**, màn mở bìa là khoảnh khắc đáng nhớ nhất, chữ có cá tính và **bắt buộc hỗ trợ tiếng Việt**, bảng màu có chủ đích, nền có chiều sâu, chuyển động có nhịp, điện thoại trước tiên. Chi tiết: [TAO-MAU-MOI.md](TAO-MAU-MOI.md#1-nguyên-tắc-thiết-kế).
+
+## Biến màu dùng chung
+
+Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`core/base.css`: nút, form, hộp quà, hộp cảm ơn) tự ăn theo:
+
+| Biến | Ý nghĩa |
+|---|---|
+| `--c-bg` | Nền ngoài thiệp |
+| `--c-paper` | Nền thiệp |
+| `--c-ink` | Chữ chính |
+| `--c-accent` / `--c-accent-ink` | Nút chính và chữ trên nút |
+| `--c-soft` | Đường kẻ, viền nhạt |
+
+`core/base.css` dùng `:where()` nên độ ưu tiên bằng 0: mẫu viết đè thoải mái, không cần `!important`.
+
+## Các mẫu
+
+### Song Hỷ: truyền thống
+- **Ý tưởng:** cửa son mở hai cánh, đèn lồng, chữ Hỷ vàng kim, pháo hoa.
+- **Màu:** đỏ son `#a4161a`, đỏ thẫm `#6a040f`, vàng kim `#e6c27a`, kem `#fff8ef`, mực nâu `#4a2a22`.
+- **Chữ:** VL Bodega Script (tên, file riêng), Dancing Script, Playfair Display, Be Vietnam Pro.
+
+### Thư Tay: hiện đại, lãng mạn
+- **Ý tưởng:** lá thư trong phong bì: bóc dấu sáp, chữ hiện như đang viết, ảnh là con tem, ngày cưới dưới lớp nhũ cào, sự kiện là vé xé cuống, polaroid kéo ném, thư hồi âm.
+- **Màu:** giấy dó `#f4ede1`, mực xanh than `#1f2a44`, sáp đỏ `#8e1b2c`, hồng phấn `#c98b8b`, vàng đồng `#b08d57`, bàn gỗ `#2b221d`. Nền có vân giấy (SVG noise).
+- **Chữ:** Cormorant Garamond (tiêu đề), Ephesis (viết tay), Lora (nội dung).
+
+### Vé Máy Bay: trẻ trung
+- **Ý tưởng:** thẻ lên máy bay: xé cuống vé để mở, máy bay bay theo đường cuộn, bảng giờ bay lật chữ, hộ chiếu đóng dấu visa, ảnh qua ô cửa sổ, check-in, vali mừng cưới, hạ cánh.
+- **Màu:** trời bình minh `#fbe3d0 → #8ecae6 → #4a6fa5`, giấy vé `#fffaf0`, xanh hải quân `#14213d`, cam san hô `#e76f51`, hổ phách `#f4a261`, bạc hà `#2a9d8f`.
+- **Chữ:** Big Shoulders Display (biển báo sân bay), Fraunces nghiêng (cảm xúc), JetBrains Mono (dữ liệu vé).
+
+## Trang bán hàng (trang chủ, đặt thiệp)
+- Nền tối ấm `#14110f`, chữ kem `#f4ede1`, nhấn vàng đồng `#d9a86c`, đỏ rượu mờ làm ánh sáng nền.
+- Chữ: Cormorant Garamond (tiêu đề), Be Vietnam Pro (nội dung).
+
+## Studio (công cụ cho cặp đôi)
+- Sáng, gọn, dễ đọc: nền `#f6f2ec`, bảng `#fffdf9`, chữ `#26211d`, nhấn đỏ rượu `#8e1b2c`.
+- Chữ: Be Vietnam Pro. Nhóm thu gọn được (`details`), xem trước trong khung điện thoại / máy tính bảng / máy tính.
+
+## Thành phần dùng chung (`core/widgets.js`)
+
+| Thành phần | Mẫu tự trang trí bằng |
+|---|---|
+| Đếm ngược `.cd` | ô `.u`, số `b`, nhãn `span` |
+| Lịch tháng `.cal` | ngày cưới `.on` |
+| Album / polaroid | khung ảnh, độ nghiêng |
+| Bản đồ `.map` + tab địa điểm | viền, nút |
+| Xác nhận `form[data-w=rsvp]`, lưu bút `form[data-w=guestbook]` | `.choice span`, ô nhập, `.wish-item` |
+| Hộp quà `.giftbox` | phần ruột tự vẽ (vd. vali, phong bì) |
+| Lớp cào `scratch` | màu nhũ, chữ |
+| Nhạc `.music`, thả tim `.love`, lời chúc bay `.fly-item`, hộp cảm ơn `.cheers-card` | màu, bóng |
+
+## Hiệu ứng
+
+- Gắn bằng thuộc tính: `data-rv` (hiện dần: up/left/right/zoom/flip/blur/drop), `data-type` (gõ chữ), `data-tilt`, `data-parallax`, `data-zoom` (xem ảnh lớn), `data-fireworks`.
+- Hạt bay (canvas): `petals`, `sparkles`, `snow`, `hearts`, `leaves`, `bokeh`. Pháo giấy, pháo hoa.
+- Luôn tôn trọng `prefers-reduced-motion`.

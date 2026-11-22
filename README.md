@@ -2,7 +2,9 @@
 
 Làm thiệp cưới online để bán theo từng thiệp. Mỗi thiệp là **một thư mục** với đường dẫn riêng (`/ten-cap-doi/`), chọn một **mẫu thiệp** (theme) có trải nghiệm riêng, dùng chung bộ **hiệu ứng** và **mục** (đếm ngược, album, bản đồ, xác nhận tham dự, sổ lưu bút, hộp quà QR). Không cần database: xác nhận, lời chúc và lượt thả tim lưu vào **Google Sheets** qua Apps Script.
 
-Toàn bộ là file tĩnh, không cần bước build phức tạp: đưa lên Firebase Hosting, Netlify, Vercel hay GitHub Pages đều chạy.
+Toàn bộ là file tĩnh, không cần bước build phức tạp. Đang chạy trên Vercel: https://sayhello-wheat.vercel.app
+
+**Tài liệu:** [PRD](docs/PRD.md) · [Kiến trúc](docs/ARCHITECTURE.md) · [Thiết kế](docs/DESIGN.md) · [Quy tắc](docs/RULES.md) · [Việc cần làm](docs/TASKS.md) · [Tiến độ](docs/PROGRESS.md) · [Tạo mẫu mới](docs/TAO-MAU-MOI.md) · [Bán thiệp](docs/BAN-THIEP.md)
 
 ## Xem thử
 
@@ -40,7 +42,7 @@ node scripts/new-invite.mjs minh-khang-thu-ha --theme song-hy
 
 ### Link riêng cho từng khách
 
-Thêm `?k=Tên+khách` vào link: `.../minh-khang-thu-ha/?k=Chị+Lan`. Bìa thiệp sẽ ghi "Trân trọng kính mời Chị Lan", tên được điền sẵn vào ô xác nhận và lời chúc.
+Thêm `?k=Tên+khách` vào link: `.../minh-khang-thu-ha/?k=Chị+Lan`. Cặp đôi tự tạo hàng loạt ở trang Quản lý khách, tab **Tạo link mời**. Bìa thiệp sẽ ghi "Trân trọng kính mời Chị Lan", tên được điền sẵn vào ô xác nhận và lời chúc.
 
 `?open=1` bỏ qua bìa (tiện khi xem lại).
 
@@ -55,7 +57,7 @@ Xem hai thiệp mẫu để có đầy đủ các trường. Những điểm c�
 - `effects`: `ambient` (`petals`, `sparkles`, `snow`, `hearts`, `leaves`, `bokeh`, có thể kết hợp), `colors`, `density`, và tắt từng thứ bằng `false`: `loveButton`, `flyingWishes`, `tapHearts`, `progress`.
 - `accounts`: có `qr` (ảnh QR sẵn) hoặc `bankCode` theo [vietqr.io](https://vietqr.io) (VCB, TCB, MB, ACB, BIDV, ICB...) để tự tạo QR. Để mảng rỗng thì ẩn hộp quà.
 - `sheetUrl`: URL Apps Script. Để trống thì thiệp vẫn chạy nhưng dữ liệu chỉ lưu trên máy khách (để thử).
-- `music`: đường dẫn file nhạc. Để trống thì không có nút nhạc.
+- `music`: đường dẫn file nhạc, vd. `../assets/music/dao-buoc.mp3` (3 bài có sẵn, xem `assets/music/README.md`). Để trống thì không có nút nhạc.
 
 ## Cặp đôi tự sửa thiệp (Studio)
 
