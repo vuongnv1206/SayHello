@@ -9,6 +9,7 @@
  *   { invite: 'ten-cap-doi', type: 'wish', name, message }
  *   { invite: 'ten-cap-doi', type: 'heart', n }
  *   { invite: 'ten-cap-doi', type: 'content', key, content: {...} }   (Studio lưu nội dung cặp đôi sửa)
+ *   { type: 'order', code, theme, pack, price, groom, bride, date, phone, slug, note }  (trang /dat-thiep/, ghi vào tab "_Đơn hàng")
  * Thiệp đọc về (GET):
  *   ?invite=ten-cap-doi&type=wishes  -> [{ name, message }]
  *   ?invite=ten-cap-doi&type=hearts  -> { hearts: 123 }
@@ -27,6 +28,8 @@ const ALLOWED = [];
 const STUDIO_SECRET = 'doi-chuoi-nay-thanh-chuoi-bi-mat-cua-ban';
 
 const CONTENT_SHEET = '_Nội dung';
+const ORDER_SHEET = '_Đơn hàng';
+const ORDER_HEADERS = ['Thời gian', 'Mã đơn', 'Mẫu', 'Gói', 'Số tiền', 'Chú rể', 'Cô dâu', 'Ngày cưới', 'Điện thoại / Zalo', 'Đường dẫn', 'Ghi chú', 'Trạng thái'];
 const HEADERS = ['Thời gian', 'Loại', 'Tên', 'Tham dự', 'Số người', 'Khách của', 'Lời chúc', 'Ẩn'];
 const MAX_WISHES = 300;
 
@@ -46,6 +49,7 @@ function doGet(e) {
 function doPost(e) {
   let d;
   try { d = JSON.parse(e.postData.contents); } catch (err) { return json({ ok: false, error: 'json' }); }
+  if (d.type === 'order') return json(saveOrder(d));
   const slug = cleanSlug(d.invite);
   if (!slug) return json({ ok: false, error: 'invite' });
 
@@ -191,6 +195,36 @@ function addHearts(slug, n) {
     const total = getHearts(slug) + n;
     PropertiesService.getScriptProperties().setProperty('hearts:' + slug, String(total));
     return total;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* ---------- Đơn đặt thiệp: tab "_Đơn hàng" ---------- */
+
+// Đối chiếu: mở app ngân hàng, tìm giao dịch có nội dung là Mã đơn, rồi đổi cột "Trạng thái" thành "Đã nhận tiền".
+function saveOrder(d) {
+  const code = String(d.code || '').toUpperCase();
+  if (!/^SH[A-Z0-9]{6}$/.test(code)) return { ok: false, error: 'code' };
+  if (!d.groom || !d.bride || !d.phone) return { ok: false, error: 'missing' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(ORDER_SHEET);
+    if (!sh) {
+      sh = ss.insertSheet(ORDER_SHEET);
+      sh.appendRow(ORDER_HEADERS);
+      sh.setFrozenRows(1);
+      sh.getRange(1, 1, 1, ORDER_HEADERS.length).setFontWeight('bold').setBackground('#f4ede1');
+    }
+    if (sh.getLastRow() > 1) {
+      const codes = sh.getRange(2, 2, sh.getLastRow() - 1, 1).getValues();
+      if (codes.some(r => r[0] === code)) return { ok: true, duplicate: true };
+    }
+    sh.appendRow([new Date(), code, cut(d.themeName || d.theme, 40), cut(d.packName || d.pack, 30), Number(d.price) || 0,
+      cut(d.groom, 60), cut(d.bride, 60), cut(d.date, 20), "'" + String(d.phone || '').slice(0, 20), cut(d.slug, 60), cut(d.note, 500), 'Chờ chuyển khoản']);
+    return { ok: true };
   } finally {
     lock.releaseLock();
   }
