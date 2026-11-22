@@ -8,7 +8,8 @@
     "new": "node scripts/new-invite.mjs",
     "dev": "npx --yes serve .",
     "test": "node tests/smoke.mjs",
-    "images": "node scripts/optimize-images.mjs"
+    "images": "node scripts/optimize-images.mjs",
+    "studio-link": "node scripts/studio-link.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0",
