@@ -21,6 +21,7 @@ Mở `http://localhost:3000/` để xem trang giới thiệu các mẫu, hoặc 
 | Song Hỷ | `/demo-song-hy/` | Truyền thống: cửa son mở hai cánh, đèn lồng, chữ Hỷ, pháo hoa |
 | Thư Tay | `/demo-thu-tay/` | Hiện đại: bóc dấu sáp, lá thư viết tay, cào nhũ lộ ngày cưới, polaroid kéo ném, vé mời |
 | Vé Máy Bay | `/demo-ve-may-bay/` | Trẻ trung: xé cuống thẻ lên máy bay, máy bay bay theo đường cuộn, bảng giờ bay lật chữ, hộ chiếu đóng dấu, ảnh qua ô cửa sổ, vali mừng cưới |
+| Khóa Tình | `/demo-khoa-tinh/` | Lãng mạn: xoay ổ khóa số đúng ngày cưới để mở, mặt dây chuyền đung đưa, chùm chìa khóa kỷ niệm, ảnh treo lan can cầu, hộp nhẫn, ném chìa xuống sông |
 
 > Thiệp dùng ES module nên phải mở qua máy chủ web, mở thẳng file `index.html` sẽ không chạy.
 

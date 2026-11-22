@@ -15,6 +15,7 @@ Cập nhật: 2026-11-22. Web: https://sayhello-wheat.vercel.app
 | Google Sheets | Apps Script đã triển khai, nối với 3 thiệp mẫu và trang đặt thiệp. Đã thử thật: lời chúc, đơn hàng, thả tim. `npm run apps-script` tạo mã bí mật và chuẩn bị code. |
 | Nhạc | Thay `nhac.mp3` (không rõ bản quyền) bằng 3 bài **tự sáng tác bằng code**: Hộp nhạc, Dạo bước, Bình minh. Cặp đôi chọn nhạc trong Studio. |
 | Link mời | Trang quản lý khách có tab **Tạo link mời**: dán danh sách tên, ra link riêng từng khách, sao chép kèm lời mời, tải CSV. |
+| 5. Mẫu thứ 4 | **Khóa Tình**: xoay ổ khóa số đúng ngày cưới để mở thiệp, mặt dây chuyền, chùm chìa khóa, ảnh treo lan can, ném chìa xuống sông. Trang chủ có nút **Đặt mẫu này** cho từng mẫu. |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết

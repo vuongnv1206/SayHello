@@ -33,6 +33,11 @@ Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`
 - **Màu:** trời bình minh `#fbe3d0 → #8ecae6 → #4a6fa5`, giấy vé `#fffaf0`, xanh hải quân `#14213d`, cam san hô `#e76f51`, hổ phách `#f4a261`, bạc hà `#2a9d8f`.
 - **Chữ:** Big Shoulders Display (biển báo sân bay), Fraunces nghiêng (cảm xúc), JetBrains Mono (dữ liệu vé).
 
+### Khóa Tình: lãng mạn
+- **Ý tưởng:** ổ khóa tình yêu trên cầu đêm: khách xoay 4 vòng số đúng ngày cưới (ngày·tháng) để mở, có nút "Mở giúp tôi" tự xoay. Mặt dây chuyền đung đưa, chùm chìa khóa kỷ niệm, thẻ kim loại khắc lịch lễ, ảnh treo lan can cầu, lời chúc thành ổ khóa, hộp nhẫn, cuối thiệp ném chìa xuống sông.
+- **Màu:** đêm `#0b1822`, sông `#13354a`, đồng thau `#c9a227`, vàng hồng `#d8a48f`, đèn đường `#ffcf8a`, kem `#f7efe3`, ruy băng đỏ `#b23a48`.
+- **Chữ:** Alex Brush (tên), Spectral (nội dung, tiêu đề nghiêng), Be Vietnam Pro (chữ nhỏ).
+
 ## Trang bán hàng (trang chủ, đặt thiệp)
 - Nền tối ấm `#14110f`, chữ kem `#f4ede1`, nhấn vàng đồng `#d9a86c`, đỏ rượu mờ làm ánh sáng nền.
 - Chữ: Cormorant Garamond (tiêu đề), Be Vietnam Pro (nội dung).

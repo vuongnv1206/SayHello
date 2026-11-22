@@ -16,13 +16,13 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 ### Gần
 - [ ] Gắn tên miền riêng vào Vercel + cập nhật `site.json` (chờ tên miền).
 - [ ] Điền `ALLOWED` trong Apps Script khi có thiệp bán đầu tiên (chống ghi rác).
-- [ ] Trang chủ: nút "Đặt mẫu này" trên từng mẫu (đi thẳng tới `/dat-thiep/?mau=...`).
+- [x] Trang chủ: nút "Đặt mẫu này" trên từng mẫu (đi thẳng tới `/dat-thiep/?mau=...`).
 - [ ] Studio: tải ảnh lên (qua thư mục Google Drive của người bán), để cặp đôi tự thay ảnh.
 - [ ] Ảnh xem trước (`xem-truoc.jpg`) tự tạo từ ảnh cưới + tên cặp đôi khi tạo thiệp.
 
 ### Mẫu mới (mỗi mẫu một ý tưởng riêng, xem ý tưởng trong [TAO-MAU-MOI.md](TAO-MAU-MOI.md#3-ý-tưởng-cho-các-mẫu-tiếp-theo))
 - [ ] **Cuộn Phim**: máy chiếu, khung phim 35mm, phụ đề.
-- [ ] **Mở Khóa Tình Yêu**: xoay ổ khóa số đúng ngày cưới để mở thiệp.
+- [x] **Mở Khóa Tình Yêu** (mẫu `khoa-tinh`): xoay ổ khóa số đúng ngày cưới để mở thiệp.
 - [ ] **Đèn Lồng Hội An**: thả đèn trôi sông, mỗi đèn một lời chúc.
 - [ ] **Tin Nhắn**: giao diện trò chuyện kể chuyện tình.
 
