@@ -4,18 +4,22 @@ Không cần database hay máy chủ riêng. Làm **một lần**, dùng chung c
 
 ## 1. Tạo Sheet và dán code
 
-1. Vào [sheets.new](https://sheets.new) tạo một Google Sheet mới, đặt tên ví dụ "SayHello – dữ liệu thiệp".
-2. Menu **Tiện ích mở rộng → Apps Script**.
-3. Xóa hết code mẫu, dán toàn bộ nội dung file [`apps-script.gs`](apps-script.gs).
-4. Sửa dòng `STUDIO_SECRET` thành một chuỗi bí mật của riêng Ngài (dài, khó đoán). Ghi đúng chuỗi đó vào file `.env` ở thư mục dự án trên máy: `STUDIO_SECRET=chuoi-cua-ban`. File `.env` không được đưa lên GitHub.
-5. Bấm **Lưu**.
+1. Ở thư mục dự án trên máy, chạy:
+   ```bash
+   npm run apps-script
+   ```
+   Lệnh này tự tạo mã bí mật `STUDIO_SECRET` (lưu trong file `.env`, không đưa lên GitHub), điền mã vào code Apps Script và **chép sẵn code vào clipboard**. Nếu không chép được, mở file `backend/apps-script.local.gs`, Ctrl+A rồi Ctrl+C.
+2. Vào [sheets.new](https://sheets.new) tạo một Google Sheet mới, đặt tên ví dụ "SayHello – dữ liệu thiệp".
+3. Menu **Tiện ích mở rộng → Apps Script**.
+4. Trong khung code, Ctrl+A để chọn hết code mẫu, rồi Ctrl+V để dán.
+5. Bấm biểu tượng **Lưu** (hình đĩa mềm).
 
 ## 2. Triển khai thành Web App
 
 1. Bấm **Triển khai → Tùy chọn triển khai mới**.
 2. Bánh răng cạnh "Chọn loại" → **Ứng dụng web**.
 3. **Thực thi dưới dạng:** Tôi. **Người có quyền truy cập:** Bất kỳ ai.
-4. Bấm **Triển khai**, cấp quyền cho tài khoản Google của bạn.
+4. Bấm **Triển khai**. Google hỏi quyền: **Cấp quyền truy cập** → chọn tài khoản → nếu hiện "Google chưa xác minh ứng dụng này" thì bấm **Nâng cao** → **Đi tới ... (không an toàn)** → **Cho phép**. Đây là script của chính bạn nên an toàn.
 5. Sao chép **URL ứng dụng web** (dạng `https://script.google.com/macros/s/.../exec`).
 
 ## 3. Gắn vào thiệp
