@@ -6,7 +6,9 @@ Không cần database hay máy chủ riêng. Làm **một lần**, dùng chung c
 
 1. Vào [sheets.new](https://sheets.new) tạo một Google Sheet mới, đặt tên ví dụ "SayHello – dữ liệu thiệp".
 2. Menu **Tiện ích mở rộng → Apps Script**.
-3. Xóa hết code mẫu, dán toàn bộ nội dung file [`apps-script.gs`](apps-script.gs), bấm **Lưu**.
+3. Xóa hết code mẫu, dán toàn bộ nội dung file [`apps-script.gs`](apps-script.gs).
+4. Sửa dòng `STUDIO_SECRET` thành một chuỗi bí mật của riêng Ngài (dài, khó đoán). Ghi đúng chuỗi đó vào file `.env` ở thư mục dự án trên máy: `STUDIO_SECRET=chuoi-cua-ban`. File `.env` không được đưa lên GitHub.
+5. Bấm **Lưu**.
 
 ## 2. Triển khai thành Web App
 
@@ -25,6 +27,14 @@ Dán URL vào `invite.json` của từng thiệp:
 ```
 
 Lần đầu có khách gửi, Sheet tự tạo một tab tên đúng bằng đường dẫn của thiệp (ví dụ `minh-khang-thu-ha`).
+
+## Gửi link cho cặp đôi
+
+```bash
+npm run studio-link -- ten-cap-doi
+```
+
+Gửi cặp đôi link **Studio** (để sửa thiệp) và link **Quản lý khách**. Hai link này có mã riêng, ai có link là sửa được, nên dặn cặp đôi không chia sẻ. Đổi `STUDIO_SECRET` là mọi link cũ hết hiệu lực.
 
 ## Hằng ngày
 
