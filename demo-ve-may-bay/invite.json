@@ -1,0 +1,120 @@
+{
+  "theme": "ve-may-bay",
+  "slug": "demo-ve-may-bay",
+  "groom": {
+    "short": "Minh Khang",
+    "full": "Lê Minh Khang",
+    "bio": "Phi công nghiệp dư, mê ngắm mây và pha cà phê."
+  },
+  "bride": {
+    "short": "Thu An",
+    "full": "Phạm Thu An",
+    "bio": "Tiếp viên của những chuyến đi bụi, giữ mọi tấm vé cũ."
+  },
+  "order": "groom-first",
+  "city": "Đà Nẵng",
+  "date": "2027-05-22T18:00:00+07:00",
+  "themeColor": "#14213d",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Lê Văn Phúc",
+      "mother": "Nguyễn Thị Lan",
+      "address": "Phường Sơn Trà,\nĐà Nẵng"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Phạm Đức Long",
+      "mother": "Trần Thị Hoa",
+      "address": "Phường Hải Châu,\nĐà Nẵng"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-05-22T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 8 đường Ví Dụ, Phường Hải Châu, Đà Nẵng"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-05-22T18:00:00+07:00",
+      "venue": "Sảnh Mây Trời, Nhà hàng Ví Dụ",
+      "address": "Số 99 đường Ví Dụ, Phường Sơn Trà, Đà Nẵng",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới · Sơn Trà",
+      "address": "Số 99 đường Ví Dụ, Phường Sơn Trà, Đà Nẵng",
+      "coords": "16.0678,108.2450"
+    },
+    {
+      "label": "Lễ vu quy · Hải Châu",
+      "address": "Số 8 đường Ví Dụ, Phường Hải Châu, Đà Nẵng",
+      "coords": "16.0544,108.2022"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh4.jpg",
+    "bride": "images/anh5.jpg",
+    "thanks": "images/anh6.jpg",
+    "album": [
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh1.jpg",
+      "images/anh5.jpg",
+      "images/anh4.jpg"
+    ],
+    "captions": [
+      "Sân bay Nội Bài",
+      "Đèo Hải Vân",
+      "Ngày cầu hôn",
+      "Hội An",
+      "Chụp ảnh cưới"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "../assets/music/nhac.mp3",
+  "sheetUrl": "",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "0000000000",
+      "name": "LE MINH KHANG"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "0000000000",
+      "name": "PHAM THU AN"
+    }
+  ],
+  "story": [
+    {
+      "year": "2019",
+      "title": "Ghế 14A và 14B",
+      "text": "Chuyến bay Hà Nội – Đà Nẵng bị hoãn ba tiếng, và hai người lạ bắt đầu nói chuyện."
+    },
+    {
+      "year": "2021",
+      "title": "Chuyến đi đầu tiên",
+      "text": "Ba lô, xe máy và con đèo Hải Vân lúc bình minh."
+    },
+    {
+      "year": "2025",
+      "title": "Cầu hôn trên cao",
+      "text": "Ở độ cao 10.000 mét, anh hỏi, và em gật đầu."
+    },
+    {
+      "year": "2027",
+      "title": "Hạ cánh ở nhà",
+      "text": "Chung một tấm vé, đi tiếp cả đời."
+    }
+  ]
+}
