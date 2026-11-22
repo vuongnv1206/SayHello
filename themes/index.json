@@ -41,5 +41,19 @@
       "Ảnh qua ô cửa sổ",
       "Vali mừng cưới"
     ]
+  },
+  {
+    "id": "khoa-tinh",
+    "name": "Khóa Tình",
+    "demo": "demo-khoa-tinh",
+    "tagline": "Xoay mật mã ngày cưới để mở ổ khóa tình yêu trên cầu đêm",
+    "mood": "Lãng mạn · Đêm xanh thẳm · Đồng thau",
+    "effects": [
+      "Ổ khóa số xoay được",
+      "Mặt dây chuyền đung đưa",
+      "Chùm chìa khóa kỷ niệm",
+      "Ảnh treo lan can cầu",
+      "Ném chìa xuống sông"
+    ]
   }
 ]

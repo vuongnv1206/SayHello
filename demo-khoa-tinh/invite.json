@@ -1,0 +1,120 @@
+{
+  "theme": "khoa-tinh",
+  "slug": "demo-khoa-tinh",
+  "groom": {
+    "short": "Hoàng Nam",
+    "full": "Trần Hoàng Nam",
+    "bio": "Thợ sửa đồng hồ, tin rằng mọi chiếc khóa đều có chìa của nó."
+  },
+  "bride": {
+    "short": "Bảo Ngọc",
+    "full": "Nguyễn Bảo Ngọc",
+    "bio": "Cô giáo dạy vẽ, thích những cây cầu lúc lên đèn."
+  },
+  "order": "groom-first",
+  "city": "Hà Nội",
+  "date": "2027-10-16T18:00:00+07:00",
+  "themeColor": "#0b1822",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Trần Văn Hải",
+      "mother": "Lê Thị Thu",
+      "address": "Phường Ba Đình,\nHà Nội"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Nguyễn Minh Tâm",
+      "mother": "Phạm Thị Hạnh",
+      "address": "Phường Hoàn Kiếm,\nHà Nội"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-10-16T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 12 phố Ví Dụ, Phường Hoàn Kiếm, Hà Nội"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-10-16T18:00:00+07:00",
+      "venue": "Sảnh Bến Sông, Nhà hàng Ví Dụ",
+      "address": "Số 88 đường Ví Dụ, Phường Ba Đình, Hà Nội",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới · Ba Đình",
+      "address": "Số 88 đường Ví Dụ, Phường Ba Đình, Hà Nội",
+      "coords": "21.0368,105.8342"
+    },
+    {
+      "label": "Lễ vu quy · Hoàn Kiếm",
+      "address": "Số 12 phố Ví Dụ, Phường Hoàn Kiếm, Hà Nội",
+      "coords": "21.0285,105.8542"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh4.jpg",
+    "bride": "images/anh5.jpg",
+    "thanks": "images/anh6.jpg",
+    "album": [
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh1.jpg",
+      "images/anh5.jpg",
+      "images/anh4.jpg"
+    ],
+    "captions": [
+      "Cầu lúc lên đèn",
+      "Phố cổ mùa thu",
+      "Ngày cầu hôn",
+      "Hồ Gươm",
+      "Chụp ảnh cưới"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "../assets/music/dao-buoc.mp3",
+  "sheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "0000000000",
+      "name": "TRAN HOANG NAM"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "0000000000",
+      "name": "NGUYEN BAO NGOC"
+    }
+  ],
+  "story": [
+    {
+      "year": "2018",
+      "title": "Chiếc chìa khóa rơi",
+      "text": "Anh nhặt được chùm chìa khóa em đánh rơi trên cầu, và đứng đợi đến tối."
+    },
+    {
+      "year": "2020",
+      "title": "Ổ khóa đầu tiên",
+      "text": "Một ổ khóa nhỏ khắc hai chữ cái, treo trên lan can cầu Long Biên."
+    },
+    {
+      "year": "2025",
+      "title": "Câu hỏi dưới đèn đường",
+      "text": "Anh đưa em chiếc chìa cuối cùng: chìa khóa căn nhà chung."
+    },
+    {
+      "year": "2027",
+      "title": "Khóa lại một đời",
+      "text": "Chìa ném xuống sông, chỉ còn hai người và một lời hứa."
+    }
+  ]
+}
