@@ -1,5 +1,6 @@
 // Tạo thiệp mới từ thiệp mẫu của một theme.
 //   node scripts/new-invite.mjs minh-khang-thu-ha --theme song-hy
+//   (từ đơn đặt thiệp) npm run new -- minh-khang-thu-ha --theme ve-may-bay --groom "Minh Khang" --bride "Thu Hà" --date 2027-05-22
 // Sẽ tạo thư mục minh-khang-thu-ha/ (invite.json + ảnh mẫu + index.html). Sau đó:
 //   1. Sửa minh-khang-thu-ha/invite.json (tên, ngày, địa điểm, tài khoản, sheetUrl)
 //   2. Thay ảnh trong minh-khang-thu-ha/images/
@@ -26,6 +27,16 @@ if (!from || !existsSync(join(ROOT, from, 'invite.json'))) fail(`Không tìm th�
 cpSync(join(ROOT, from), join(ROOT, slug), { recursive: true });
 const p = join(ROOT, slug, 'invite.json'), d = JSON.parse(readFileSync(p, 'utf8'));
 Object.assign(d, { slug, theme });
+// Điền sẵn tên và ngày từ đơn; giữ giờ của thiệp mẫu. Lịch lễ dời theo cùng số ngày.
+for (const who of ['groom', 'bride']) if (opt(who)) d[who] = { short: opt(who), full: opt(who) };
+if (opt('date')) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(opt('date'))) fail('--date phải có dạng 2027-05-22');
+  const shift = Date.parse(opt('date') + d.date.slice(10)) - Date.parse(d.date);
+  const move = iso => new Date(Date.parse(iso) + shift + 7 * 3600e3).toISOString().slice(0, 19) + '+07:00';
+  d.date = move(d.date);
+  (d.events || []).forEach(e => (e.date = move(e.date)));
+}
+delete d.story;
 writeFileSync(p, JSON.stringify(d, null, 2) + '\n');
 buildInvite(slug);
 console.log(`✓ Đã tạo ${slug}/ theo mẫu "${theme}" (sao chép từ ${from}/)
