@@ -5,7 +5,13 @@
     "demo": "demo-song-hy",
     "tagline": "Cửa son mở hai cánh, đèn lồng, chữ Hỷ vàng kim",
     "mood": "Truyền thống · Đỏ son · Vàng kim",
-    "effects": ["Cửa mở 3D", "Tên viết tay ánh kim", "Cánh hoa né ngón tay", "Pháo hoa phần kết", "Cụng ly sau lời chúc"]
+    "effects": [
+      "Cửa mở 3D",
+      "Tên viết tay ánh kim",
+      "Cánh hoa né ngón tay",
+      "Pháo hoa phần kết",
+      "Cụng ly sau lời chúc"
+    ]
   },
   {
     "id": "thu-tay",
@@ -13,6 +19,27 @@
     "demo": "demo-thu-tay",
     "tagline": "Bóc dấu sáp, mở phong bì, đọc lá thư mời viết tay",
     "mood": "Hiện đại · Giấy dó · Mực xanh than",
-    "effects": ["Bóc dấu sáp", "Chữ hiện như đang viết", "Cào nhũ lộ ngày cưới", "Polaroid kéo ném", "Vé mời xé cuống"]
+    "effects": [
+      "Bóc dấu sáp",
+      "Chữ hiện như đang viết",
+      "Cào nhũ lộ ngày cưới",
+      "Polaroid kéo ném",
+      "Vé mời xé cuống"
+    ]
+  },
+  {
+    "id": "ve-may-bay",
+    "name": "Vé Máy Bay",
+    "demo": "demo-ve-may-bay",
+    "tagline": "Xé cuống thẻ lên máy bay, bay cùng đôi bạn tới ngày cưới",
+    "mood": "Trẻ trung · Bầu trời bình minh · Cam san hô",
+    "effects": [
+      "Xé cuống vé",
+      "Máy bay bay theo đường cuộn",
+      "Bảng giờ bay lật chữ",
+      "Hộ chiếu đóng dấu",
+      "Ảnh qua ô cửa sổ",
+      "Vali mừng cưới"
+    ]
   }
 ]
