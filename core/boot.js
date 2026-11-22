@@ -4,12 +4,12 @@ import { createFx } from './fx.js';
 import { createBackend } from './backend.js';
 import { createWidgets } from './widgets.js';
 import { createChrome, createLightbox } from './chrome.js';
+import { loadInvite, inStudio } from './content.js';
 
 const ROOT = new URL('../', import.meta.url);
 
 async function boot() {
-  // Trình soạn thiệp (studio) có thể truyền dữ liệu trực tiếp qua window.__INVITE__
-  const raw = window.__INVITE__ || await (await fetch('invite.json', { cache: 'no-cache' })).json();
+  const raw = await loadInvite();
   const themeId = new URLSearchParams(location.search).get('theme') || raw.theme || 'song-hy';
   const themeUrl = new URL(`themes/${themeId}/`, ROOT);
   const theme = (await import(new URL('theme.js', themeUrl))).default;
@@ -78,6 +78,13 @@ async function boot() {
   cover.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => open(false)));
   if (new URLSearchParams(location.search).get('open') === '1' || !cover.innerHTML.trim()) open(true);
   document.body.classList.add('ready');
+
+  // Trong Studio: giữ vị trí cuộn khi khung xem trước tải lại sau mỗi lần sửa
+  if (inStudio) {
+    const KEY = 'sayhello:studio-scroll';
+    try { const y = +sessionStorage.getItem(KEY); if (y && document.body.classList.contains('opened')) requestAnimationFrame(() => scrollTo(0, y)); } catch {}
+    addEventListener('scroll', () => { try { sessionStorage.setItem(KEY, scrollY); } catch {} }, { passive: true });
+  }
 }
 
 boot().catch(err => {
