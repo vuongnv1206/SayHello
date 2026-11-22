@@ -22,7 +22,10 @@ async function check(path, invite, extra) {
     if (p.endsWith('/')) p += 'index.html';
     const f = join(ROOT, p);
     if (!existsSync(f)) { errors.push('Thiếu file: ' + p); return route.fulfill({ status: 404, body: '' }); }
-    route.fulfill({ status: 200, contentType: TYPES[extname(f).toLowerCase()] || 'application/octet-stream', body: readFileSync(f) });
+    let body = readFileSync(f);
+    // Không gửi dữ liệu thử lên Google Sheets thật: bỏ link Apps Script, thiệp tự lưu trên máy
+    if (/\/(invite|shop)\.json$/.test(p)) { const d = JSON.parse(body); delete d.sheetUrl; delete d.orderSheetUrl; body = JSON.stringify(d); }
+    route.fulfill({ status: 200, contentType: TYPES[extname(f).toLowerCase()] || 'application/octet-stream', body });
   });
   await ctx.route(url => !url.href.startsWith(HOST), r => r.abort());
   const page = await ctx.newPage();
