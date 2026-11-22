@@ -38,6 +38,11 @@ Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`
 - **Màu:** đêm `#0b1822`, sông `#13354a`, đồng thau `#c9a227`, vàng hồng `#d8a48f`, đèn đường `#ffcf8a`, kem `#f7efe3`, ruy băng đỏ `#b23a48`.
 - **Chữ:** Alex Brush (tên), Spectral (nội dung, tiêu đề nghiêng), Be Vietnam Pro (chữ nhỏ).
 
+### Đèn Lồng: hoài cổ
+- **Ý tưởng:** đêm rằm phố Hội An: khách chạm hoa đăng để thắp nến và thả xuống sông thì thiệp mở. Dây đèn lồng sáng dần khi cuộn tới, cổng trăng ôm ảnh trên tường vàng, đôi đèn lồng lụa ôm ảnh cô dâu chú rể, dãy nhà phố kể chuyện tình, biển gỗ ghi lịch lễ, đèn lồng đếm ngược, cửa chớp gỗ tự mở ra album, lời chúc thành hoa đăng trôi trên sông, phong bao lì xì, cuối thiệp thả đèn trời.
+- **Màu:** đêm `#0f1a2b`, tường vàng `#f2c14e`, ngói `#8c2f1b`, gỗ `#4a2c1a`, cửa chớp xanh rêu `#2f6f5e`, đỏ đèn lồng `#c1121f`, cam `#f77f00`, vàng nến `#fcbf49`, hoa giấy `#e75480`, kem `#fdf3dc`.
+- **Chữ:** Dancing Script (tên), Noto Serif Display nghiêng (tiêu đề, nội dung), Be Vietnam Pro (chữ nhỏ).
+
 ## Trang bán hàng (trang chủ, đặt thiệp)
 - Nền tối ấm `#14110f`, chữ kem `#f4ede1`, nhấn vàng đồng `#d9a86c`, đỏ rượu mờ làm ánh sáng nền.
 - Chữ: Cormorant Garamond (tiêu đề), Be Vietnam Pro (nội dung).

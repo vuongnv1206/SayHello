@@ -100,7 +100,7 @@ Các thành phần nổi (`.music`, `.love`, `.progress`, `.fly-item`, `.heart`,
 
 ## 3. Ý tưởng cho các mẫu tiếp theo
 
-Đã làm: **Song Hỷ**, **Thư Tay**, **Vé Máy Bay**, **Khóa Tình** (Mở Khóa Tình Yêu). Mỗi ý tưởng dưới đây có một "cú chạm" chính (thứ khách nhớ và kể lại), không chỉ là đổi màu.
+Đã làm: **Song Hỷ**, **Thư Tay**, **Vé Máy Bay**, **Khóa Tình** (Mở Khóa Tình Yêu), **Đèn Lồng** (Đèn Lồng Hội An). Mỗi ý tưởng dưới đây có một "cú chạm" chính (thứ khách nhớ và kể lại), không chỉ là đổi màu.
 
 **Đồ vật kỷ niệm**
 - **Cuộn Phim:** bìa là máy chiếu, kéo cần để bật đèn; ảnh chạy như khung phim 35mm có lỗ răng cưa, chữ hiện như phụ đề, có tiếng tạch máy ảnh.

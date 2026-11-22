@@ -16,6 +16,7 @@ Cập nhật: 2026-11-22. Web: https://sayhello-wheat.vercel.app
 | Nhạc | Thay `nhac.mp3` (không rõ bản quyền) bằng 3 bài **tự sáng tác bằng code**: Hộp nhạc, Dạo bước, Bình minh. Cặp đôi chọn nhạc trong Studio. |
 | Link mời | Trang quản lý khách có tab **Tạo link mời**: dán danh sách tên, ra link riêng từng khách, sao chép kèm lời mời, tải CSV. |
 | 5. Mẫu thứ 4 | **Khóa Tình**: xoay ổ khóa số đúng ngày cưới để mở thiệp, mặt dây chuyền, chùm chìa khóa, ảnh treo lan can, ném chìa xuống sông. Trang chủ có nút **Đặt mẫu này** cho từng mẫu. |
+| 6. Mẫu thứ 5 | **Đèn Lồng** (Hội An): thả hoa đăng để mở thiệp, dây đèn lồng sáng dần khi cuộn, cửa chớp gỗ mở album, lời chúc thành hoa đăng, thả đèn trời. |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết
