@@ -13,7 +13,7 @@ const HOST = 'http://sayhello.test';
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const failures = [];
 
-async function check(path, invite) {
+async function check(path, invite, extra) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
   const errors = [];
   // Phục vụ file thẳng từ thư mục dự án, chặn mạng ngoài để kiểm tra chạy ổn định
@@ -51,6 +51,7 @@ async function check(path, invite) {
       await page.$eval('.cheers', e => e.remove()).catch(() => {});
     }
   }
+  if (extra) await extra(page, errors);
   await ctx.close();
   console.log(`${errors.length ? '✗' : '✓'} ${path}`);
   errors.forEach(e => console.log('    ' + e));
@@ -58,6 +59,25 @@ async function check(path, invite) {
 }
 
 await check('/', false);
+// Trang đặt thiệp: điền form, phải ra mã đơn và QR đúng số tiền
+await check('/dat-thiep/?goi=co-ban', false, async (page, errors) => {
+  const shop = JSON.parse(readFileSync(join(ROOT, 'shop.json'), 'utf8'));
+  if (await page.$$eval('#themes input', l => l.length) < 1) errors.push('Không có mẫu nào để chọn');
+  await page.click('#submit');
+  if (!(await page.textContent('#err'))) errors.push('Form trống mà vẫn gửi được');
+  await page.fill('input[name=groom]', 'Quốc Bảo');
+  await page.fill('input[name=bride]', 'Mai Anh');
+  await page.fill('input[name=date]', '2027-12-05');
+  await page.fill('input[name=phone]', '0912345678');
+  if (await page.inputValue('input[name=slug]') !== 'quoc-bao-mai-anh') errors.push('Không tự gợi ý đường dẫn từ tên');
+  await page.click('#submit');
+  await page.waitForTimeout(300);
+  const code = await page.textContent('#pay-code').catch(() => '');
+  if (!/^SH[A-Z0-9]{6}$/.test(code)) errors.push('Không hiện mã đơn: ' + code);
+  const qr = await page.getAttribute('#qr', 'src');
+  const price = shop.packages.find(p => p.id === 'co-ban').price;
+  if (!qr?.includes(`amount=${price}`) || !qr.includes(code)) errors.push('QR sai số tiền hoặc nội dung: ' + qr);
+});
 await check(`/studio/?thiep=${allInvites()[0]}`, false);
 await check(`/studio/khach.html?thiep=${allInvites()[0]}`, false);
 for (const slug of allInvites()) {
