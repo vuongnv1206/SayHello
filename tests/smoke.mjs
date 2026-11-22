@@ -58,6 +58,8 @@ async function check(path, invite) {
 }
 
 await check('/', false);
+await check(`/studio/?thiep=${allInvites()[0]}`, false);
+await check(`/studio/khach.html?thiep=${allInvites()[0]}`, false);
 for (const slug of allInvites()) {
   const d = JSON.parse(readFileSync(join(ROOT, slug, 'invite.json'), 'utf8'));
   await check(`/${slug}/`, true);
