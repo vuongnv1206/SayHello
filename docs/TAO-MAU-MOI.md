@@ -100,9 +100,36 @@ Các thành phần nổi (`.music`, `.love`, `.progress`, `.fly-item`, `.heart`,
 
 ## 3. Ý tưởng cho các mẫu tiếp theo
 
-- **Vé Máy Bay:** bìa là boarding pass, kéo để xé cuống; hành trình tình yêu là đường bay qua các thành phố; giờ cưới là giờ cất cánh.
-- **Cuộn Phim:** bìa là máy chiếu bật đèn, ảnh chạy như khung phim 35mm, chữ hiện như phụ đề, có tiếng tạch máy ảnh.
-- **Báo Xuân:** trang nhất tờ báo cũ "Tin vui", tít lớn, cột chữ, ảnh in lưới chấm, tem giá báo.
-- **Đêm Sao:** nền trời đêm, chạm để nối các ngôi sao thành tên cặp đôi, ngày cưới là một chòm sao.
+Đã làm: **Song Hỷ**, **Thư Tay**, **Vé Máy Bay**. Mỗi ý tưởng dưới đây có một "cú chạm" chính (thứ khách nhớ và kể lại), không chỉ là đổi màu.
+
+**Đồ vật kỷ niệm**
+- **Cuộn Phim:** bìa là máy chiếu, kéo cần để bật đèn; ảnh chạy như khung phim 35mm có lỗ răng cưa, chữ hiện như phụ đề, có tiếng tạch máy ảnh.
+- **Báo Xuân:** trang nhất tờ báo cũ "TIN VUI", tít lớn, cột chữ, ảnh in lưới chấm; khách lật trang như báo giấy, có mục "rao vặt" để gửi lời chúc.
+- **Đĩa Than:** bìa là bìa album, kéo đĩa ra rồi đặt kim để phát nhạc cưới; các mục là danh sách bài hát, mặt B là album ảnh.
+- **Băng Cát-sét:** tua băng bằng bút chì (kéo vòng tròn) để chuyển phần, nhãn băng viết tay tên cặp đôi.
+- **Máy Ảnh Lấy Liền:** bấm nút chụp, ảnh trượt ra và hiện dần từ trắng sang màu; sổ lưu bút là bảng ghim ảnh.
 - **Vườn Ép Hoa:** sổ ép hoa khô, lật trang 3D, mỗi trang một bông hoa và một kỷ niệm.
-- **Đĩa Than:** bìa là đĩa nhựa, kéo kim để phát nhạc cưới, các mục là danh sách bài hát.
+
+**Trò chơi nhỏ**
+- **Mở Khóa Tình Yêu:** ổ khóa số, khách xoay đúng ngày cưới (gợi ý sẵn) để mở thiệp.
+- **Ô Chữ:** điền ô chữ ngắn, hàng dọc hiện tên cô dâu chú rể.
+- **Cào Vé Số:** cào ba ô trúng "giải đặc biệt" là ngày cưới, giờ, địa điểm.
+- **Bói Bánh Quy May Mắn:** bẻ bánh quy, mảnh giấy bên trong là lời mời, mỗi khách một câu chúc vui khác nhau.
+- **Mê Cung:** dẫn hai nhân vật nhỏ tìm nhau qua mê cung ngắn, gặp nhau thì thiệp mở.
+
+**Không gian và ánh sáng**
+- **Đêm Sao:** nền trời đêm, chạm để nối các ngôi sao thành tên cặp đôi, ngày cưới là một chòm sao.
+- **Đèn Lồng Hội An:** thả đèn lồng trôi trên sông, mỗi đèn là một lời chúc của khách, chạm vào để đọc.
+- **Tàu Đêm Thống Nhất:** vé tàu giấy, các ga dừng là cột mốc tình yêu, toa cuối là tiệc cưới.
+- **Mùa Trong Năm:** cuộn trang là đi qua bốn mùa (hoa đào, nắng, lá vàng, tuyết), mùa cưới dừng lại.
+- **Bản Đồ Kho Báu:** giấy da cũ, đường chấm đỏ dẫn tới chữ X là nơi tổ chức; khách xoay la bàn bằng cảm biến nghiêng máy.
+
+**Văn hóa Việt**
+- **Tranh Đông Hồ:** khắc gỗ, màu điệp, đám cưới chuột cách điệu, chữ thư pháp.
+- **Áo Dài & Nón Lá:** nón lá xoay để lộ bài thơ ẩn dưới ánh sáng (hiệu ứng soi đèn).
+- **Mâm Quả:** mở từng tráp ăn hỏi (trầu cau, bánh phu thê, trà, rượu), mỗi tráp là một phần thông tin.
+
+**Hiện đại**
+- **Tin Nhắn:** giao diện trò chuyện, tin nhắn của hai người hiện dần kể chuyện tình, cuối cùng gửi "lời mời"; khách trả lời bằng bong bóng chat.
+- **Trang Web 1999:** giao diện máy tính cũ, cửa sổ bật lên, bộ đếm người xem, chữ chạy; hoài niệm vui.
+- **Thời Tiết:** dự báo "100% khả năng hạnh phúc" vào ngày cưới, biểu đồ nhiệt độ là đếm ngược.
