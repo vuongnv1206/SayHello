@@ -170,6 +170,12 @@ async function buildForm() {
       return el('label', { class: 'check' }, box, SECTION_NAMES[s] || s);
     }))));
 
+  // Nhạc nền
+  const MUSIC = [['', 'Nhạc người bán chọn sẵn'], ['../assets/music/hop-nhac.mp3', 'Hộp nhạc (trong trẻo, trẻ trung)'],
+    ['../assets/music/dao-buoc.mp3', 'Dạo bước (piano valse, lãng mạn)'], ['../assets/music/binh-minh.mp3', 'Bình minh (ấm áp, trang trọng)'], ['none', 'Không có nhạc']];
+  form.append(group('Nhạc nền', null, el('div', { class: 'group-body' },
+    input(state, 'music', { label: 'Bài nhạc', type: 'select', options: MUSIC, hint: 'Muốn dùng bài riêng của hai bạn: gửi file mp3 cho người bán.' }))));
+
   // Hiệu ứng
   state.effects ??= {};
   const amb = new Set(state.effects.ambient || def.effects?.ambient || []);

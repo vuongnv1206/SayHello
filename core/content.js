@@ -1,12 +1,15 @@
 // Nội dung thiệp = invite.json (người bán soạn) + phần cặp đôi tự sửa trong Studio (lưu ở Google Sheets).
-// Cặp đôi chỉ sửa được các trường trong EDITABLE; ảnh, nhạc, sheetUrl, slug luôn lấy từ invite.json.
+// Cặp đôi chỉ sửa được các trường trong EDITABLE; ảnh, sheetUrl, slug luôn lấy từ invite.json.
+// Nhạc: chỉ chọn được bài trong assets/music/, file .mp3 trong thư mục thiệp, hoặc 'none' (tắt nhạc).
 import { merge } from './util.js';
 
-export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp'];
+export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp', 'music'];
+const MUSIC_OK = /^(none|\.\.\/assets\/music\/[a-z0-9-]+\.mp3|[a-z0-9-]+\.mp3)$/;
 
 export function pickEditable(obj) {
   const out = {};
   for (const k of EDITABLE) if (obj && obj[k] !== undefined) out[k] = obj[k];
+  if (out.music !== undefined && !MUSIC_OK.test(out.music)) delete out.music;
   return out;
 }
 
@@ -39,8 +42,10 @@ export async function loadInvite() {
   const base = window.__INVITE__ || await (await fetch('invite.json', { cache: 'no-cache' })).json();
   if (inStudio) {
     const edits = await fromStudio();
-    return merge(base, pickEditable(edits));
+    return noMusic(merge(base, pickEditable(edits)));
   }
   const edits = await savedEdits(base.sheetUrl, base.slug);
-  return edits ? merge(base, pickEditable(edits)) : base;
+  return noMusic(edits ? merge(base, pickEditable(edits)) : base);
 }
+
+const noMusic = d => (d.music === 'none' && (d.music = ''), d);
