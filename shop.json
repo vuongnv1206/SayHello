@@ -1,9 +1,14 @@
 {
   "_ghi_chu": "Thông tin bán thiệp. Sửa giá, tài khoản nhận tiền và số Zalo ở đây. Khi đã đặt giá thật, đổi giaTam thành false để ẩn dòng báo giá tạm.",
   "giaTam": true,
-  "orderSheetUrl": "",
+  "orderSheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
   "zalo": "0000000000",
-  "bank": { "bankCode": "MB", "bank": "MB Bank", "number": "0000000000", "name": "TEN CHU TAI KHOAN" },
+  "bank": {
+    "bankCode": "MB",
+    "bank": "MB Bank",
+    "number": "0000000000",
+    "name": "TEN CHU TAI KHOAN"
+  },
   "packages": [
     {
       "id": "co-ban",
