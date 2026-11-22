@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SayHello · Thiệp cưới online</title>
+<meta name="description" content="Thiệp cưới online, mỗi thiệp một câu chuyện: mở cửa son, bóc dấu sáp, cào nhũ xem ngày cưới, xác nhận tham dự và gửi lời chúc ngay trên điện thoại.">
+<meta property="og:title" content="SayHello · Thiệp cưới online">
+<meta property="og:description" content="Mỗi thiệp một câu chuyện, không rập khuôn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&family=Be+Vietnam+Pro:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #14110f; --ink: #f4ede1; --soft: #b9ab96; --accent: #d9a86c; --line: rgba(244, 237, 225, .14); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 300; line-height: 1.6; overflow-x: hidden; }
+  body::before { content: ""; position: fixed; inset: -50%; z-index: -1; background: radial-gradient(circle at 30% 30%, rgba(217, 168, 108, .12), transparent 40%), radial-gradient(circle at 75% 60%, rgba(142, 27, 44, .18), transparent 45%); animation: drift 30s ease-in-out infinite alternate; }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 72px 0 40px; }
+  .brand { font-size: 13px; letter-spacing: .4em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(44px, 9vw, 96px); line-height: .98; letter-spacing: -.02em; margin: 18px 0 22px; max-width: 12ch; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lead { max-width: 560px; color: var(--soft); font-size: 17px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 48px 40px; padding: 40px 0 80px; }
+  .card { display: grid; gap: 18px; text-decoration: none; }
+  .phone { position: relative; width: 100%; max-width: 300px; aspect-ratio: 9 / 18.5; border-radius: 34px; padding: 10px; background: #000; box-shadow: 0 0 0 1px var(--line), 0 40px 80px rgba(0, 0, 0, .6); overflow: hidden; transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+  .card:nth-child(even) .phone { transform: rotate(2deg); }
+  .card:nth-child(odd) .phone { transform: rotate(-2deg); }
+  .card:hover .phone { transform: rotate(0) translateY(-8px); }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: 26px; overflow: hidden; background: #222; }
+  .screen iframe { position: absolute; top: 0; left: 0; width: 400px; height: 822px; border: 0; transform-origin: 0 0; pointer-events: none; }
+  .n { font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: .3em; color: var(--accent); }
+  .card h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 40px; line-height: 1; }
+  .card p { color: var(--soft); font-size: 15px; }
+  .mood { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink) !important; opacity: .7; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags span { font-size: 12px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--soft); }
+  .go { font-size: 14px; letter-spacing: .08em; border-bottom: 1px solid var(--accent); justify-self: start; padding-bottom: 2px; }
+  .how { border-top: 1px solid var(--line); padding: 60px 0 90px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
+  .how b { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 52px; color: var(--accent); display: block; line-height: 1; }
+  .how h3 { font-weight: 500; font-size: 17px; margin: 8px 0 4px; }
+  .how p { color: var(--soft); font-size: 14.5px; }
+  footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--soft); font-size: 13px; }
+  @keyframes drift { to { transform: translate(6%, -4%) rotate(8deg); } }
+  @media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="brand">SayHello</p>
+    <h1>Mỗi tấm thiệp, <em>một câu chuyện</em>.</h1>
+    <p class="lead">Thiệp cưới online mở ra như một món quà: cửa son hé mở, dấu sáp được bóc, ngày cưới hiện ra dưới lớp nhũ. Khách xác nhận tham dự và gửi lời chúc ngay trên điện thoại.</p>
+  </header>
+  <section class="grid" id="themes" aria-label="Các mẫu thiệp"></section>
+  <section class="how" aria-label="Quy trình">
+    <div><b>01</b><h3>Chọn mẫu</h3><p>Mỗi mẫu là một trải nghiệm riêng, không phải cùng một khung đổi màu.</p></div>
+    <div><b>02</b><h3>Gửi ảnh và thông tin</h3><p>Tên, ngày giờ, địa điểm, ảnh cưới, tài khoản mừng cưới.</p></div>
+    <div><b>03</b><h3>Nhận đường dẫn riêng</h3><p>Dạng <i>/ten-cap-doi</i>, có thể ghi sẵn tên từng khách mời.</p></div>
+    <div><b>04</b><h3>Theo dõi khách</h3><p>Xác nhận tham dự và lời chúc về thẳng Google Sheets.</p></div>
+  </section>
+</div>
+<footer><div class="wrap">SayHello · Thiệp cưới online</div></footer>
+<script>
+  fetch('themes/index.json').then(r => r.json()).then(list => {
+    const grid = document.getElementById('themes');
+    list.forEach((t, i) => {
+      const a = document.createElement('a');
+      a.className = 'card'; a.href = t.demo + '/'; a.target = '_blank'; a.rel = 'noopener';
+      a.innerHTML = `<div class="phone"><div class="screen"><iframe loading="lazy" tabindex="-1" title=""></iframe></div></div>
+        <span class="n">MẪU ${String(i + 1).padStart(2, '0')}</span><h2></h2><p class="mood"></p><p class="tl"></p><div class="tags"></div><span class="go">Xem thiệp mẫu →</span>`;
+      a.querySelector('iframe').src = t.demo + '/?k=Khách+mời';
+      a.querySelector('iframe').title = 'Xem trước mẫu ' + t.name;
+      a.querySelector('h2').textContent = t.name;
+      a.querySelector('.mood').textContent = t.mood;
+      a.querySelector('.tl').textContent = t.tagline;
+      (t.effects || []).forEach(e => { const s = document.createElement('span'); s.textContent = e; a.querySelector('.tags').append(s); });
+      grid.append(a);
+    });
+    const fit = () => document.querySelectorAll('.screen').forEach(s => { s.firstChild.style.transform = `scale(${s.clientWidth / 400})`; });
+    fit(); addEventListener('resize', fit);
+  });
+</script>
+</body>
+</html>
