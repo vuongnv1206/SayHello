@@ -27,7 +27,7 @@
   .phone { position: relative; width: 100%; max-width: 300px; aspect-ratio: 9 / 18.5; border-radius: 34px; padding: 10px; background: #000; box-shadow: 0 0 0 1px var(--line), 0 40px 80px rgba(0, 0, 0, .6); overflow: hidden; transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
   .card:nth-child(even) .phone { transform: rotate(2deg); }
   .card:nth-child(odd) .phone { transform: rotate(-2deg); }
-  .card:hover .phone { transform: rotate(0) translateY(-8px); }
+  .phone:hover { transform: rotate(0) translateY(-8px); }
   .screen { position: relative; width: 100%; height: 100%; border-radius: 26px; overflow: hidden; background: #222; }
   .screen iframe { position: absolute; top: 0; left: 0; width: 400px; height: 822px; border: 0; transform-origin: 0 0; pointer-events: none; }
   .n { font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: .3em; color: var(--accent); }
@@ -36,7 +36,11 @@
   .mood { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink) !important; opacity: .7; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .tags span { font-size: 12px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--soft); }
-  .go { font-size: 14px; letter-spacing: .08em; border-bottom: 1px solid var(--accent); justify-self: start; padding-bottom: 2px; }
+  .acts { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .order { text-decoration: none; font-size: 14px; font-weight: 500; background: var(--accent); color: #1a140f; padding: 8px 18px; border-radius: 999px; transition: transform .2s; }
+  .order:hover { transform: translateY(-2px); }
+  .phone { display: block; }
+  .go { text-decoration: none; font-size: 14px; letter-spacing: .08em; border-bottom: 1px solid var(--accent); justify-self: start; padding-bottom: 2px; }
   .how { border-top: 1px solid var(--line); padding: 60px 0 90px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
   .how b { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 52px; color: var(--accent); display: block; line-height: 1; }
   .how h3 { font-weight: 500; font-size: 17px; margin: 8px 0 4px; }
@@ -91,10 +95,13 @@
   fetch('themes/index.json').then(r => r.json()).then(list => {
     const grid = document.getElementById('themes');
     list.forEach((t, i) => {
-      const a = document.createElement('a');
-      a.className = 'card'; a.href = t.demo + '/'; a.target = '_blank'; a.rel = 'noopener';
-      a.innerHTML = `<div class="phone"><div class="screen"><iframe loading="lazy" tabindex="-1" title=""></iframe></div></div>
-        <span class="n">MẪU ${String(i + 1).padStart(2, '0')}</span><h2></h2><p class="mood"></p><p class="tl"></p><div class="tags"></div><span class="go">Xem thiệp mẫu →</span>`;
+      const a = document.createElement('div');
+      a.className = 'card';
+      a.innerHTML = `<a class="phone" target="_blank" rel="noopener"><div class="screen"><iframe loading="lazy" tabindex="-1" title=""></iframe></div></a>
+        <span class="n">MẪU ${String(i + 1).padStart(2, '0')}</span><h2></h2><p class="mood"></p><p class="tl"></p><div class="tags"></div>
+        <div class="acts"><a class="go demo" target="_blank" rel="noopener">Xem thiệp mẫu →</a><a class="order">Đặt mẫu này</a></div>`;
+      a.querySelector('.phone').href = a.querySelector('.demo').href = t.demo + '/';
+      a.querySelector('.order').href = 'dat-thiep/?mau=' + encodeURIComponent(t.id);
       a.querySelector('iframe').src = t.demo + '/?k=Khách+mời';
       a.querySelector('iframe').title = 'Xem trước mẫu ' + t.name;
       a.querySelector('h2').textContent = t.name;
