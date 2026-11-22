@@ -1,0 +1,17 @@
+{
+  "name": "sayhello",
+  "private": true,
+  "type": "module",
+  "description": "Bộ thiệp cưới online: mỗi thiệp là một thư mục, nhiều mẫu, nhiều hiệu ứng, lưu dữ liệu bằng Google Sheets.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "new": "node scripts/new-invite.mjs",
+    "dev": "npx --yes serve .",
+    "test": "node tests/smoke.mjs",
+    "images": "node scripts/optimize-images.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "sharp": "^0.34.5"
+  }
+}
