@@ -26,7 +26,7 @@ const TEXT_NAMES = {
   rsvpTitle: 'Tiêu đề phần xác nhận', rsvpLead: 'Câu hỏi xác nhận', guestbookTitle: 'Tiêu đề sổ lưu bút', giftTitle: 'Tiêu đề hộp quà', closing: 'Lời kết',
   airline: 'Tên hãng bay', heroKicker: 'Dòng chữ nhỏ trên tiêu đề', heroTitle: 'Tiêu đề lớn', heroLead: 'Câu mở đầu', storyTitle: 'Tiêu đề hành trình',
   boardTitle: 'Tiêu đề bảng giờ bay', passportTitle: 'Tiêu đề phần hộ chiếu',
-  lockTitle: 'Chữ trên ổ khóa (bìa)', lockHint: 'Gợi ý mã khóa', countdownTitle: 'Tiêu đề đếm ngược', thanksTitle: 'Tiêu đề lời cảm ơn',
+  lockTitle: 'Chữ trên ổ khóa (bìa)', lockHint: 'Gợi ý mã khóa', countdownTitle: 'Tiêu đề đếm ngược', coverTitle: 'Tiêu đề bìa', coverHint: 'Hướng dẫn trên bìa', thanksTitle: 'Tiêu đề lời cảm ơn',
 };
 const AMBIENT = [['petals', 'Cánh hoa'], ['sparkles', 'Kim tuyến'], ['hearts', 'Trái tim bay lên'], ['snow', 'Tuyết'], ['leaves', 'Lá vàng'], ['bokeh', 'Đốm sáng mờ']];
 const BANKS = ['VCB', 'TCB', 'MB', 'ACB', 'BIDV', 'ICB', 'VPB', 'TPB', 'STB', 'VIB', 'HDB', 'SHB', 'MSB', 'OCB', 'AGRIBANK', 'SCB', 'EIB', 'LPB', 'NAB', 'SEAB'];
