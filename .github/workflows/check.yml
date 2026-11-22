@@ -1,0 +1,25 @@
+name: Kiểm tra thiệp
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: index.html của mọi thiệp khớp với invite.json
+        run: |
+          node scripts/build.mjs
+          git diff --exit-code -- '*/index.html' || (echo "::error::Hãy chạy 'node scripts/build.mjs' rồi commit lại index.html" && exit 1)
+      - run: npx playwright install --with-deps chromium
+      - name: Mở thử từng thiệp
+        run: npm test
