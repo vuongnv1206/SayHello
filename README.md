@@ -56,6 +56,18 @@ Xem hai thiệp mẫu để có đầy đủ các trường. Những điểm c�
 - `sheetUrl`: URL Apps Script. Để trống thì thiệp vẫn chạy nhưng dữ liệu chỉ lưu trên máy khách (để thử).
 - `music`: đường dẫn file nhạc. Để trống thì không có nút nhạc.
 
+## Cặp đôi tự sửa thiệp (Studio)
+
+Mỗi thiệp có một link Studio riêng, có mã sửa bí mật. Cặp đôi sửa tên, ngày giờ, gia đình, lịch lễ, bản đồ, câu chữ, các phần hiện trên thiệp, hiệu ứng, tài khoản mừng cưới, và đổi mẫu thiệp. Mọi thay đổi hiện ngay trong khung xem trước (điện thoại, máy tính bảng, máy tính, bìa hoặc bên trong, xem như một khách cụ thể). Bấm **Lưu** là thiệp thật cập nhật luôn, không cần build lại.
+
+```bash
+npm run studio-link -- minh-khang-thu-ha
+```
+
+In ra link Studio và link trang **Quản lý khách** (số người sẽ đến, chia theo nhà trai/nhà gái, lời chúc, tải file Excel). Cần `STUDIO_SECRET` trong file `.env`, giống chuỗi trong Apps Script.
+
+Ảnh, nhạc và `sheetUrl` vẫn do người bán quản lý trong `invite.json`. Nội dung cặp đôi sửa nằm ở tab `_Nội dung` trong Google Sheet. Thêm `?goc=1` vào link thiệp để xem bản gốc chưa có phần cặp đôi sửa.
+
 ## Google Sheets (không cần database)
 
 Một script dùng chung cho mọi thiệp, mỗi thiệp tự có một tab riêng. Hướng dẫn cài từng bước: [backend/HUONG-DAN.md](backend/HUONG-DAN.md).
