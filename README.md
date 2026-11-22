@@ -98,3 +98,7 @@ assets/music/         Nhạc nền dùng chung
 ## Tạo mẫu thiệp mới
 
 Xem [docs/TAO-MAU-MOI.md](docs/TAO-MAU-MOI.md): cách một mẫu hoạt động, các khối có sẵn, và nguyên tắc thiết kế để mỗi mẫu thật sự khác nhau.
+
+## Bán thiệp
+
+Trang **`/dat-thiep/`**: khách chọn mẫu, chọn gói, nhận mã đơn và mã QR chuyển khoản. Giá, tài khoản nhận tiền, số Zalo nằm trong `shop.json`. Đối chiếu tiền và tạo thiệp từ đơn: [docs/BAN-THIEP.md](docs/BAN-THIEP.md).
