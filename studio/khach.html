@@ -37,6 +37,13 @@
   .hidden-wish { opacity: .45; }
   .msg { padding: 30px; text-align: center; color: var(--soft); }
   time { color: var(--soft); font-size: 12.5px; white-space: nowrap; }
+  .links { padding: 16px; display: grid; gap: 12px; }
+  .links textarea { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; min-height: 130px; resize: vertical; }
+  .links .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .links button { border: 1px solid var(--line); background: #fff; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+  .links button.main { background: var(--ink); color: #fff; border-color: var(--ink); }
+  td.url { font-size: 12.5px; color: var(--soft); word-break: break-all; }
+  td.cp button { border: 1px solid var(--line); background: #fff; padding: 4px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -46,6 +53,7 @@
   <div class="tabs">
     <button type="button" class="on" data-t="rsvps">Xác nhận</button>
     <button type="button" data-t="wishes">Lời chúc</button>
+    <button type="button" data-t="links">Tạo link mời</button>
     <input id="search" type="search" placeholder="Tìm tên…" aria-label="Tìm tên">
     <button type="button" class="csv" id="csv">Tải file Excel (CSV)</button>
   </div>
@@ -71,6 +79,8 @@
       ...Object.entries(bySide).map(([s, n]) => ['', n, s]), ['', data.wishes.filter(w => !w.hidden).length, 'lời chúc'],
     ].map(([c, n, t]) => `<div class="stat ${c}"><b>${n}</b><span>${esc(t)}</span></div>`).join('');
     const f = $('#search').value.trim().toLowerCase(), match = x => !f || x.name.toLowerCase().includes(f);
+    $('#search').hidden = $('#csv').hidden = tab === 'links';
+    if (tab === 'links') return renderLinks();
     if (tab === 'rsvps') {
       const rows = rs.filter(match).sort((a, b) => b.at.localeCompare(a.at));
       $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Tham dự</th><th>Số người</th><th>Khách của</th><th>Lúc</th></tr></thead><tbody>${rows.map(r =>
@@ -80,6 +90,36 @@
       $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Lời chúc</th><th>Lúc</th></tr></thead><tbody>${rows.map(w =>
         `<tr class="${w.hidden ? 'hidden-wish' : ''}"><td>${esc(w.name)}</td><td>${esc(w.message)}${w.hidden ? ' <i>(đã ẩn)</i>' : ''}</td><td><time>${when(w.at)}</time></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có lời chúc nào.</p>';
     }
+  }
+
+  // Mỗi khách một link ghi sẵn tên: bìa thiệp ghi "kính mời <tên>", tên điền sẵn vào ô xác nhận
+  const SAVED_NAMES = `sayhello:guests:${slug}`;
+  const inviteUrl = name => `${location.origin}/${slug}/?k=${encodeURIComponent(name).replace(/%20/g, '+')}`;
+  function renderLinks() {
+    let names = ''; try { names = localStorage.getItem(SAVED_NAMES) || ''; } catch {}
+    $('#list').innerHTML = `<div class="links">
+      <p>Mỗi dòng một tên khách, đúng cách bạn muốn hiện trên thiệp (vd. <i>Anh Tuấn &amp; chị Hoa</i>, <i>Gia đình cô Lan</i>).</p>
+      <textarea id="names" placeholder="Chị Lan&#10;Anh Tuấn và người thương&#10;Gia đình bác Hải">${esc(names)}</textarea>
+      <div class="row"><button class="main" type="button" id="make">Tạo link</button><button type="button" id="links-csv">Tải danh sách link (CSV)</button></div>
+      <div id="out"></div></div>`;
+    const list = () => $('#names').value.split('\n').map(s => s.trim()).filter(Boolean);
+    const draw = () => {
+      const ns = list(); try { localStorage.setItem(SAVED_NAMES, $('#names').value); } catch {}
+      $('#out').innerHTML = ns.length ? `<table><thead><tr><th>Khách</th><th>Link</th><th></th></tr></thead><tbody>${ns.map((n, i) =>
+        `<tr><td>${esc(n)}</td><td class="url">${esc(inviteUrl(n))}</td><td class="cp"><button type="button" data-i="${i}">Sao chép</button></td></tr>`).join('')}</tbody></table>` : '';
+      $('#out').querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', async () => {
+        const n = ns[b.dataset.i], msg = `Trân trọng kính mời ${n} tới dự lễ cưới của chúng mình: ${inviteUrl(n)}`;
+        try { await navigator.clipboard.writeText(msg); b.textContent = 'Đã chép ✓'; } catch { b.textContent = 'Không chép được'; }
+        setTimeout(() => (b.textContent = 'Sao chép'), 1800);
+      }));
+    };
+    $('#make').addEventListener('click', draw);
+    $('#links-csv').addEventListener('click', () => {
+      const cell = v => `"${String(v).replace(/"/g, '""')}"`;
+      const blob = new Blob(['\ufeff' + [['Khách', 'Link'], ...list().map(n => [n, inviteUrl(n)])].map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${slug}-link-moi.csv`; a.click();
+    });
+    if (names) draw();
   }
 
   document.querySelectorAll('.tabs [data-t]').forEach(b => b.addEventListener('click', () => {
