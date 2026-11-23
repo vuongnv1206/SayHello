@@ -1,0 +1,202 @@
+/* Mẫu "Tin Nhắn": nhóm chat ấm áp. Nền kem như giấy, bong bóng trắng (chú rể), hồng phấn (cô dâu),
+   san hô (khách trả lời). Chữ tiêu đề Fraunces, chữ nhắn tin Be Vietnam Pro. */
+:root {
+  --wall: #f6efe6; --wall-2: #efe4d6; --white: #fffdfb; --blush: #fde6dc; --coral: #e0644f; --coral-hi: #ef7a62; --coral-soft: #fbd9cd;
+  --teal: #2f7d6d; --gold: #ffd27a; --ink: #2d2420; --ink-soft: #7a6a60; --line: rgba(45, 36, 32, .12);
+  --f-title: 'Fraunces', Georgia, serif;
+  --f-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+  --c-bg: #e9ddd0; --c-paper: var(--wall); --c-ink: var(--ink); --c-accent: var(--coral); --c-accent-ink: #fff; --c-soft: var(--line);
+}
+body { font-family: var(--f-sans); color: var(--ink); background: radial-gradient(ellipse at 50% 0, #f3e6d8, #e2d3c3 70%); background-attachment: fixed; }
+main { max-width: 520px; overflow: clip; box-shadow: 0 30px 80px rgba(45, 36, 32, .25);
+  background: radial-gradient(circle at 20% 10%, rgba(255, 255, 255, .6), transparent 40%), radial-gradient(circle, rgba(224, 100, 79, .07) 1.5px, transparent 2px) 0 0 / 26px 26px, var(--wall); }
+.btn { font-weight: 600; font-size: 14.5px; letter-spacing: .02em; padding: 11px 26px; background: var(--coral); color: #fff; box-shadow: 0 6px 16px rgba(224, 100, 79, .3); }
+.btn.small { padding: 8px 18px; font-size: 13px; margin-top: 10px; }
+
+/* ======================================================
+   BÌA: màn hình khóa có thông báo
+   ====================================================== */
+.cover { display: block; overflow: hidden; background: #1d1714; color: #fff; }
+.lock { position: absolute; inset: 0; }
+.lock img { width: 100%; height: 100%; object-fit: cover; filter: blur(16px) brightness(.55) saturate(1.2); transform: scale(1.15); }
+.lock::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .25), transparent 40%, rgba(0, 0, 0, .45)); }
+.clock { position: absolute; top: 11vh; left: 0; right: 0; text-align: center; animation: rise 1s cubic-bezier(.2, .9, .3, 1.1) both; }
+.clock .hm { display: block; font-weight: 600; font-size: clamp(64px, 21vw, 92px); line-height: 1; letter-spacing: -.02em; }
+.clock span { display: block; margin-top: 8px; font-size: 16px; font-weight: 500; opacity: .9; }
+.notif { position: absolute; top: 39vh; left: 50%; width: min(calc(100% - 24px), 420px); translate: -50% 0; display: grid; grid-template-columns: 40px 1fr; column-gap: 12px; row-gap: 2px; align-items: center; padding: 14px 16px; text-align: left; color: var(--ink);
+  background: rgba(255, 253, 251, .8); -webkit-backdrop-filter: blur(22px) saturate(1.4); backdrop-filter: blur(22px) saturate(1.4); border-radius: 22px; box-shadow: 0 16px 40px rgba(0, 0, 0, .3);
+  animation: drop .7s cubic-bezier(.2, 1.3, .4, 1) .5s both, nudge 3.2s ease-in-out 2s infinite; transition: transform .5s cubic-bezier(.3, 1.4, .5, 1), opacity .5s; }
+.notif:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.app { grid-row: span 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(160deg, var(--coral-hi), var(--coral)); color: #fff; font-style: normal; font-size: 20px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); }
+.nt { display: flex; justify-content: space-between; gap: 8px; }
+.nt b { font-weight: 600; font-size: 15px; }
+.nt small { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+.nb { font-size: 14.5px; line-height: 1.4; }
+.cover-hint { position: absolute; left: 0; right: 0; bottom: 9vh; padding: 0 30px; text-align: center; font-size: 13px; opacity: .8; animation: rise 1s ease 1.2s both; }
+.home-bar { position: absolute; left: 50%; bottom: 10px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: rgba(255, 255, 255, .85); }
+.cover.tapped .notif { animation: none; transform: scale(1.06); }
+.cover.tapped .cover-hint, .cover.tapped .clock { opacity: 0; transition: opacity .3s; }
+.cover.open { animation: fade .6s ease forwards; }
+
+/* ===== Thanh trên cùng của nhóm chat ===== */
+.top { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; min-height: 62px; padding: 10px 14px 10px 66px;
+  background: rgba(246, 239, 230, .9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+.av2 { position: absolute; left: 12px; top: 8px; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--wall); }
+.av2.b { left: 28px; top: 20px; }
+.top div { display: grid; line-height: 1.25; }
+.top b { font-family: var(--f-title); font-weight: 600; font-size: 17px; }
+.top small { font-size: 12px; color: var(--teal); }
+.top small::before { content: "● "; font-size: 9px; vertical-align: 1px; }
+.call { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--white); text-decoration: none; font-size: 17px; box-shadow: 0 1px 3px var(--line); }
+
+/* ===== Tin nhắn ===== */
+.thread { display: grid; gap: 6px; padding: 6px 12px 14px; }
+.day { text-align: center; margin: 14px 0 6px; }
+.day span { display: inline-block; padding: 3px 12px; border-radius: 999px; background: rgba(45, 36, 32, .07); font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+.row { position: relative; display: flex; align-items: flex-end; gap: 8px; max-width: 88%; }
+.av { flex: none; width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.av.ghost { visibility: hidden; }
+.bub { position: relative; min-width: 0; padding: 8px 13px 9px; border-radius: 18px 18px 18px 6px; background: var(--white); box-shadow: 0 1px 1.5px rgba(45, 36, 32, .14); font-size: 15.5px; line-height: 1.5; text-align: left; overflow-wrap: anywhere; }
+.row.bride .bub { background: var(--blush); }
+.who { display: block; font-size: 12px; font-weight: 600; color: var(--coral); margin-bottom: 1px; }
+.row.groom .who { color: var(--teal); }
+.bub p + p { margin-top: 6px; }
+.tm { float: right; margin: 6px 0 -4px 10px; font-size: 11px; color: var(--ink-soft); }
+.bub.me { justify-self: end; max-width: 88%; border-radius: 18px 18px 6px 18px; background: var(--coral); color: #fff; }
+.bub.media { padding: 4px; }
+.bub.media .who { padding: 4px 8px 2px; }
+.pic { margin: 0; }
+.pic img { width: min(62vw, 240px); aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; }
+.bub.card { padding: 12px; }
+
+/* Thiệp mời trong bong bóng */
+.invite-card { width: min(62vw, 250px); padding: 18px 14px; text-align: center; border-radius: 12px; border: 1px solid rgba(224, 100, 79, .35); background: radial-gradient(ellipse at 50% 0, #fff, var(--white)); }
+.invite-card small { font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--coral); }
+.invite-card h1 { font-family: var(--f-title); font-style: italic; font-weight: 600; font-size: 30px; line-height: 1.1; margin: 8px 0 10px; }
+.invite-card h1 span { display: block; }
+.invite-card h1 em { display: block; font-weight: 400; font-size: .55em; color: var(--coral); }
+.invite-card p { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+/* Danh thiếp, gia đình */
+.contact { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; width: min(64vw, 270px); }
+.contact img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.contact small { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--coral); }
+.contact b { display: block; font-family: var(--f-title); font-weight: 600; font-size: 17px; line-height: 1.3; }
+.contact span { display: block; font-size: 13px; line-height: 1.45; color: var(--ink-soft); margin-top: 2px; }
+.fams { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.fams small { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--coral); }
+.fams p { font-size: 14px; margin: 0 !important; }
+.fams span { display: block; font-size: 12px; color: var(--ink-soft); line-height: 1.45; margin-top: 4px; }
+
+/* Lịch hẹn */
+.event { display: grid; grid-template-columns: 52px 1fr; gap: 12px; width: min(66vw, 280px); }
+.cal-ic { align-self: start; overflow: hidden; border-radius: 10px; background: #fff; text-align: center; box-shadow: 0 1px 3px var(--line); }
+.cal-ic small { display: block; padding: 2px 0; font-size: 10.5px; font-weight: 600; color: #fff; background: var(--coral); }
+.cal-ic b { display: block; font-family: var(--f-title); font-weight: 700; font-size: 24px; line-height: 1.4; }
+.event h3 { font-family: var(--f-title); font-weight: 600; font-size: 18px; line-height: 1.25; }
+.event .t { font-size: 13.5px; font-weight: 600; color: var(--coral); margin-top: 2px; }
+.event .lunar { font-size: 12.5px; font-style: italic; color: var(--ink-soft); }
+.event .v { font-size: 14px; font-weight: 500; margin-top: 6px; }
+.event .a { font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+.event.main .cal-ic small { background: var(--teal); }
+.cal { width: min(66vw, 280px); font-size: 12.5px; text-align: center; }
+.cal h3 { font-family: var(--f-title); font-weight: 600; font-size: 16px; margin-bottom: 6px; }
+.cal .wd { font-size: 10.5px; color: var(--ink-soft); }
+.cal-grid { gap: 2px; }
+.cal-grid .wed { background: var(--coral); color: #fff; font-weight: 600; }
+.cal-grid .eng { box-shadow: inset 0 0 0 1.5px var(--teal); border-radius: 50%; }
+.events .bub.card:has(.cal) { text-align: center; }
+
+/* Tin ghim + đếm ngược */
+.pin { display: flex; gap: 10px; align-items: center; margin: 10px 0 4px; padding: 9px 12px; border-radius: 12px; background: var(--white); border-left: 3px solid var(--coral); box-shadow: 0 1px 2px var(--line); text-align: left; }
+.pin-ic { font-size: 16px; }
+.pin small { display: block; font-size: 11.5px; font-weight: 600; color: var(--coral); }
+.pin b { display: block; font-weight: 500; font-size: 14px; }
+.cd { gap: 6px; width: min(66vw, 280px); }
+.cd .u { padding: 8px 0 6px; border-radius: 12px; background: var(--coral-soft); text-align: center; }
+.cd b { font-family: var(--f-title); font-weight: 700; font-size: 26px; color: var(--ink); }
+.cd span { font-size: 9.5px; letter-spacing: .08em; color: var(--ink-soft); }
+.cd-done { font-family: var(--f-title); font-style: italic; font-size: 18px; }
+
+/* Ảnh đã gửi */
+.grid { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; width: min(66vw, 270px); overflow: hidden; border-radius: 14px; }
+.grid img { grid-column: span 3; aspect-ratio: 1; object-fit: cover; cursor: zoom-in; }
+.grid.g1 img { grid-column: 1 / -1; aspect-ratio: 4 / 5; }
+.grid.g3 img:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; }
+.grid.g5 img:nth-child(n+3) { grid-column: span 2; }
+.more { position: absolute; right: 0; bottom: 0; width: calc(33.33% - 2px); aspect-ratio: 1; display: grid; place-items: center; background: rgba(45, 36, 32, .55); color: #fff; font-weight: 600; font-size: 20px; pointer-events: none; }
+
+/* Vị trí */
+.map-sec .bub.card { width: min(74vw, 330px); }
+.map-sec .tabs { justify-content: flex-start; margin: 8px 0; }
+.tabs button { font-size: 12px; padding: 5px 11px; }
+.addr { font-size: 13px; color: var(--ink-soft); }
+.map { margin: 8px 0 4px; border-radius: 12px; }
+.map iframe { height: 210px; }
+
+/* Khách trả lời: biểu mẫu trong bong bóng của mình */
+.bub.me.form-bub { width: min(86%, 380px); background: var(--white); color: var(--ink); border: 1.5px solid var(--coral-soft); }
+.form-bub .form { gap: 10px; }
+.form input:not([type=radio]), .form textarea, .form select { font-size: 15px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); }
+.choice span { font-size: 13.5px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; }
+.choice input:checked + span { background: var(--coral); color: #fff; border-color: var(--coral); }
+.msg { font-size: 13.5px; color: var(--teal); font-weight: 500; }
+
+/* Lời chúc: bong bóng của những người đã nhắn */
+.wishes { gap: 8px; max-height: 460px; margin: 14px -8px 0; padding: 4px 8px; }
+.wishes > :not(.wish-item) { font-size: 13px; color: var(--ink-soft); text-align: center; }
+.wish-item { justify-self: start; max-width: 88%; padding: 7px 12px 8px; border-radius: 16px 16px 16px 6px; background: #f8f1ea; border: 1px solid var(--line); }
+.wish-item:nth-child(even) { background: var(--blush); }
+.wish-item b { font-size: 12px; font-weight: 600; color: var(--teal); }
+.wish-item p { font-size: 14.5px; line-height: 1.5; }
+
+/* Bao lì xì */
+.bub.me.gift-bub { width: min(78%, 320px); background: var(--white); color: var(--ink); border: 1.5px solid var(--coral-soft); text-align: center; }
+.giftbox { position: relative; width: 210px; height: 120px; perspective: 600px; }
+.giftbox > i, .giftbox > b, .giftbox > span { position: absolute; display: block; }
+.env { inset: 0; border-radius: 12px; background: linear-gradient(160deg, #e2453a, #b51f24); box-shadow: 0 10px 22px rgba(181, 31, 36, .3); }
+.flap { left: 0; right: 0; top: 0; height: 64px; border-radius: 12px 12px 0 0; background: linear-gradient(180deg, #ef5a4c, #c8282b); clip-path: polygon(0 0, 100% 0, 100% 40%, 50% 100%, 0 40%); transform-origin: 50% 0; transition: transform .7s cubic-bezier(.3, 1.4, .5, 1); z-index: 2; }
+.seal { left: 50%; top: 40px; width: 40px; height: 40px; margin-left: -20px; border-radius: 50%; display: grid !important; place-items: center; background: radial-gradient(circle at 35% 30%, #ffe59a, #e7b43c 60%, #a67a14); color: #a01d22; font-size: 18px; z-index: 3; transition: opacity .3s; }
+.lbl { left: 0; right: 0; bottom: 12px; color: #ffe9c2; font-size: 13px; font-weight: 600; letter-spacing: .06em; z-index: 1; }
+.giftbox.open .flap { transform: rotateX(180deg); z-index: 0; }
+.giftbox.open .seal { opacity: 0; }
+.gift-bub .hint { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; }
+.acc { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: none; }
+.acc h3 { font-family: var(--f-title); font-weight: 600; font-size: 17px; }
+
+/* Kết */
+.sticker { font-size: 68px; line-height: 1; color: var(--coral); padding: 4px; filter: drop-shadow(0 6px 10px rgba(224, 100, 79, .35)); animation: beat 1.6s ease-in-out infinite; }
+.sticker.beat { animation: pop .5s cubic-bezier(.3, 1.8, .5, 1); }
+.seen { justify-self: end; display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-soft); }
+.seen img { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
+.thanks { padding-bottom: 30px; }
+footer { padding: 18px; text-align: center; font-size: 12px; letter-spacing: .08em; color: var(--ink-soft); border-top: 1px solid var(--line); }
+
+/* ===== Tin nhắn hiện lần lượt (chỉ khi có JavaScript và không giảm chuyển động) ===== */
+.chat-js .thread > .row, .chat-js .thread > .bub, .chat-js .thread > .pin, .chat-js .thread > .seen { opacity: 0; transform: translateY(12px) scale(.96); transform-origin: 0 100%; transition: opacity .3s, transform .45s cubic-bezier(.2, 1.4, .4, 1); }
+.chat-js .thread > .bub.me, .chat-js .thread > .seen { transform-origin: 100% 100%; }
+.chat-js .thread > .on, .chat-js .thread > .pending { opacity: 1; transform: none; }
+.row.pending > * { visibility: hidden; }
+.row.pending::after { content: ""; position: absolute; left: 38px; bottom: 0; width: 58px; height: 34px; border-radius: 18px 18px 18px 6px; box-shadow: 0 1px 1.5px rgba(45, 36, 32, .14);
+  background: radial-gradient(circle, var(--ink-soft) 3.5px, transparent 4px) 14px 50% / 10px 10px no-repeat, radial-gradient(circle, var(--ink-soft) 3.5px, transparent 4px) 24px 50% / 10px 10px no-repeat, radial-gradient(circle, var(--ink-soft) 3.5px, transparent 4px) 34px 50% / 10px 10px no-repeat, var(--white);
+  animation: typing 1s steps(3) infinite; }
+
+/* ===== Nổi trên trang ===== */
+.progress { top: 0; }
+.progress i { background: linear-gradient(90deg, var(--coral), var(--gold)); }
+.music, .love { background: var(--white); color: var(--coral); box-shadow: 0 4px 14px rgba(45, 36, 32, .2); }
+.fly-item { color: var(--ink); background: rgba(255, 253, 251, .92); border-radius: 16px 16px 16px 6px; box-shadow: 0 2px 8px rgba(45, 36, 32, .15); }
+.fly-item b { color: var(--coral); }
+.heart { color: var(--coral); }
+.cheers { background: rgba(45, 36, 32, .5); }
+.cheers-card { background: var(--white); border-radius: 22px; }
+.cheers-card h3 { font-family: var(--f-title); font-style: italic; font-weight: 600; font-size: 30px; color: var(--coral); }
+
+@keyframes rise { from { opacity: 0; transform: translateY(20px); } }
+@keyframes drop { from { opacity: 0; transform: translateY(-60px) scale(.94); } }
+@keyframes nudge { 0%, 88%, 100% { transform: none; } 92% { transform: translateY(-4px); } 96% { transform: translateY(1px); } }
+@keyframes fade { to { opacity: 0; } }
+@keyframes beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.15); } 24% { transform: scale(1); } 36% { transform: scale(1.1); } }
+@keyframes pop { from { transform: scale(.6); } }
+@keyframes typing { 0% { background-position: 14px 40%, 24px 50%, 34px 50%, 0 0; } 33% { background-position: 14px 50%, 24px 40%, 34px 50%, 0 0; } 66% { background-position: 14px 50%, 24px 50%, 34px 40%, 0 0; } }
+@media (prefers-reduced-motion: reduce) { .notif, .sticker, .row.pending::after { animation: none !important; } }
