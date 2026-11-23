@@ -206,3 +206,44 @@ console.log('✓ Apps Script: nhắc ngày cưới, sao lưu, cài chạy tự �
   assert.ok(!JSON.stringify(get({ invite: S, type: 'content' })).includes('Anh Tuấn'));
   console.log('✓ Apps Script: danh sách khách mời riêng tư');
 }
+
+// Xếp bàn và check-in: gộp theo từng khách, cần mã sửa
+{
+  const S = 'xep-ban', K = key(S);
+  assert.equal(get({ invite: S, type: 'seating', key: 'sai' }).error, 'key');
+  assert.deepEqual(get({ invite: S, type: 'seating', key: K }).seats, {});
+  assert.equal(post({ invite: S, type: 'seating', key: 'sai', entries: [{ k: 'g:a', t: '1' }] }).error, 'key');
+  post({ invite: S, type: 'seating', key: K, entries: [{ k: 'g:a', n: 'Chị Lan', t: 'Bàn 3' }, { k: 'w:khach', n: 'Khách vãng lai', c: true }] });
+  // Điện thoại thứ hai check-in cho khách khác cùng lúc: không làm mất bàn đã xếp của khách thứ nhất
+  post({ invite: S, type: 'seating', key: K, entries: [{ k: 'g:a', c: true }] });
+  const s1 = get({ invite: S, type: 'seating', key: K }).seats;
+  assert.deepEqual(s1['g:a'], { n: 'Chị Lan', t: 'Bàn 3', c: true });
+  assert.deepEqual(s1['w:khach'], { n: 'Khách vãng lai', t: '', c: true });
+  post({ invite: S, type: 'seating', key: K, entries: [{ k: 'w:khach', n: '', t: '', c: false }] }); // trống hết thì xóa
+  assert.ok(!('w:khach' in get({ invite: S, type: 'seating', key: K }).seats));
+  assert.equal(post({ invite: S, type: 'seating', key: K, entries: 'x' }).error, 'entries');
+  assert.equal(sheets['_Bàn tiệc'].data.length, 2);
+  console.log('✓ Apps Script: xếp bàn và check-in');
+}
+
+// Kiểm tra đường dẫn trùng và tra cứu đơn (công khai, không cần mã sửa, chạy được cả khi ALLOWED có danh sách)
+{
+  post({ type: 'order', code: 'SHZZZZZZ', theme: 'thu-tay', pack: 'co-ban', price: 1, groom: 'X', bride: 'Y', date: '2030-01-01', phone: '0987 654 321', slug: 'x-y' });
+  assert.equal(get({ type: 'check_slug', slug: 'x-y' }).taken, true, 'đã có đơn dùng đường dẫn này');
+  assert.equal(get({ type: 'check_slug', slug: 'an-binh' }).taken, true, 'đã có tab thiệp');
+  assert.equal(get({ type: 'check_slug', slug: 'chua-ai-dung' }).taken, false);
+  assert.equal(get({ type: 'check_slug', slug: 'Sai Dinh Dang!' }).taken, true);
+  assert.equal(get({ type: 'check_slug', slug: 'cuong-dung' }).taken, true, 'có đơn chưa hủy');
+  assert.equal(get({ type: 'check_slug', slug: 'em-gam' }).taken, false, 'đơn của em-gam đã hủy nên nhả đường dẫn');
+  sheets['_Đơn hàng'].data.find(r => r[1] === 'SHZZZZZZ')[11] = 'Đã hủy';
+  assert.equal(get({ type: 'check_slug', slug: 'x-y' }).taken, false, 'đơn đã hủy thì nhả đường dẫn');
+  sheets['_Đơn hàng'].data.find(r => r[1] === 'SHZZZZZZ')[11] = 'Chờ chuyển khoản';
+  assert.deepEqual(get({ type: 'order_status', code: 'SHZZZZZZ', phone: '9999' }), { found: false }, 'sai 4 số cuối');
+  assert.deepEqual(get({ type: 'order_status', code: 'SHKHONGCO', phone: '4321' }), { found: false });
+  const st = get({ type: 'order_status', code: 'shzzzzzz', phone: '0987 654 321' });
+  assert.equal(st.found, true); assert.equal(st.status, 'Chờ chuyển khoản'); assert.equal(st.inviteUrl, '');
+  assert.ok(!JSON.stringify(st).includes('0987') && !('phone' in st), 'không trả về số điện thoại');
+  sheets['_Đơn hàng'].data.find(r => r[1] === 'SHZZZZZZ')[11] = 'Đã giao';
+  assert.match(get({ type: 'order_status', code: 'SHZZZZZZ', phone: '4321' }).inviteUrl, /^https:\/\/[^/]+\/x-y\/$/, 'đã giao thì có link thiệp');
+  console.log('✓ Apps Script: kiểm tra đường dẫn trùng và tra cứu đơn');
+}

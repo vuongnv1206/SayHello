@@ -15,7 +15,7 @@ const toSlug = s => plain(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/
 const ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const newCode = () => 'SH' + Array.from(crypto.getRandomValues(new Uint8Array(6)), b => ABC[b % ABC.length]).join('');
 
-let shop, themes, slugEdited = false;
+let shop, themes, slugEdited = false, usedSlugs = [];
 
 function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
@@ -57,6 +57,33 @@ function suggestSlug() {
   if (slugEdited) return;
   const g = form.groom.value.trim(), b = form.bride.value.trim();
   form.slug.value = toSlug([g, b].filter(Boolean).join(' '));
+}
+
+// Đường dẫn đã có thiệp (slugs.json do npm run build sinh) hoặc đã có đơn (hỏi Google Sheet)
+async function slugTaken(slug) {
+  if (!slug) return false;
+  if (usedSlugs.includes(slug)) return true;
+  if (!shop.orderSheetUrl) return false;
+  try {
+    const u = shop.orderSheetUrl + (shop.orderSheetUrl.includes('?') ? '&' : '?') + new URLSearchParams({ type: 'check_slug', slug });
+    return !!(await (await fetch(u)).json()).taken;
+  } catch { return false; } // không hỏi được thì cho đi tiếp, người bán sẽ đổi tay khi cần
+}
+async function suggestFree(slug, date) {
+  const year = (date || '').slice(0, 4);
+  for (const c of [year && slug + '-' + year, slug + '-wedding', slug + '-2', slug + '-3'].filter(Boolean)) if (!(await slugTaken(c))) return c;
+  return '';
+}
+let slugT = null;
+function checkSlugSoon() {
+  clearTimeout(slugT);
+  const msg = $('#slug-msg'); msg.textContent = ''; msg.className = '';
+  slugT = setTimeout(async () => {
+    const slug = toSlug(form.slug.value);
+    if (!slug || !(await slugTaken(slug))) return;
+    const alt = await suggestFree(slug, form.date.value);
+    msg.className = 'err'; msg.textContent = 'Đường dẫn này đã có người dùng.' + (alt ? ' Bạn thử: ' + alt : '');
+  }, 450);
 }
 
 function validate(o) {
@@ -109,6 +136,7 @@ async function send(o) {
 form.addEventListener('input', e => {
   if (e.target.name === 'slug') { slugEdited = !!e.target.value; e.target.value = toSlug(e.target.value) + (e.target.value.endsWith('-') ? '-' : ''); }
   if (e.target.name === 'groom' || e.target.name === 'bride') suggestSlug();
+  if (['slug', 'groom', 'bride'].includes(e.target.name)) checkSlugSoon();
   updateSummary();
   $('#err').textContent = '';
 });
@@ -125,7 +153,13 @@ form.addEventListener('submit', async e => {
   const err = validate({ ...o, theme, pack });
   if (err) { $('#err').textContent = err; return; }
   const btn = $('#submit');
-  btn.disabled = true; btn.textContent = 'Đang gửi…';
+  btn.disabled = true; btn.textContent = 'Đang kiểm tra…';
+  if (await slugTaken(o.slug)) {
+    const alt = await suggestFree(o.slug, o.date);
+    $('#err').textContent = 'Đường dẫn "' + o.slug + '" đã có người dùng.' + (alt ? ' Bạn thử "' + alt + '" nhé.' : ' Hãy chọn đường dẫn khác.');
+    btn.disabled = false; btn.textContent = 'Đặt thiệp và lấy mã QR'; return;
+  }
+  btn.textContent = 'Đang gửi…';
   const status = await send(o);
   btn.disabled = false; btn.textContent = 'Đặt thiệp và lấy mã QR';
   try { localStorage.setItem(SAVED, JSON.stringify({ o, status })); } catch {}
@@ -145,7 +179,27 @@ $('#new-order').addEventListener('click', () => {
   scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+// Tra cứu đơn bằng mã đơn + 4 số cuối điện thoại
+$('#lk-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const out = $('#lk-out'), fd = new FormData(e.target), btn = $('#lk-btn');
+  out.className = ''; out.replaceChildren();
+  if (!shop.orderSheetUrl) { out.textContent = 'Hệ thống tra cứu chưa bật. Bạn nhắn Zalo kèm mã đơn nhé.'; return; }
+  btn.disabled = true; out.textContent = 'Đang tra cứu…';
+  try {
+    const u = shop.orderSheetUrl + (shop.orderSheetUrl.includes('?') ? '&' : '?') + new URLSearchParams({ type: 'order_status', code: String(fd.get('code')).trim().toUpperCase(), phone: String(fd.get('phone')).trim() });
+    const d = await (await fetch(u)).json();
+    if (!d.found) { out.className = 'err'; out.textContent = 'Không tìm thấy đơn. Kiểm tra lại mã đơn và 4 số cuối điện thoại.'; }
+    else {
+      out.textContent = 'Đơn của bạn: ' + d.status + (d.theme ? ' · mẫu ' + d.theme : '') + '. ';
+      if (d.inviteUrl) out.append(el('a', { href: d.inviteUrl, target: '_blank', rel: 'noopener' }, 'Mở thiệp của bạn →'));
+    }
+  } catch { out.className = 'err'; out.textContent = 'Chưa tra cứu được, bạn thử lại sau nhé.'; }
+  btn.disabled = false;
+});
+
 (async () => {
+  usedSlugs = await fetch('../slugs.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => []);
   [shop, themes] = await Promise.all([fetch('../shop.json', { cache: 'no-cache' }).then(r => r.json()), fetch('../themes/index.json').then(r => r.json())]);
   $('#draft-note').hidden = !shop.giaTam;
   $('#host').textContent = location.host + '/';

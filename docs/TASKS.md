@@ -51,10 +51,10 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 - [x] Bảng màu có sẵn cho từng mẫu, chọn trong Studio.
 
 **Pha 3: vòng đời thiệp, ngày cưới**
-- [ ] Sau ngày cưới chuyển sang trang kỷ niệm; hết hạn gói thì hiện trang lưu niệm (không 404).
-- [ ] Tên miền riêng cho gói Riêng: `publicUrl`/`assetBase`, CORS trong `vercel.json`.
-- [ ] Màn hình lời chúc tại tiệc `?wall=1`; xếp bàn và check-in.
-- [ ] `/dat-thiep/`: báo trùng đường dẫn, tra cứu trạng thái mã đơn.
+- [x] Sau ngày cưới chuyển sang trang kỷ niệm; hết hạn gói thì hiện trang lưu niệm (không 404).
+- [x] Tên miền riêng cho gói Riêng: `publicUrl`/`assetBase`, CORS trong `vercel.json`.
+- [x] Màn hình lời chúc tại tiệc `?wall=1`; xếp bàn và check-in.
+- [x] `/dat-thiep/`: báo trùng đường dẫn, tra cứu trạng thái mã đơn.
 - [ ] 5 ý tưởng mẫu mới: Thiệp Gấp Pop-up, Khung Thêu, Cà Phê Phin, Bình Gốm Kintsugi, Kính Vạn Hoa.
 
 ## Đã xong

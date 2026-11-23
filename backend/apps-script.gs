@@ -17,8 +17,12 @@
  *   ?invite=ten-cap-doi&type=guests&key=... -> { rsvps: [...], wishes: [...] }  (trang quản lý của cặp đôi)
  *   ?invite=ten-cap-doi&type=invite_list&key=... -> { list: [{ name, group, sent }] }  (danh sách khách mời cặp đôi đã lưu, riêng tư)
  *   { invite: 'ten-cap-doi', type: 'invite_list', key, list: [...] }   (lưu danh sách khách mời, đánh dấu đã gửi)
+ *   ?invite=ten-cap-doi&type=seating&key=... -> { seats: { <mã khách>: { n, t, c } } }  (xếp bàn và check-in tại sảnh)
+ *   { invite: 'ten-cap-doi', type: 'seating', key, entries: [{ k, n, t, c }] }   (cập nhật từng khách, nhiều lễ tân dùng cùng lúc không đè nhau)
  *
  *   { invite: 'ten-cap-doi', type: 'upload', key, mime, data }   (Studio tải ảnh lên Google Drive của người bán)
+ *   ?type=check_slug&slug=...  -> { taken: true|false }   (trang /dat-thiep/ báo đường dẫn đã có người dùng)
+ *   ?type=order_status&code=SHxxxxxx&phone=1234  -> { found, status, theme, pack, inviteUrl }   (khách tra cứu đơn bằng mã đơn + 4 số cuối điện thoại)
  *   ?type=admin&key=...  -> { orders, invites, keys }   (trang tổng hợp của người bán /ban-hang/, mã riêng của người bán)
  *
  *   { invite: 'ten-cap-doi', type: 'moderate', key, at, name, message, hide, pin }   (cặp đôi ẩn/hiện, ghim lời chúc trên trang quản lý khách)
@@ -50,6 +54,7 @@ const MAX_UPLOADS = 120; // mỗi thiệp, chống lạm dụng
 
 const CONTENT_SHEET = '_Nội dung';
 const LIST_SHEET = '_Khách mời';
+const SEAT_SHEET = '_Bàn tiệc';
 const ORDER_SHEET = '_Đơn hàng';
 const ORDER_HEADERS = ['Thời gian', 'Mã đơn', 'Mẫu', 'Gói', 'Số tiền', 'Chú rể', 'Cô dâu', 'Ngày cưới', 'Điện thoại / Zalo', 'Đường dẫn', 'Ghi chú', 'Trạng thái'];
 const HEADERS = ['Thời gian', 'Loại', 'Tên', 'Tham dự', 'Số người', 'Khách của', 'Lời chúc', 'Ẩn', 'Mã khách', 'Sự kiện', 'Ghi chú', 'Ghim'];
@@ -58,10 +63,17 @@ const MAX_WISHES = 300;
 function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.type === 'admin') return json(validKey('_admin', p.key) ? readAdmin() : { error: 'key' });
+  // Hai loại tra cứu công khai dưới đây chạy trước cleanSlug/ALLOWED vì đường dẫn khách vừa đặt hoặc mã đơn chưa nằm trong ALLOWED
+  if (p.type === 'check_slug') return json({ taken: slugTaken(p.slug) });
+  if (p.type === 'order_status') return json(orderStatus(p.code, p.phone));
   const slug = cleanSlug(p.invite);
   if (!slug) return json({ error: 'invite?' });
   if (p.type === 'hearts') return json({ hearts: getHearts(slug) });
   if (p.type === 'content') return json({ content: readContent(slug) });
+  if (p.type === 'seating') {
+    if (!validKey(slug, p.key)) return json({ error: 'key' });
+    return json({ seats: readSeats(slug) });
+  }
   if (p.type === 'invite_list') {
     if (!validKey(slug, p.key)) return json({ error: 'key' });
     return json({ list: readInviteList(slug) });
@@ -85,6 +97,10 @@ function doPost(e) {
     return json({ ok: true, hearts: addHearts(slug, n) });
   }
 
+  if (d.type === 'seating') {
+    if (!validKey(slug, d.key)) return json({ ok: false, error: 'key' });
+    return json(saveSeats(slug, d.entries));
+  }
   if (d.type === 'invite_list') {
     if (!validKey(slug, d.key)) return json({ ok: false, error: 'key' });
     return json(saveInviteList(slug, d.list));
@@ -260,6 +276,53 @@ function saveInviteList(slug, list) {
   }
 }
 
+/* ---------- Xếp bàn và check-in: tab "_Bàn tiệc", mỗi thiệp một dòng JSON { mã khách: { n: tên, t: bàn, c: đã tới } } ---------- */
+
+function readSeats(slug) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SEAT_SHEET);
+  const row = sh ? findContentRow(sh, slug) : 0;
+  if (!row) return {};
+  try { const v = JSON.parse(sh.getRange(row, 2).getValue()); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+}
+
+// Cập nhật theo từng khách (gộp vào dữ liệu hiện có trong khóa), nên hai điện thoại check-in cùng lúc không ghi đè nhau
+function saveSeats(slug, entries) {
+  if (!Array.isArray(entries)) return { ok: false, error: 'entries' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(SEAT_SHEET);
+    if (!sh) {
+      sh = ss.insertSheet(SEAT_SHEET);
+      sh.appendRow(['Thiệp', 'Xếp bàn và check-in (JSON)', 'Lưu lúc']);
+      sh.setFrozenRows(1);
+      sh.getRange(1, 1, 1, 3).setFontWeight('bold');
+    }
+    let row = findContentRow(sh, slug);
+    if (!row) { sh.appendRow([slug, '', '']); row = sh.getLastRow(); }
+    let seats = {};
+    try { const v = JSON.parse(sh.getRange(row, 2).getValue()); if (v && typeof v === 'object') seats = v; } catch (e) {}
+    entries.slice(0, 200).forEach(e => {
+      const k = String((e && e.k) || '').slice(0, 80);
+      if (!k) return;
+      const cur = seats[k] || (seats[k] = { n: '', t: '', c: false });
+      if (e.n !== undefined) cur.n = String(e.n).replace(/\s+/g, ' ').trim().slice(0, 60);
+      if (e.t !== undefined) cur.t = String(e.t).replace(/\s+/g, ' ').trim().slice(0, 20);
+      if (e.c !== undefined) cur.c = !!e.c;
+      if (!cur.n && !cur.t && !cur.c) delete seats[k];
+    });
+    if (Object.keys(seats).length > 900) return { ok: false, error: 'too_big' };
+    const text = JSON.stringify(seats);
+    if (text.length > 45000) return { ok: false, error: 'too_big' };
+    sh.getRange(row, 2).setNumberFormat('@').setValue(text);
+    sh.getRange(row, 3).setValue(new Date());
+    return { ok: true, seats: seats };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function readGuests(slug) {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(slug);
   if (!sh || sh.getLastRow() < 2) return { rsvps: [], wishes: [] };
@@ -333,6 +396,24 @@ function saveOrder(d) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// Đường dẫn đã có thiệp (tab cùng tên) hoặc đã có đơn (chưa hủy) dùng
+function slugTaken(raw) {
+  const slug = String(raw || '').toLowerCase().trim();
+  if (!/^[a-z0-9][a-z0-9-]{0,59}$/.test(slug)) return true;
+  if (SpreadsheetApp.getActiveSpreadsheet().getSheetByName(slug)) return true;
+  return readOrders().some(o => o.slug === slug && !/\bh[uủ]y\b/i.test(o.status));
+}
+
+// Khách tra cứu đơn: phải đúng cả mã đơn và 4 số cuối điện thoại; không trả về điện thoại hay ghi chú
+function orderStatus(code, phone) {
+  const c = String(code || '').toUpperCase().trim(), last4 = String(phone || '').replace(/\D/g, '').slice(-4);
+  if (!/^SH[A-Z0-9]{6}$/.test(c) || last4.length < 4) return { found: false };
+  const o = readOrders().find(x => x.code === c && String(x.phone).replace(/\D/g, '').slice(-4) === last4);
+  if (!o) return { found: false };
+  const delivered = /giao/i.test(o.status) && !/ch[uư]a/i.test(o.status) && /^[a-z0-9][a-z0-9-]{0,59}$/.test(o.slug);
+  return { found: true, status: o.status, theme: o.theme, pack: o.pack, inviteUrl: delivered ? SITE_URL + '/' + o.slug + '/' : '' };
 }
 
 /* ---------- Ảnh cặp đôi tải lên trong Studio: lưu vào Google Drive của người bán ---------- */

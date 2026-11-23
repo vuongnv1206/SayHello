@@ -63,6 +63,12 @@ Gửi cặp đôi link **Studio** (để sửa thiệp) và link **Quản lý kh
 
 Bản mới thêm 4 cột cuối: **Mã khách** (để hai khách trùng tên không bị gộp), **Sự kiện** (khách dự buổi lễ nào), **Ghi chú** và **Ghim**. Tab cũ vẫn dùng được bình thường, không cần sửa tay. Cặp đôi ẩn/ghim lời chúc ngay trên trang quản lý khách; vẫn có thể gõ `x` vào cột **Ẩn** như trước. Danh sách khách mời cặp đôi lưu ở tab `_Khách mời` (chỉ mở được bằng link quản lý của chính thiệp đó).
 
+## Tab mới (tự tạo khi dùng lần đầu)
+
+- `_Khách mời`: danh sách khách mời cặp đôi lưu trên trang quản lý khách (đã gửi link chưa).
+- `_Bàn tiệc`: xếp bàn và check-in tại sảnh.
+Cả hai chỉ đọc/ghi được bằng link quản lý của chính thiệp đó, không lộ ra ngoài. Cập nhật Apps Script xong mới dùng được các mục này, và mục tra cứu đơn / báo trùng đường dẫn trên `/dat-thiep/`.
+
 ## Hằng ngày
 
 - **Xem ai đến:** mở tab của thiệp, lọc cột "Loại" = Xác nhận.

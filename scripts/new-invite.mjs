@@ -1,6 +1,7 @@
 // Tạo thiệp mới từ thiệp mẫu của một theme.
 //   node scripts/new-invite.mjs minh-khang-thu-ha --theme song-hy
-//   (từ đơn đặt thiệp) npm run new -- minh-khang-thu-ha --theme ve-may-bay --groom "Minh Khang" --bride "Thu Hà" --date 2027-05-22
+//   (từ đơn đặt thiệp) npm run new -- minh-khang-thu-ha --theme ve-may-bay --groom "Minh Khang" --bride "Thu Hà" --date 2027-05-22 --goi co-ban
+//   --goi co-ban|nang-cao|rieng đặt thời hạn lưu (--het-han 2027-11-22 để chọn ngày khác)
 // Sẽ tạo thư mục minh-khang-thu-ha/ (invite.json + ảnh mẫu + index.html). Sau đó:
 //   1. Sửa minh-khang-thu-ha/invite.json (tên, ngày, địa điểm, tài khoản, sheetUrl)
 //   2. Thay ảnh trong minh-khang-thu-ha/images/
@@ -38,6 +39,17 @@ if (opt('date')) {
   (d.events || []).forEach(e => (e.date = move(e.date)));
 }
 delete d.story;
+// Thời hạn lưu theo gói (tính từ hôm nay): Cơ bản 6 tháng, Nâng cao 12 tháng, Riêng không hết hạn. Hết hạn thì link hiện trang lưu niệm, không 404.
+const MONTHS = { 'co-ban': 6, 'nang-cao': 12, rieng: null };
+const pack = opt('goi');
+if (pack) {
+  if (!(pack in MONTHS)) fail('--goi phải là co-ban, nang-cao hoặc rieng');
+  const exp = opt('het-han');
+  if (exp && !/^\d{4}-\d{2}-\d{2}$/.test(exp)) fail('--het-han phải có dạng 2027-11-22');
+  d.lifecycle = { package: pack };
+  if (exp || MONTHS[pack]) { const t = new Date(); t.setMonth(t.getMonth() + (MONTHS[pack] || 0)); d.lifecycle.expiresAt = exp || t.toISOString().slice(0, 10); }
+}
+d.afterWedding = { enabled: true, albumUrl: '', thankNote: '' }; // sau ngày cưới tự thành trang kỷ niệm (cặp đôi tắt được trong Studio)
 writeFileSync(p, JSON.stringify(d, null, 2) + '\n');
 // Ảnh xem trước có tên cặp đôi; thay ảnh cưới thật xong thì chạy lại: npm run xem-truoc -- <slug>
 await makePreview(slug).catch(e => console.warn('! Chưa tạo được ảnh xem trước: ' + e.message));

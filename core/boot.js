@@ -5,11 +5,17 @@ import { createBackend } from './backend.js';
 import { createWidgets } from './widgets.js';
 import { createChrome, createLightbox } from './chrome.js';
 import { loadInvite, inStudio } from './content.js';
+import { isExpired, showExpired } from './expired.js';
+import { showWall } from './wall.js';
 
 const ROOT = new URL('../', import.meta.url);
 
 async function boot() {
   const raw = await loadInvite();
+  if (!inStudio && isExpired(raw)) return showExpired(raw, ROOT);
+  // Tường lời chúc tại sảnh tiệc: <thiệp>/?wall=1
+  if (!inStudio && new URLSearchParams(location.search).get('wall') === '1')
+    return showWall(raw, raw.slug || location.pathname.split('/').filter(Boolean).pop() || 'thiep');
   const themeId = new URLSearchParams(location.search).get('theme') || raw.theme || 'song-hy';
   const themeUrl = new URL(`themes/${themeId}/`, ROOT);
   const theme = (await import(new URL('theme.js', themeUrl))).default;
@@ -28,7 +34,7 @@ async function boot() {
 
   const listeners = {};
   const ctx = {
-    data, slug, theme, themeUrl: themeUrl.href,
+    data, slug, theme, themeUrl: themeUrl.href, root: ROOT.href,
     guest: guestName(), group,
     names: { groom: data.groom.short, bride: data.bride.short, first: first.short, second: second.short, pair: `${first.short} & ${second.short}` },
     album: data.images?.album || [],
@@ -66,6 +72,16 @@ async function boot() {
   main.id = 'card';
   main.innerHTML = toStr(view.main);
   document.body.prepend(cover, main);
+  // Sau ngày cưới (nếu cặp đôi bật trong Studio): trang kỷ niệm, ẩn form xác nhận, mở link album ảnh đầy đủ
+  const aw = data.afterWedding;
+  if (aw?.enabled && Date.parse(data.date) + 24 * 3600e3 < Date.now()) {
+    document.body.classList.add('is-memory');
+    const memo = document.createElement('aside'); memo.className = 'memory-note';
+    const t = document.createElement('p'); t.textContent = aw.thankNote || 'Cảm ơn mọi người đã đến chung vui. Kỷ niệm ngày chung đôi của chúng mình.';
+    memo.append(t);
+    if (aw.albumUrl) { const l = document.createElement('a'); l.href = aw.albumUrl; l.target = '_blank'; l.rel = 'noopener'; l.textContent = 'Xem trọn bộ ảnh ngày cưới'; memo.append(l); }
+    main.prepend(memo);
+  }
   if (group && (group.greeting || group.note)) {
     const note = document.createElement('aside'); note.className = 'group-note'; note.setAttribute('role', 'note');
     const txt = document.createElement('p'); txt.textContent = [group.greeting, group.note].filter(Boolean).join(' · ');

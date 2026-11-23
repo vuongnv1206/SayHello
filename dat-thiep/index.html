@@ -122,6 +122,7 @@
       <label class="f"><span>Đường dẫn mong muốn</span>
         <div class="slug"><em id="host"></em><input name="slug" maxlength="60" placeholder="minh-khang-thu-ha" autocomplete="off" spellcheck="false"></div>
         <small>Chỉ gồm chữ thường không dấu, số và dấu gạch. Tự gợi ý theo tên, có thể sửa.</small>
+        <small id="slug-msg" role="status"></small>
       </label>
       <label class="f"><span>Ghi chú (không bắt buộc)</span><textarea name="note" rows="3" maxlength="500" placeholder="Màu yêu thích, bài nhạc, ý tưởng riêng…"></textarea></label>
       <div class="sum">
@@ -151,6 +152,16 @@
       <p class="status" id="status"></p>
     </div>
     <div class="qr"><img id="qr" alt="Mã QR chuyển khoản"><p id="qr-cap"></p></div>
+  </section>
+  <section class="lookup" id="lookup" aria-labelledby="lk-h">
+    <h2 id="lk-h" style="font-size:20px;margin:36px 0 6px">Đã đặt rồi? Tra cứu đơn</h2>
+    <p style="color:var(--soft);margin-bottom:12px">Nhập mã đơn (dạng SH7K2QPX) và 4 số cuối điện thoại bạn đã dùng khi đặt.</p>
+    <form id="lk-form" class="row" style="align-items:end">
+      <label class="f"><span>Mã đơn</span><input name="code" maxlength="8" required placeholder="SH7K2QPX" autocomplete="off" style="text-transform:uppercase"></label>
+      <label class="f"><span>4 số cuối điện thoại</span><input name="phone" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="1234" autocomplete="off"></label>
+      <button class="btn" type="submit" id="lk-btn">Tra cứu</button>
+    </form>
+    <p id="lk-out" role="status" style="margin-top:12px"></p>
   </section>
 </div>
 <script type="module" src="dat-thiep.js"></script>

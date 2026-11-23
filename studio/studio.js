@@ -156,6 +156,12 @@ async function buildForm() {
     flag('rsvp.pickEvents', 'Cho khách chọn dự buổi lễ nào (khi có từ 2 buổi lễ)'),
     flag('rsvp.note', 'Có ô ghi chú (ăn chay, đi cùng em bé, cần xe đưa đón…)'))));
 
+  // Sau ngày cưới: thiệp thành trang kỷ niệm
+  form.append(group('Sau ngày cưới', 'trang kỷ niệm, link album ảnh', el('div', { class: 'group-body' },
+    checkbox(state, 'afterWedding.enabled', 'Sau ngày cưới, chuyển thiệp thành trang kỷ niệm (ẩn ô xác nhận)', false),
+    input(state, 'afterWedding.albumUrl', { label: 'Link album ảnh đầy đủ (Google Photos, Drive…)', type: 'url', placeholder: 'https://photos.app.goo.gl/…', hint: 'Chỉ nhận link bắt đầu bằng https://' }),
+    input(state, 'afterWedding.thankNote', { label: 'Lời cảm ơn hiện đầu trang kỷ niệm', type: 'textarea', rows: 2 }))));
+
   // Nhóm khách: link ?n=<mã nhóm> hiện lời mời, buổi lễ, địa điểm riêng cho nhóm đó
   const numList = (obj, path, label, hint) => {
     const cur = get(obj, path), box = el('input', { type: 'text', placeholder: 'vd. 1, 2', value: Array.isArray(cur) ? cur.map(i => i + 1).join(', ') : '' });

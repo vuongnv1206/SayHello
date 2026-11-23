@@ -53,7 +53,8 @@ export function createChrome(ctx) {
   musicBtn.className = 'music'; musicBtn.hidden = true; musicBtn.setAttribute('aria-label', 'Bật hoặc tắt nhạc'); musicBtn.innerHTML = '<span>♪</span>';
   document.body.appendChild(musicBtn);
   if (ctx.data.music) {
-    audio = new Audio(ctx.data.music);
+    const m = ctx.data.music; // ../assets/... tính từ gốc web chính, không từ địa chỉ thiệp
+    audio = new Audio(m.startsWith('../assets/') ? new URL(m.slice(3), ctx.root).href : m);
     audio.loop = true; audio.preload = 'none'; audio.volume = .7;
     audio.addEventListener('play', () => musicBtn.classList.add('on'));
     audio.addEventListener('pause', () => musicBtn.classList.remove('on'));

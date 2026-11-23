@@ -54,13 +54,14 @@
     <button type="button" class="on" data-t="rsvps">Xác nhận</button>
     <button type="button" data-t="wishes">Lời chúc</button>
     <button type="button" data-t="links">Tạo link mời</button>
+    <button type="button" data-t="seating">Bàn tiệc &amp; check-in</button>
     <input id="search" type="search" placeholder="Tìm tên…" aria-label="Tìm tên">
     <button type="button" class="csv" id="csv">Tải file Excel (CSV)</button>
   </div>
   <div class="card" id="list"><p class="msg">Đang tải…</p></div>
 </div>
 <script type="module">
-  import { makeQr } from './qr.js';
+  import { makeQr } from '../core/qr.js';
   import { fmt, merge } from '../core/util.js';
   import { pickEditable } from '../core/content.js';
   const $ = s => document.querySelector(s);
@@ -84,8 +85,9 @@
       ...Object.entries(bySide).map(([s, n]) => ['', n, s]), ...Object.entries(byEvent).map(([e, n]) => ['', n, e]), ['', data.wishes.filter(w => !w.hidden).length, 'lời chúc'],
     ].map(([c, n, t]) => `<div class="stat ${c}"><b>${n}</b><span>${esc(t)}</span></div>`).join('');
     const f = $('#search').value.trim().toLowerCase(), match = x => !f || x.name.toLowerCase().includes(f);
-    $('#search').hidden = $('#csv').hidden = tab === 'links';
+    $('#search').hidden = tab === 'links'; $('#csv').hidden = tab === 'links' || tab === 'seating';
     if (tab === 'links') return renderLinks();
+    if (tab === 'seating') return renderSeating();
     if (tab === 'rsvps') {
       const rows = rs.filter(match).sort((a, b) => b.at.localeCompare(a.at));
       $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Tham dự</th><th>Số người</th><th>Khách của</th><th>Buổi lễ · ghi chú</th><th>Lúc</th></tr></thead><tbody>${rows.map(r =>
@@ -190,6 +192,57 @@
       b.disabled = false; setTimeout(() => (b.textContent = 'Ảnh mời'), 2200);
     }));
   }
+
+  // Xếp bàn và check-in tại sảnh: lưu trên Sheet theo từng khách, nhiều lễ tân dùng cùng lúc không đè nhau
+  let seats = {}, seatT = null, seatFilter = '';
+  const seatUrl = () => inv.sheetUrl + (inv.sheetUrl.includes('?') ? '&' : '?') + new URLSearchParams({ invite: slug, type: 'seating', key });
+  const guestKey = r => r.gid ? 'g:' + r.gid : 'n:' + r.name.trim().toLowerCase() + '|' + r.side;
+  async function pullSeats() { try { const d = await (await fetch(seatUrl())).json(); if (d.seats) seats = d.seats; } catch {} }
+  async function patchSeat(entry) {
+    const cur = seats[entry.k] || (seats[entry.k] = { n: '', t: '', c: false });
+    ['n', 't', 'c'].forEach(f => { if (entry[f] !== undefined) cur[f] = entry[f]; }); // hiện ngay trên máy này
+    try {
+      const r = await (await fetch(inv.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ invite: slug, type: 'seating', key, entries: [entry] }) })).json();
+      if (!r.ok) throw new Error(r.error); seats = r.seats; $('#seat-status') && ($('#seat-status').textContent = 'Đã lưu ✓');
+    } catch { $('#seat-status') && ($('#seat-status').textContent = 'Chưa lưu được, kiểm tra mạng'); }
+    drawSeats();
+  }
+  async function renderSeating() {
+    clearTimeout(seatT);
+    if (!inv?.sheetUrl) { $('#list').innerHTML = '<p class="msg">Thiệp chưa nối Google Sheets.</p>'; return; }
+    $('#list').innerHTML = '<p class="msg">Đang tải…</p>';
+    await pullSeats();
+    $('#list').innerHTML = '<div class="links"><p>Xếp bàn cho khách đã xác nhận đến, và chạm <b>Đã tới</b> khi khách vào sảnh. Nhiều người cùng dùng trang này trên nhiều điện thoại được, danh sách tự cập nhật mỗi 15 giây.</p>' +
+      '<div class="row"><label>Lọc: <select id="seat-flt"><option value="">Tất cả</option><option value="notable">Chưa xếp bàn</option><option value="notin">Chưa tới</option></select></label>' +
+      '<input id="walkin" placeholder="Khách chưa xác nhận: nhập tên" maxlength="60"><button type="button" id="walkin-add">Thêm khách tại sảnh</button><span class="no" id="seat-status"></span></div>' +
+      '<div id="seat-stats"></div><div id="seat-out"></div></div>';
+    $('#seat-flt').value = seatFilter;
+    $('#seat-flt').addEventListener('change', () => { seatFilter = $('#seat-flt').value; drawSeats(); });
+    $('#walkin-add').addEventListener('click', () => {
+      const n = $('#walkin').value.replace(/\s+/g, ' ').trim(); if (!n) return;
+      $('#walkin').value = ''; patchSeat({ k: 'w:' + Date.now().toString(36), n, c: true });
+    });
+    drawSeats();
+    const loop = async () => { if (tab !== 'seating') return; if (!document.hidden && !document.activeElement?.matches?.('#seat-out input')) { await pullSeats(); drawSeats(); } seatT = setTimeout(loop, 15000); };
+    seatT = setTimeout(loop, 15000);
+  }
+  function drawSeats() {
+    if (tab !== 'seating' || !$('#seat-out')) return;
+    const f = $('#search').value.trim().toLowerCase();
+    const people = latest(data.rsvps).filter(r => r.attend === 'Có').map(r => ({ k: guestKey(r), name: r.name, count: r.guests, side: r.side }));
+    Object.entries(seats).filter(([k]) => k.startsWith('w:')).forEach(([k, v]) => people.push({ k, name: v.n, count: 1, side: 'Tại sảnh' }));
+    const rows = people.map(p => ({ ...p, t: seats[p.k]?.t || '', c: !!seats[p.k]?.c }));
+    const total = rows.reduce((s, r) => s + r.count, 0), arrived = rows.filter(r => r.c).reduce((s, r) => s + r.count, 0);
+    const tables = new Set(rows.map(r => r.t).filter(Boolean)).size;
+    $('#seat-stats').innerHTML = '<div class="stats"><div class="stat hi"><b>' + arrived + '/' + total + '</b><span>người đã tới / dự kiến</span></div><div class="stat"><b>' + rows.filter(r => !r.t).length + '</b><span>khách chưa xếp bàn</span></div><div class="stat"><b>' + tables + '</b><span>bàn đã dùng</span></div></div>';
+    const shown = rows.filter(r => (!f || r.name.toLowerCase().includes(f)) && (!seatFilter || (seatFilter === 'notable' ? !r.t : !r.c))).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+    $('#seat-out').innerHTML = shown.length ? '<table><thead><tr><th>Khách</th><th>Bàn</th><th>Đã tới</th></tr></thead><tbody>' + shown.map(r =>
+      '<tr><td>' + esc(r.name) + '<br><small class="no">' + r.count + ' người · ' + esc(r.side) + '</small></td><td><input data-t="' + esc(r.k) + '" data-n="' + esc(r.name) + '" value="' + esc(r.t) + '" maxlength="20" placeholder="Bàn" size="7" aria-label="Bàn của ' + esc(r.name) + '"></td>' +
+      '<td class="cp"><button type="button" data-c="' + esc(r.k) + '" data-n="' + esc(r.name) + '" class="' + (r.c ? 'main' : '') + '">' + (r.c ? '✓ Đã tới' : 'Chưa tới') + '</button></td></tr>').join('') + '</tbody></table>' : '<p class="msg">Chưa có khách nào phù hợp.</p>';
+    $('#seat-out').querySelectorAll('input[data-t]').forEach(i => i.addEventListener('change', () => patchSeat({ k: i.dataset.t, n: i.dataset.n, t: i.value })));
+    $('#seat-out').querySelectorAll('button[data-c]').forEach(b => b.addEventListener('click', () => patchSeat({ k: b.dataset.c, n: b.dataset.n, c: !seats[b.dataset.c]?.c })));
+  }
+  $('#search').addEventListener('input', drawSeats);
 
   // Ảnh thẻ mời 1080x1350 có tên khách và mã QR: gửi qua Zalo cho người lớn tuổi, hoặc in kẹp thiệp giấy
   const loadImg = src => new Promise(res => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });

@@ -163,3 +163,8 @@ body.opened :where(.group-note) { display: block; }
 .form fieldset.pick { border: 0; display: grid; gap: 6px; text-align: left; }
 .form fieldset.pick legend { font-size: .9em; opacity: .75; margin-bottom: 4px; }
 .form .pick { text-align: left; }
+
+:where(.memory-note) { margin: 0; padding: 18px 20px; text-align: center; background: rgba(0, 0, 0, .78); color: #fff; font: 14px/1.5 system-ui, sans-serif; }
+:where(.memory-note) p { margin: 0 0 8px; }
+:where(.memory-note) a { display: inline-block; padding: 8px 18px; border-radius: 999px; background: #ffd9a0; color: #2a1a10; text-decoration: none; font-weight: 600; }
+.is-memory [data-w=rsvp] { display: none; }

@@ -46,6 +46,14 @@ Phần còn lại (gia đình, lịch lễ, địa điểm, câu chữ, hành tr
 
 Trong Studio, mục **Nhóm khách**, cặp đôi tạo các nhóm (vd. `nha-gai`, `ban-be`) với lời chào, buổi lễ, địa điểm và ghi chú riêng. Link mời thêm `&n=nha-gai` thì khách thấy đúng phần của nhóm mình, vẫn có nút **Xem toàn bộ lịch lễ**. Trang quản lý khách tạo link kèm nhóm, tải **ảnh thẻ mời có mã QR** để gửi Zalo, và đánh dấu khách đã gửi.
 
+## Vòng đời thiệp, tên miền riêng, ngày cưới
+
+- **Thời hạn lưu:** `npm run new -- <thiệp> ... --goi co-ban` (6 tháng), `--goi nang-cao` (12 tháng), `--goi rieng` (không hết hạn); `--het-han 2027-11-22` để chọn ngày khác. Quá hạn, link cũ hiện trang lưu niệm có nút liên hệ Zalo để gia hạn, không bị 404. Muốn gia hạn: sửa `lifecycle.expiresAt` trong `invite.json` (cặp đôi không tự sửa được mục này).
+- **Sau ngày cưới:** thiệp tạo bằng `npm run new` đã bật `afterWedding`. Sau ngày cưới 1 ngày, thiệp hiện thanh cảm ơn, nút xem album ảnh đầy đủ và ẩn ô xác nhận. Cặp đôi tắt/bật và dán link album trong Studio (mục "Sau ngày cưới").
+- **Tên miền riêng (gói Riêng):** `npm run domain -- <thiệp> <tên-miền>`, rồi thêm tên miền vào dự án Vercel (Settings → Domains), trỏ DNS, commit và đẩy code. Mở `https://<tên-miền>/` kiểm tra; nếu hiện trang chủ SayHello thay vì thiệp thì báo lại, vì Vercel xử lý rewrite theo tên miền có thể khác dự kiến và cần chuyển sang cách khác.
+- **Ngày cưới tại nhà hàng:** mở `https://.../<thiệp>/?wall=1` trên laptop cắm màn hình LED: ảnh cưới chạy nền, tên, số tim, lời chúc mới tự hiện (15 giây cập nhật một lần), mã QR cho khách quét gửi lời chúc. Lời chúc cặp đôi đã ẩn thì không hiện. Trang quản lý khách có tab **Bàn tiệc & check-in**: xếp bàn, chạm "Đã tới" khi khách vào sảnh, thêm khách vãng lai.
+- **Khách đặt thiệp:** trang `/dat-thiep/` báo ngay nếu đường dẫn đã có người dùng (thiệp có sẵn hoặc đơn chưa hủy) và gợi ý đường dẫn khác. Mục "Tra cứu đơn" cho khách xem trạng thái bằng mã đơn + 4 số cuối điện thoại; khi bạn đổi trạng thái thành "Đã giao" và điền cột Đường dẫn, khách thấy link thiệp. Sau khi thêm thiệp mới nhớ chạy `npm run build` (cập nhật `slugs.json`).
+
 ## Lệnh hỗ trợ
 
 - `npm run doctor` soát lỗi trước khi giao (số giả, thiếu `sheetUrl`, ảnh nặng, thiếu ảnh xem trước, ngày cưới đã qua).

@@ -19,7 +19,10 @@ export function buildInvite(slug) {
   const desc = d.description || `Trân trọng kính mời quý khách tới dự Lễ Thành Hôn của ${a.short} và ${b.short} - ${date}.`;
   const base = (site.baseUrl || '').replace(/\/$/, '');
   const img = d.images?.preview || d.images?.hero || '';
-  const imgUrl = img && base ? `${base}/${slug}/${img}` : img;
+  // Tên miền riêng (gói Riêng): thiệp nằm ở gốc tên miền nên đường dẫn ../core/... không dùng được, phải nạp từ trang chính
+  const pub = (d.publicUrl || '').replace(/\/$/, ''), assets = pub ? (d.assetBase || base).replace(/\/$/, '') : '..';
+  const pageUrl = pub ? pub + '/' : base ? `${base}/${slug}/` : '';
+  const imgUrl = img && pub ? `${pub}/${img}` : img && base ? `${base}/${slug}/${img}` : img;
   const page = `<!DOCTYPE html>
 <!-- File này được sinh tự động bởi scripts/build.mjs từ invite.json. Đừng sửa tay, hãy sửa invite.json rồi chạy lại. -->
 <html lang="${esc(d.lang || 'vi')}">
@@ -35,25 +38,31 @@ ${imgUrl ? `<meta property="og:image" content="${esc(imgUrl)}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(pair)}">
-` : ''}${base ? `<meta property="og:url" content="${esc(`${base}/${slug}/`)}">
+` : ''}${pageUrl ? `<meta property="og:url" content="${esc(pageUrl)}">
 ` : ''}<meta property="og:locale" content="vi_VN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="${esc(d.themeColor || '#7a0c12')}">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23a4161a'/%3E%3Ctext x='32' y='47' font-size='42' text-anchor='middle' fill='%23e6c27a' font-family='serif' font-weight='700'%3E囍%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="../core/boot.js">
-<link rel="modulepreload" href="../themes/${esc(d.theme)}/theme.js">
+<link rel="modulepreload" href="${assets}/core/boot.js"${pub ? ' crossorigin' : ''}>
+<link rel="modulepreload" href="${assets}/themes/${esc(d.theme)}/theme.js"${pub ? ' crossorigin' : ''}>
 <style>body{margin:0;background:${esc(d.themeColor || '#111')}}</style>
 </head>
 <body>
 <noscript><p style="color:#fff;font:16px system-ui;padding:40px 20px;text-align:center">Vui lòng bật JavaScript để xem thiệp cưới của ${esc(pair)}.</p></noscript>
-<script type="module" src="../core/boot.js"></script>
+<script type="module" src="${assets}/core/boot.js"></script>
 </body>
 </html>
 `;
   writeFileSync(join(dir, 'index.html'), page);
+  writeSlugs();
   return slug;
+}
+
+// slugs.json: danh sách đường dẫn đã có thiệp, để trang /dat-thiep/ báo trùng ngay mà không cần máy chủ
+export function writeSlugs() {
+  writeFileSync(join(ROOT, 'slugs.json'), JSON.stringify(allInvites().sort()) + '\n');
 }
 
 export function allInvites() {

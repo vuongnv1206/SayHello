@@ -84,6 +84,13 @@ await check('/dat-thiep/?goi=co-ban', false, async (page, errors) => {
   await page.fill('input[name=date]', '2027-12-05');
   await page.fill('input[name=phone]', '0912345678');
   if (await page.inputValue('input[name=slug]') !== 'quoc-bao-mai-anh') errors.push('Không tự gợi ý đường dẫn từ tên');
+  // Đường dẫn đã có thiệp thì phải báo trùng và không cho đặt
+  await page.fill('input[name=slug]', 'demo-thu-tay');
+  await page.waitForTimeout(700);
+  if (!/đã có người dùng/.test(await page.textContent('#slug-msg'))) errors.push('Không báo đường dẫn trùng khi gõ');
+  await page.click('#submit'); await page.waitForTimeout(300);
+  if (!/đã có người dùng/.test(await page.textContent('#err')) || (await page.textContent('#pay-code').catch(() => ''))) errors.push('Vẫn đặt được với đường dẫn đã có');
+  await page.fill('input[name=slug]', 'quoc-bao-mai-anh');
   await page.click('#submit');
   await page.waitForTimeout(300);
   const code = await page.textContent('#pay-code').catch(() => '');

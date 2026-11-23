@@ -1,7 +1,7 @@
-// Kiểm tra bộ tạo mã QR (studio/qr.js) bằng một bộ giải mã viết riêng theo chuẩn ISO 18004:
+// Kiểm tra bộ tạo mã QR (core/qr.js) bằng một bộ giải mã viết riêng theo chuẩn ISO 18004:
 // đọc thông tin định dạng, bỏ mặt nạ, tách khối, kiểm tra Reed-Solomon bằng syndrome, đọc lại chuỗi.
 import assert from 'node:assert/strict';
-import { makeQr } from '../studio/qr.js';
+import { makeQr } from '../core/qr.js';
 
 // GF(256) bằng bảng log/exp
 const EXP = new Array(512), LOG = new Array(256);
