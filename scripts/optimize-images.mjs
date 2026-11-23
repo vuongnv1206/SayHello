@@ -7,9 +7,10 @@
 import sharp from 'sharp';
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { allInvites } from './build.mjs';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const MAX_SIDE = 1600, MAX_BYTES = 350 * 1024;
 const kb = n => Math.round(n / 1024) + 'KB';
 
