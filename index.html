@@ -122,7 +122,7 @@
         <div class="acts"><a class="go demo" target="_blank" rel="noopener">Xem thiệp mẫu →</a><a class="order">Đặt mẫu này</a></div>`;
       a.querySelector('.phone').href = a.querySelector('.demo').href = t.demo + '/';
       a.querySelector('.order').href = 'dat-thiep/?mau=' + encodeURIComponent(t.id);
-      const poster = a.querySelector('.poster'); poster.src = t.demo + '/images/xem-truoc.jpg'; poster.alt = 'Ảnh xem trước mẫu ' + t.name;
+      const poster = a.querySelector('.poster'); poster.src = t.demo + '/images/bia.jpg'; poster.alt = 'Ảnh xem trước mẫu ' + t.name;
       // Chỉ tải thiệp thật khi khách chạm: trang chủ nhẹ trên 4G
       a.querySelector('.phone').addEventListener('click', e => {
         const screen = a.querySelector('.screen');
@@ -141,8 +141,7 @@
       (t.effects || []).forEach(e => { const s = document.createElement('span'); s.textContent = e; a.querySelector('.tags').append(s); });
       grid.append(a);
     });
-    const fit = () => document.querySelectorAll('.screen').forEach(s => { s.firstChild.style.transform = `scale(${s.clientWidth / 400})`; });
-    fit(); addEventListener('resize', fit);
+    addEventListener('resize', fit);
   });
   fetch('shop.json').then(r => r.json()).then(shop => {
     document.getElementById('tmp').hidden = !shop.giaTam;

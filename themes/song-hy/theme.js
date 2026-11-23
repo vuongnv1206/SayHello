@@ -7,6 +7,7 @@ export default {
   palettes: [{"id":"do-vang","name":"Đỏ vàng","swatch":["#a4161a","#e6c27a"]},{"id":"ngoc-bich","name":"Xanh ngọc","swatch":["#0f6b5c","#e6c27a"],"vars":{"--red":"#0f6b5c","--red-deep":"#0a4a40","--red-dark":"#06332c"}},{"id":"hong-phan","name":"Hồng phấn","swatch":["#b4477a","#f0d2a0"],"vars":{"--red":"#b4477a","--red-deep":"#7e2754","--red-dark":"#541638"}},{"id":"navy-bac","name":"Xanh navy & bạc","swatch":["#1f3a6b","#d7dce6"],"vars":{"--red":"#1f3a6b","--red-deep":"#14284d","--red-dark":"#0c1a33","--gold":"#d7dce6","--gold-deep":"#8d97ad"}}],
   id: 'song-hy',
   name: 'Song Hỷ',
+  voice: 'trang-trong',
   fonts: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Dancing+Script:wght@500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap',
   coverMs: 2100,
   cheersButton: 'btn gold',

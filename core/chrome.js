@@ -149,8 +149,9 @@ export function createChrome(ctx) {
     const el = document.createElement('div');
     el.className = 'cheers'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Lời cảm ơn');
     el.innerHTML = `<div class="cheers-card"><div class="glasses" aria-hidden="true"><i class="glass l"><b></b><s></s></i><i class="glass r"><b></b><s></s></i><span class="clink">✨</span></div>
-      <h3></h3><p>Lời chúc của quý khách là món quà quý giá với chúng tôi. Xin mời cùng nâng ly chúc mừng!</p><p class="cheers-sign"></p><button class="btn" type="button">Đóng</button></div>`;
+      <h3></h3><p class="cheers-text"></p><p class="cheers-sign"></p><button class="btn" type="button">Đóng</button></div>`;
     $('h3', el).textContent = 'Cảm ơn ' + name + '!';
+    $('.cheers-text', el).textContent = ctx.say('cheers');
     $('.cheers-sign', el).textContent = ctx.names.pair;
     const btn = $('button', el);
     btn.className = ctx.theme.cheersButton || 'btn';

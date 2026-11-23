@@ -7,6 +7,7 @@ import { createChrome, createLightbox } from './chrome.js';
 import { loadInvite, inStudio } from './content.js';
 import { isExpired, showExpired } from './expired.js';
 import { showWall } from './wall.js';
+import { createVoice } from './voice.js';
 
 const ROOT = new URL('../', import.meta.url);
 
@@ -48,6 +49,7 @@ async function boot() {
     on(ev, fn) { (listeners[ev] ||= []).push(fn); },
     emit(ev, x) { (listeners[ev] || []).forEach(fn => fn(x)); },
     html, fmt,
+    say: createVoice(theme),
   };
 
   // Bảng màu cặp đôi chọn trong Studio (chỉ nhận id có trong mẫu đang dùng)

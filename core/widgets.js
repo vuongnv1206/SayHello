@@ -15,7 +15,7 @@ export function createWidgets(ctx) {
   const W = {};
 
   /* ===== Đếm ngược ===== */
-  W.countdown = ({ labels = ['Ngày', 'Giờ', 'Phút', 'Giây'], done = 'Chúng tôi đã về chung một nhà ❤' } = {}) => html`
+  W.countdown = ({ labels = ['Ngày', 'Giờ', 'Phút', 'Giây'], done = ctx.say('countdownDone') } = {}) => html`
     <div class="cd" data-w="countdown">
       ${labels.map((l, i) => html`<div class="u"><b data-u="${i}">00</b><span>${l}</span></div>`)}
     </div>
@@ -135,7 +135,7 @@ export function createWidgets(ctx) {
     const r = d.rsvp || {}, max = r.maxGuests || 5, sides = r.sides || ['Khách nhà trai', 'Khách nhà gái'];
     return html`
     <form class="form ${cls}" data-w="rsvp">
-      <input name="name" placeholder="Tên của quý khách" required maxlength="60" autocomplete="name" value="${ctx.guest}">
+      <input name="name" placeholder="${ctx.say('namePh')}" aria-label="${ctx.say('namePh')}" required maxlength="60" autocomplete="name" value="${ctx.guest}">
       <div class="choice">
         <label><input type="radio" name="attend" value="Có" checked><span>${yes}</span></label>
         <label><input type="radio" name="attend" value="Không"><span>${no}</span></label>
@@ -144,10 +144,10 @@ export function createWidgets(ctx) {
         <select name="guests" aria-label="Số người tham dự">
           ${Array.from({ length: max }, (_, i) => html`<option value="${i + 1}">${i + 1} người${i + 1 === max ? ' trở lên' : ''}</option>`)}
         </select>
-        <select name="side" aria-label="Quý khách là khách của">${sides.map(s => html`<option>${s}</option>`)}</select>
+        <select name="side" aria-label="${ctx.say('sideLabel')}">${sides.map(s => html`<option>${s}</option>`)}</select>
       </div>
       ${(d.events || []).length > 1 && r.pickEvents !== false ? html`
-      <fieldset class="pick" data-pick="events"><legend>Quý khách dự buổi nào?</legend>
+      <fieldset class="pick" data-pick="events"><legend>${ctx.say('pickEvents')}</legend>
         ${d.events.map((e, i) => html`<label><input type="checkbox" name="ev" value="${i}" checked><span>${e.title}</span></label>`)}
       </fieldset>` : ''}
       ${r.note !== false ? html`<input name="note" maxlength="160" placeholder="Ghi chú: ăn chay, đi cùng em bé, cần xe đưa đón…" aria-label="Ghi chú">` : ''}
@@ -173,13 +173,13 @@ export function createWidgets(ctx) {
         if (wish) out.wish = wish;
         return out;
       },
-      x => x.attend === 'Có' ? `Cảm ơn ${x.name}! Hẹn gặp quý khách trong ngày vui ❤` : `Cảm ơn ${x.name} đã phản hồi. Hẹn gặp quý khách vào dịp khác!`);
+      x => ctx.say(x.attend === 'Có' ? 'thanksYes' : 'thanksNo', { name: x.name }));
   };
 
   /* ===== Sổ lưu bút ===== */
   W.guestbook = ({ btn = 'btn', cls = '', submit = 'Gửi lời chúc', placeholder = 'Gửi lời chúc tới cô dâu chú rể...' } = {}) => html`
     <form class="form ${cls}" data-w="guestbook">
-      <input name="name" placeholder="Tên của quý khách" required maxlength="60" autocomplete="name" value="${ctx.guest}">
+      <input name="name" placeholder="${ctx.say('namePh')}" aria-label="${ctx.say('namePh')}" required maxlength="60" autocomplete="name" value="${ctx.guest}">
       <textarea name="message" placeholder="${placeholder}" required maxlength="500" rows="3"></textarea>
       <button class="${btn}" type="submit">${submit}</button>
       <p class="msg" role="status"></p>
@@ -190,13 +190,13 @@ export function createWidgets(ctx) {
     const node = w => { const el = document.createElement('div'); el.className = 'wish-item'; const b = document.createElement('b'); b.textContent = w.name; const p = document.createElement('p'); p.textContent = w.message; el.append(b, p); return el; };
     const render = () => {
       list.textContent = '';
-      if (!ctx.wishes.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Hãy là người đầu tiên gửi lời chúc tới cô dâu chú rể!'; list.append(p); return; }
+      if (!ctx.wishes.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = ctx.say('firstWish'); list.append(p); return; }
       ctx.wishes.forEach(w => list.append(node(w)));
     };
     ctx.on('wishes', render); render();
     bindForm(form,
       fd => ({ type: 'wish', name: fd.get('name').trim(), message: fd.get('message').trim() }),
-      x => { $('.empty', list)?.remove(); list.prepend(node(x)); ctx.wishes.unshift(x); form.message.value = ''; ctx.cheers(x.name); return 'Cảm ơn lời chúc của quý khách ❤'; });
+      x => { $('.empty', list)?.remove(); list.prepend(node(x)); ctx.wishes.unshift(x); form.message.value = ''; ctx.cheers(x.name); return ctx.say('thanksWish'); });
   };
 
   function bindForm(form, build, done) {
@@ -205,7 +205,7 @@ export function createWidgets(ctx) {
       const btn = $('button[type=submit]', form), msg = $('.msg', form), data = build(new FormData(form));
       btn.disabled = true; msg.textContent = 'Đang gửi...';
       try { await ctx.backend.send(data); msg.textContent = done(data); ctx.fx.burstAt(btn, 80, { hearts: true }); }
-      catch { msg.textContent = 'Gửi chưa thành công, quý khách vui lòng thử lại.'; }
+      catch { msg.textContent = ctx.say('sendFail'); }
       btn.disabled = false;
     });
   }
