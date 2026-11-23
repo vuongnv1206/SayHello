@@ -19,6 +19,7 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 | 6. Mẫu thứ 5 | **Đèn Lồng** (Hội An): thả hoa đăng để mở thiệp, dây đèn lồng sáng dần khi cuộn, cửa chớp gỗ mở album, lời chúc thành hoa đăng, thả đèn trời. |
 | Ảnh xem trước | `npm run xem-truoc -- <thiệp>` ghép ảnh cưới + tên + ngày thành ảnh 1200×630 khi gửi link; `npm run new` tự chạy. |
 | 7. Mẫu thứ 6 | **Cuộn Phim**: kéo cần máy chiếu, màn ảnh đếm 3-2-1, rèm nhung, bảng clapper từng cảnh, vé xem phim, dải phim 35mm vuốt ngang có tiếng tạch máy ảnh, lời chúc thành phụ đề, hộp bắp rang, danh đề cuối phim. |
+| 8. Mẫu thứ 7 | **Tin Nhắn**: màn hình khóa có thông báo tin nhắn mời cưới, nhóm chat hiện từng tin kèm "đang soạn tin", danh thiếp, thẻ lịch hẹn, tin ghim đếm ngược, khách xác nhận và chúc bằng bong bóng chat, bao lì xì, "Đã xem". |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết
@@ -34,7 +35,7 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 
 1. Ngài điền giá, tài khoản, Zalo → bật bán thật.
 2. Tải ảnh lên trong Studio (cặp đôi tự thay ảnh).
-3. Mẫu thứ 7: Tin Nhắn (giao diện trò chuyện).
+3. Trang tổng hợp cho người bán, sao lưu Sheet, nhắc cặp đôi trước ngày cưới.
 4. Tên miền riêng.
 
 Danh sách đầy đủ: [TASKS.md](TASKS.md).

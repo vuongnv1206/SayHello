@@ -48,6 +48,12 @@ Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`
 - **Màu:** rạp tối `#15120f`, phim `#0d0b0a`, nhung đỏ `#7d1a1d`/`#a8262b`, hổ phách `#e8a33d`, phụ đề vàng `#ffe27a`, màn ảnh `#f5efe3`, vé giấy `#f3eadb`.
 - **Chữ:** Big Shoulders Display (biển rạp, tiêu đề), Playfair Display nghiêng (tên), Space Mono (mã phim, nhãn nhỏ), Be Vietnam Pro (nội dung).
 
+### Tin Nhắn: hiện đại
+- **Ý tưởng:** thiệp là một nhóm chat. Bìa là màn hình khóa điện thoại (giờ thật của máy khách, ảnh cưới làm nền mờ) có thông báo "Gửi {khách}: Bạn có một lời mời đám cưới"; chạm thông báo thì nghe tiếng "ting" (tự tạo bằng Web Audio) và vào nhóm chat. Tin nhắn hiện lần lượt khi cuộn tới, trước mỗi tin là dấu "đang soạn tin" ngay tại chỗ (không làm trang giật). Nội dung: báo tin kèm ảnh và thẻ thiệp mời, danh thiếp hai người, bố mẹ gửi lời chào, tin nhắn cũ theo năm, thẻ lịch hẹn cho từng lễ, tin ghim đếm ngược, ảnh đã gửi (lưới ảnh, "+N"), chia sẻ vị trí, khách trả lời xác nhận và lời chúc trong bong bóng của mình, bao lì xì, cuối cùng là nhãn dán trái tim và "Đã xem".
+- **Giao diện riêng**, không giống ứng dụng chat nào: nền kem chấm bi nhạt, bong bóng trắng (chú rể), hồng phấn (cô dâu), san hô (khách).
+- **Màu:** nền `#f6efe6`, trắng ấm `#fffdfb`, hồng phấn `#fde6dc`, san hô `#e0644f`, xanh mòng két `#2f7d6d`, chữ `#2d2420`.
+- **Chữ:** Fraunces (tên, tiêu đề), Be Vietnam Pro (tin nhắn).
+
 ## Trang bán hàng (trang chủ, đặt thiệp)
 - Nền tối ấm `#14110f`, chữ kem `#f4ede1`, nhấn vàng đồng `#d9a86c`, đỏ rượu mờ làm ánh sáng nền.
 - Chữ: Cormorant Garamond (tiêu đề), Be Vietnam Pro (nội dung).

@@ -24,7 +24,7 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 - [x] **Cuộn Phim** (mẫu `cuon-phim`): kéo cần máy chiếu, đếm 3-2-1, khung phim 35mm, phụ đề, danh đề cuối phim.
 - [x] **Mở Khóa Tình Yêu** (mẫu `khoa-tinh`): xoay ổ khóa số đúng ngày cưới để mở thiệp.
 - [x] **Đèn Lồng Hội An** (mẫu `den-long`): thả đèn trôi sông, mỗi đèn một lời chúc.
-- [ ] **Tin Nhắn**: giao diện trò chuyện kể chuyện tình.
+- [x] **Tin Nhắn** (mẫu `tin-nhan`): màn hình khóa có thông báo, nhóm chat kể chuyện tình, khách trả lời bằng bong bóng chat.
 
 ### Vận hành
 - [ ] Trang tổng hợp cho người bán: số đơn, đơn chờ tiền, thiệp sắp tới ngày cưới (đọc từ Sheet).
