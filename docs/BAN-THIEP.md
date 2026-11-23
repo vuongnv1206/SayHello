@@ -38,7 +38,9 @@ Lệnh tạo thư mục `minh-khang-thu-ha/` theo thiệp mẫu, điền sẵn t
 3. `npm run studio-link -- minh-khang-thu-ha` để lấy link Studio và link quản lý khách, gửi cho cặp đôi.
 4. Đổi Trạng thái đơn thành "Đã giao".
 
-Phần còn lại (gia đình, lịch lễ, địa điểm, câu chữ, hành trình, tài khoản mừng cưới) cặp đôi tự sửa trong Studio.
+Phần còn lại (gia đình, lịch lễ, địa điểm, câu chữ, hành trình, tài khoản mừng cưới, **ảnh cưới và album**) cặp đôi tự sửa trong Studio. Ảnh cặp đôi tải lên nằm trong Drive của bạn. Khi cặp đôi đã đổi ảnh trong Studio thì ảnh trong Studio được ưu tiên; muốn thay ảnh hộ họ, hãy mở link Studio của họ thay vì sửa `invite.json`.
+
+**Theo dõi:** trang `/ban-hang/` (lấy link: `npm run studio-link -- --ban-hang`) gom đơn chờ tiền, đám cưới sắp tới kèm lời nhắc soạn sẵn, số khách từng thiệp. Bật email nhắc hằng ngày và sao lưu hằng tuần theo [backend/HUONG-DAN.md](../backend/HUONG-DAN.md).
 
 ## Gợi ý theo gói
 

@@ -20,6 +20,7 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 | Ảnh xem trước | `npm run xem-truoc -- <thiệp>` ghép ảnh cưới + tên + ngày thành ảnh 1200×630 khi gửi link; `npm run new` tự chạy. |
 | 7. Mẫu thứ 6 | **Cuộn Phim**: kéo cần máy chiếu, màn ảnh đếm 3-2-1, rèm nhung, bảng clapper từng cảnh, vé xem phim, dải phim 35mm vuốt ngang có tiếng tạch máy ảnh, lời chúc thành phụ đề, hộp bắp rang, danh đề cuối phim. |
 | 8. Mẫu thứ 7 | **Tin Nhắn**: màn hình khóa có thông báo tin nhắn mời cưới, nhóm chat hiện từng tin kèm "đang soạn tin", danh thiếp, thẻ lịch hẹn, tin ghim đếm ngược, khách xác nhận và chúc bằng bong bóng chat, bao lì xì, "Đã xem". |
+| 9. Vận hành | **Studio tải ảnh**: cặp đôi tự đổi ảnh chính, ảnh cô dâu chú rể, thêm/bớt/sắp xếp album; ảnh thu nhỏ trên máy rồi lưu vào Drive người bán. **Trang `/ban-hang/`**: số đơn, đơn chờ tiền, doanh thu, đám cưới 30 ngày tới (chép lời nhắc), số khách từng thiệp. **Email nhắc** đám cưới còn 7 và 1 ngày, **sao lưu Sheet** mỗi tuần. Code Apps Script có bộ kiểm tra giả lập Google (`tests/apps-script.mjs`, chạy trong `npm test`). |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết
@@ -28,6 +29,9 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 - Claude chưa điều khiển được Chrome của Ngài (tiện ích Claude in Chrome báo chưa kết nối), các bước trên Google/Vercel đang làm tay.
 - Plugin Supabase không kết nối được (mạng chặn); hiện không cần vì dùng Google Sheets.
 - 3 bài nhạc được tổng hợp bằng code, chưa có người nghe thử; chất lượng cần Ngài duyệt.
+- Phần Apps Script mới (tải ảnh lên Drive, trang người bán, email nhắc, sao lưu) mới được kiểm tra trên Google giả lập, chưa chạy trên Google thật vì chưa triển khai lại.
+- Ảnh tải lên dùng link `lh3.googleusercontent.com/d/<id>` của Drive; nếu Google đổi cách phục vụ ảnh công khai thì cần đổi sang chỗ lưu khác.
+- Chưa đẩy được lên GitHub: tài khoản GitHub trên máy không có quyền ghi (403).
 - `shop.json` còn giá tạm, tài khoản và Zalo giả (`0000000000`).
 - Trên máy Ngài còn `.next/`, `next-env.d.ts`, `tsconfig.tsbuildinfo` từ bản Next.js cũ (xóa tay được). Bản Next.js + Supabase dở dang được cất trong `git stash` ("backup truoc khi lay code moi").
 
@@ -35,7 +39,7 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 
 1. Ngài điền giá, tài khoản, Zalo → bật bán thật.
 2. Tải ảnh lên trong Studio (cặp đôi tự thay ảnh).
-3. Trang tổng hợp cho người bán, sao lưu Sheet, nhắc cặp đôi trước ngày cưới.
+3. Ngài dán lại Apps Script, triển khai bản mới, chạy `caiDatTuDong` (xem backend/HUONG-DAN.md).
 4. Tên miền riêng.
 
 Danh sách đầy đủ: [TASKS.md](TASKS.md).
