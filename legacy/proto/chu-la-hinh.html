@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gia Huy và Khánh Linh cưới rồi</title>
+<meta name="description" content="Bản mẫu hướng thiết kế Chữ Là Hình: thiệp cưới là một xấp áp phích in riso hai màu mực.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&display=swap">
+<style>
+/* Bản mẫu "Chữ Là Hình": xấp áp phích in riso hai mực. Không cuộn: chạm/vuốt để lật áp phích.
+   Động từ chuyển động: in đè (hai lớp mực trượt về đúng vị trí). */
+:root {
+  --paper: #eef0ec; --blue: #2433ff; --pink: #ff3d8b;
+  --f-big: 'Anton', 'Archivo', sans-serif; --f-body: 'Archivo', system-ui, sans-serif;
+  --pad: clamp(16px, 5vw, 28px);
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; overflow: hidden; background: var(--paper); color: var(--blue); font: 500 17px/1.4 var(--f-body); -webkit-tap-highlight-color: transparent; }
+body::after { /* hạt giấy riso */
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .22; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .4 0 0 0 0 .5 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.deck { position: fixed; inset: 0; }
+.poster { position: absolute; inset: 0; padding: max(var(--pad), env(safe-area-inset-top)) var(--pad) max(var(--pad), env(safe-area-inset-bottom)); overflow: hidden; visibility: hidden; }
+.poster.on { visibility: visible; }
+
+/* Hai lớp mực: lớp hồng đặt lệch rồi trượt về khi áp phích được "in" */
+.ink { position: relative; }
+.ink .p, .ink .b { display: block; width: max-content; mix-blend-mode: multiply; }
+.ink .p { position: absolute; inset: 0; color: var(--pink); transform: translate(var(--mx, 3px), var(--my, -2px)); }
+.on .ink .p { animation: register .26s steps(4) both; }
+@keyframes register { from { transform: translate(-46px, 30px); } }
+.on .ink .b { animation: plate .26s steps(3) both .05s; }
+@keyframes plate { from { opacity: 0; } }
+.giant { font: 400 1px/0.86 var(--f-big); text-transform: uppercase; letter-spacing: -.01em; white-space: nowrap; }
+
+/* Chỉ số áp phích và điều khiển (góc dưới phải, chữ thường) */
+.count { position: fixed; right: var(--pad); top: max(var(--pad), env(safe-area-inset-top)); z-index: 30; font: 700 15px/1 var(--f-body); font-variant-numeric: tabular-nums; }
+.nav { position: fixed; inset: 0; z-index: 10; display: grid; grid-template-columns: 34% 66%; }
+.nav button { border: 0; background: transparent; cursor: pointer; }
+.nav button:focus-visible { outline: 3px solid var(--pink); outline-offset: -6px; }
+
+/* 1. Gửi khách */
+.p1 .to { font: 700 22px/1.2 var(--f-body); }
+.p1 .giant { margin-left: calc(var(--pad) * -.5); }
+.p1 { display: flex; flex-direction: column; justify-content: center; }
+.p1 .to { position: absolute; top: max(var(--pad), env(safe-area-inset-top)); left: var(--pad); }
+.p1 .line2 { color: var(--pink); margin-top: .08em; }
+.p1 .line2 .b { color: var(--pink); }
+.p1 .note { position: absolute; left: var(--pad); bottom: max(var(--pad), env(safe-area-inset-bottom)); max-width: 22ch; font-size: 15px; }
+
+/* 2. Tên: mỗi tên một dòng, cố ý tràn mép phải */
+.p2 { display: flex; flex-direction: column; justify-content: center; gap: 2vh; }
+.p2 .giant { margin-left: calc(var(--pad) * -.35); }
+.p2 .right { align-self: flex-end; margin: 0 calc(var(--pad) * -.3) 0 0; }
+.sh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.p2 .amp { align-self: flex-end; font: 400 18vh/0.8 var(--f-big); color: var(--pink); mix-blend-mode: multiply; margin: -5vh 4vw -7vh 0; }
+
+/* 3. Ngày: ba con số là kiến trúc của trang */
+.p3 { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr 1fr 1fr auto; align-items: end; }
+.p3 .num { line-height: .8; }
+.p3 .num:nth-child(1) { margin-left: calc(var(--pad) * -.3); }
+.p3 .num:nth-child(2) { justify-self: end; }
+.p3 .meta { display: flex; justify-content: space-between; align-items: end; gap: 12px; padding-top: 10px; border-top: 3px solid currentColor; font-size: 15px; }
+
+/* 4. Lịch lễ: giờ khổng lồ, nơi chốn nhỏ */
+.p4 { display: flex; flex-direction: column; justify-content: space-between; }
+.ev { display: grid; grid-template-columns: 1fr; gap: 4px; padding-left: 28%; }
+.ev .t { font: 400 17vh/0.82 var(--f-big); margin-left: calc(-28% / .72 - var(--pad) * .3); white-space: nowrap; }
+.ev h2 { font: 700 20px/1.1 var(--f-body); }
+.ev p { font-size: 15px; }
+.ev a { justify-self: start; margin-top: 6px; color: inherit; font-weight: 700; text-underline-offset: 4px; min-height: 32px; display: inline-flex; align-items: center; position: relative; z-index: 15; }
+.ev.main .t { color: var(--pink); mix-blend-mode: multiply; }
+.p4 .lunar { font-size: 15px; opacity: .8; }
+
+/* 5. Ảnh halftone: ảnh tràn viền, in bằng chấm mực */
+.p5 { padding: 0; }
+.p5 canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.p5 .quote { position: absolute; left: var(--pad); right: 28%; bottom: max(64px, calc(env(safe-area-inset-bottom) + 48px)); font: 700 26px/1.15 var(--f-body); background: var(--paper); padding: 10px 12px; box-decoration-break: clone; -webkit-box-decoration-break: clone; display: inline; }
+.p5 .yr { position: absolute; right: -2vw; top: 2vh; font: 400 22vh/0.8 var(--f-big); color: var(--pink); mix-blend-mode: multiply; }
+
+/* 6. Xác nhận: hai chữ khổng lồ chia đôi màn */
+.p6 { display: grid; grid-template-rows: auto 1fr 1fr auto; gap: 0; }
+.p6 .ask { font: 700 22px/1.2 var(--f-body); margin-bottom: 8px; }
+.p6 .choice { position: relative; z-index: 15; display: flex; align-items: center; border: 0; border-top: 3px solid var(--blue); background: transparent; color: var(--blue); font: 400 20vh/0.8 var(--f-big); text-align: left; padding: 0; cursor: pointer; overflow: hidden; }
+.p6 .choice span { position: relative; z-index: 1; }
+.p6 .choice::before { content: ''; position: absolute; inset: 0; background: var(--blue); transform: scaleY(0); transform-origin: bottom; transition: transform .22s steps(4); }
+.p6 .choice[aria-pressed=true] { color: var(--paper); }
+.p6 .choice[aria-pressed=true]::before { transform: none; }
+.p6 .choice.no[aria-pressed=true]::before { background: var(--pink); }
+.p6 .choice:focus-visible { outline: 3px solid var(--pink); outline-offset: -3px; }
+.p6 .more { position: relative; z-index: 15; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 3px solid var(--blue); min-height: 64px; }
+.step { display: inline-flex; align-items: center; gap: 4px; }
+.step button { width: 44px; height: 44px; border: 3px solid var(--blue); background: transparent; color: var(--blue); font: 400 26px/1 var(--f-big); cursor: pointer; }
+.step b { min-width: 3ch; text-align: center; font: 400 30px/1 var(--f-big); }
+.send { height: 48px; padding: 0 18px; border: 0; background: var(--pink); color: var(--paper); font: 700 16px/1 var(--f-body); cursor: pointer; mix-blend-mode: multiply; }
+.sent { position: absolute; inset: 0; z-index: 16; display: grid; place-items: center; background: var(--paper); }
+.sent[hidden] { display: none; }
+.sent p { font: 400 18vh/0.82 var(--f-big); text-transform: uppercase; padding: var(--pad); }
+
+/* 7. Quà và hết */
+.p7 { display: flex; flex-direction: column; justify-content: space-between; }
+.p7 .giant { margin-left: calc(var(--pad) * -.4); }
+.acc { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; padding: 12px 0; border-top: 3px solid currentColor; position: relative; z-index: 15; }
+.acc img { width: 96px; height: 96px; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.4); }
+.acc b { display: block; font-size: 15px; }
+.acc button { margin-top: 4px; min-height: 36px; padding: 0 10px; border: 2px solid currentColor; background: none; color: inherit; font: 700 14px/1 var(--f-body); cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) { .on .ink .p, .on .ink .b, .p6 .choice::before { animation: none; transition: none; } }
+</style>
+</head>
+<body>
+<main class="deck" aria-live="polite">
+  <section class="poster p1" aria-label="Lời mời">
+    <p class="to">Gửi <span data-guest>bạn</span>,</p>
+    <div class="ink giant" data-fit=".94"><span class="p" aria-hidden="true">Cưới</span><span class="b">Cưới</span></div><div class="ink giant line2" data-fit=".94"><span class="p" aria-hidden="true">rồi.</span><span class="b">rồi.</span></div>
+    <p class="note">Hai đứa quyết định rồi. Chạm để lật từng tờ.</p>
+  </section>
+
+  <section class="poster p2" aria-label="Cô dâu chú rể">
+    <h1 class="sh-sr">Gia Huy và Khánh Linh</h1>
+    <div class="ink giant" data-fit=".98" aria-hidden="true"><span class="p">Gia Huy</span><span class="b">Gia Huy</span></div>
+    <span class="amp" aria-hidden="true">&amp;</span>
+    <div class="ink giant" data-fit=".98" aria-hidden="true"><span class="p">Khánh</span><span class="b">Khánh</span></div>
+    <div class="ink giant right" data-fit=".72" aria-hidden="true"><span class="p">Linh</span><span class="b">Linh</span></div>
+  </section>
+
+  <section class="poster p3" aria-label="Ngày cưới 20 tháng 11 năm 2027">
+    <span class="num ink giant" data-fit=".62" aria-hidden="true"><span class="p">20</span><span class="b">20</span></span>
+    <span class="num ink giant" data-fit=".5" aria-hidden="true"><span class="p">11</span><span class="b">11</span></span>
+    <span class="num ink giant" data-fit="1" aria-hidden="true"><span class="p">2027</span><span class="b">2027</span></span>
+    <p class="meta"><span>Thứ Bảy<br>Hà Nội</span><span>Còn <b data-days>…</b> ngày</span></p>
+  </section>
+
+  <section class="poster p4" aria-label="Lịch lễ">
+    <div class="ev">
+      <span class="t">8:30</span><h2>Lễ Vu Quy</h2>
+      <p>Tư gia nhà gái<br>Số 12 phố Ví Dụ, Hà Nội</p>
+      <a href="https://www.google.com/maps/search/?api=1&query=21.0245,105.8412" target="_blank" rel="noopener">Chỉ đường</a>
+    </div>
+    <p class="lunar">Nhằm ngày 22 tháng 10 năm Đinh Mùi</p>
+    <div class="ev main">
+      <span class="t">18:00</span><h2>Tiệc cưới</h2>
+      <p>Trung tâm tiệc cưới Ví Dụ<br>Số 88 đường Ví Dụ, Hà Nội</p>
+      <a href="https://www.google.com/maps/search/?api=1&query=21.0285,105.8542" target="_blank" rel="noopener">Chỉ đường</a>
+    </div>
+  </section>
+
+  <section class="poster p5" aria-label="Chuyện của hai đứa">
+    <canvas data-halftone="/demo-cuon-phim/images/anh3.jpg" aria-hidden="true"></canvas>
+    <span class="yr" aria-hidden="true">2018</span>
+    <p class="quote">Rạp hết vé, chỉ còn hai ghế lẻ cạnh nhau.</p>
+  </section>
+
+  <section class="poster p6" aria-label="Xác nhận tham dự">
+    <p class="ask"><span data-guest>Bạn</span> tới chung vui chứ?</p>
+    <button class="choice yes" type="button" aria-pressed="false"><span>Có</span></button>
+    <button class="choice no" type="button" aria-pressed="false"><span>Tiếc</span></button>
+    <div class="more">
+      <span class="step" role="group" aria-label="Số người"><button type="button" data-d="-1" aria-label="Bớt một người">−</button><b data-n>1</b><button type="button" data-d="1" aria-label="Thêm một người">+</button></span>
+      <button class="send" type="button">Gửi</button>
+    </div>
+    <div class="sent" hidden><p>Đã nhận. Hẹn gặp.</p></div>
+  </section>
+
+  <section class="poster p7" aria-label="Mừng cưới">
+    <div class="ink giant" data-fit=".96"><span class="p" aria-hidden="true">Hết.</span><span class="b">Hết.</span></div>
+    <div>
+      <div class="acc"><img alt="Mã QR chuyển khoản tới Trần Gia Huy" src="https://img.vietqr.io/image/VCB-0000000000-qr_only.png?accountName=TRAN%20GIA%20HUY&addInfo=Mung%20cuoi"><div><b>Trần Gia Huy</b>Vietcombank 0000000000<br><button type="button" data-copy="0000000000">Chép số</button></div></div>
+      <div class="acc"><img alt="Mã QR chuyển khoản tới Phạm Khánh Linh" src="https://img.vietqr.io/image/TCB-0000000000-qr_only.png?accountName=PHAM%20KHANH%20LINH&addInfo=Mung%20cuoi"><div><b>Phạm Khánh Linh</b>Techcombank 0000000000<br><button type="button" data-copy="0000000000">Chép số</button></div></div>
+    </div>
+  </section>
+</main>
+<nav class="nav" aria-label="Lật áp phích"><button type="button" data-go="-1" aria-label="Tờ trước"></button><button type="button" data-go="1" aria-label="Tờ sau"></button></nav>
+<p class="count" aria-hidden="true"><span data-i>1</span>/<span data-total>7</span></p>
+
+<script>
+(() => {
+  const posters = [...document.querySelectorAll('.poster')];
+  const q = new URLSearchParams(location.search), guest = (q.get('k') || '').trim().slice(0, 40);
+  if (guest) document.querySelectorAll('[data-guest]').forEach(el => { el.textContent = guest; });
+  const days = Math.ceil((Date.parse('2027-11-20T18:00:00+07:00') - Date.now()) / 864e5);
+  document.querySelector('[data-days]').textContent = Math.max(0, days);
+
+  // Chữ khổng lồ: co giãn để rộng hơn màn hình một chút (tràn mép có chủ đích), đo theo font thật
+  const fit = () => posters.forEach(p => p.querySelectorAll('[data-fit]').forEach(el => {
+    el.style.fontSize = '100px';
+    const w = el.querySelector('.b').getBoundingClientRect().width;
+    el.style.fontSize = (100 * innerWidth * parseFloat(el.dataset.fit) / w) + 'px';
+  }));
+
+  // Ảnh halftone: vẽ chấm mực theo độ tối của ảnh (một mực xanh)
+  function halftone(cv) {
+    const img = new Image();
+    img.onload = () => {
+      const W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, devicePixelRatio || 1);
+      cv.width = W * dpr; cv.height = H * dpr;
+      const g = cv.getContext('2d'); g.scale(dpr, dpr);
+      const s = Math.max(W / img.width, H / img.height), cell = 7;
+      const off = document.createElement('canvas'); off.width = Math.ceil(W / cell); off.height = Math.ceil(H / cell);
+      const o = off.getContext('2d', { willReadFrequently: true });
+      o.drawImage(img, (W - img.width * s) / 2 / cell, (H - img.height * s) / 2 / cell, img.width * s / cell, img.height * s / cell);
+      const px = o.getImageData(0, 0, off.width, off.height).data;
+      g.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--blue');
+      for (let y = 0; y < off.height; y++) for (let x = 0; x < off.width; x++) {
+        const i = (y * off.width + x) * 4, lum = (px[i] * .3 + px[i + 1] * .59 + px[i + 2] * .11) / 255;
+        const r = (1 - lum) * cell * .62;
+        if (r > .4) { g.beginPath(); g.arc(x * cell + cell / 2, y * cell + cell / 2, r, 0, 7); g.fill(); }
+      }
+    };
+    img.src = cv.dataset.halftone;
+  }
+
+  let i = 0;
+  const show = n => {
+    i = Math.max(0, Math.min(posters.length - 1, n));
+    posters.forEach((p, k) => { p.classList.toggle('on', k === i); p.toggleAttribute('inert', k !== i); });
+    document.querySelector('[data-i]').textContent = i + 1;
+    const cv = posters[i].querySelector('canvas[data-halftone]');
+    if (cv && !cv.dataset.done) { cv.dataset.done = 1; halftone(cv); }
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch {}
+  };
+  document.querySelector('[data-total]').textContent = posters.length;
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(i + +b.dataset.go)));
+  addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'PageDown') show(i + 1); if (e.key === 'ArrowLeft' || e.key === 'PageUp') show(i - 1); });
+  let x0 = null;
+  addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1)); x0 = null; });
+
+  // Xác nhận: chạm chữ khổng lồ để tô mực, chọn số người, gửi
+  const yes = document.querySelector('.choice.yes'), no = document.querySelector('.choice.no');
+  [yes, no].forEach(b => b.addEventListener('click', () => { yes.setAttribute('aria-pressed', String(b === yes)); no.setAttribute('aria-pressed', String(b === no)); document.querySelector('.p6 .step').style.visibility = b === no ? 'hidden' : ''; }));
+  let n = 1; const nEl = document.querySelector('[data-n]');
+  document.querySelectorAll('.step button').forEach(b => b.addEventListener('click', () => { n = Math.max(1, Math.min(9, n + +b.dataset.d)); nEl.textContent = n; }));
+  document.querySelector('.send').addEventListener('click', () => {
+    if (yes.getAttribute('aria-pressed') !== 'true' && no.getAttribute('aria-pressed') !== 'true') { yes.focus(); return; }
+    const s = document.querySelector('.sent'); s.querySelector('p').textContent = yes.getAttribute('aria-pressed') === 'true' ? 'Đã giữ chỗ. Hẹn gặp.' : 'Đã nhận. Thương nhiều.'; s.hidden = false;
+  });
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Đã chép'; } catch {} }));
+
+  const start = () => { fit(); show(+(location.hash.slice(1)) - 1 || 0); };
+  (document.fonts?.ready || Promise.resolve()).then(start);
+  addEventListener('resize', fit);
+})();
+</script>
+</body>
+</html>
