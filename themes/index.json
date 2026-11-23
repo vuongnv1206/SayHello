@@ -85,5 +85,20 @@
       "Dải phim 35mm vuốt ngang",
       "Danh đề cuối phim"
     ]
+  },
+  {
+    "id": "tin-nhan",
+    "name": "Tin Nhắn",
+    "demo": "demo-tin-nhan",
+    "tagline": "Một thông báo tin nhắn mới mở ra nhóm chat kể chuyện tình của hai bạn",
+    "mood": "Hiện đại · Kem ấm · San hô",
+    "effects": [
+      "Thông báo trên màn hình khóa",
+      "Tin nhắn hiện kèm đang soạn tin",
+      "Danh thiếp cô dâu chú rể",
+      "Thẻ lịch hẹn",
+      "Khách trả lời bằng bong bóng chat",
+      "Bao lì xì chuyển khoản"
+    ]
   }
 ]
