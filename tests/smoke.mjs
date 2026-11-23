@@ -62,7 +62,17 @@ async function check(path, invite, extra) {
   if (errors.length) failures.push(path);
 }
 
-await check('/', false);
+// Trang chủ: lúc mở chưa tải thiệp nào (nhẹ trên 4G); chạm vào mẫu mới tải, kể cả khi gõ tên thử
+await check('/', false, async (page, errors) => {
+  await page.waitForSelector('.card .phone', { state: 'attached' });
+  if (await page.$$eval('iframe', l => l.length)) errors.push('Trang chủ tải thiệp ngay khi mở, chưa chạm');
+  await page.fill('#t-groom', 'Quốc Bảo'); await page.fill('#t-bride', 'Mai Anh');
+  await page.click('.card:first-child .phone');
+  await page.waitForTimeout(2500);
+  if ((await page.$$eval('iframe', l => l.length)) !== 1) errors.push('Chạm vào mẫu mà thiệp không tải');
+  const txt = await page.frames().find(f => f !== page.mainFrame())?.evaluate(() => document.body.innerText).catch(() => '');
+  if (!/Quốc Bảo/.test(txt || '') || !/Mai Anh/.test(txt || '')) errors.push('Tên gõ thử không hiện trên thiệp mẫu');
+});
 // Trang đặt thiệp: điền form, phải ra mã đơn và QR đúng số tiền
 await check('/dat-thiep/?goi=co-ban', false, async (page, errors) => {
   const shop = JSON.parse(readFileSync(join(ROOT, 'shop.json'), 'utf8'));
