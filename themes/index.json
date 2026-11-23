@@ -70,5 +70,20 @@
       "Lời chúc thành hoa đăng",
       "Thả đèn trời"
     ]
+  },
+  {
+    "id": "cuon-phim",
+    "name": "Cuộn Phim",
+    "demo": "demo-cuon-phim",
+    "tagline": "Kéo cần máy chiếu, màn ảnh đếm 3-2-1 và bộ phim tình yêu bắt đầu",
+    "mood": "Điện ảnh · Rạp tối · Nhung đỏ",
+    "effects": [
+      "Kéo cần máy chiếu",
+      "Rèm nhung mở màn ảnh",
+      "Bảng clapper từng cảnh",
+      "Vé xem phim",
+      "Dải phim 35mm vuốt ngang",
+      "Danh đề cuối phim"
+    ]
   }
 ]

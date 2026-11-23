@@ -1,0 +1,121 @@
+{
+  "theme": "cuon-phim",
+  "slug": "demo-cuon-phim",
+  "groom": {
+    "short": "Gia Huy",
+    "full": "Trần Gia Huy",
+    "bio": "Người quay phim cưới, quay hạnh phúc của người khác suốt mười năm."
+  },
+  "bride": {
+    "short": "Khánh Linh",
+    "full": "Phạm Khánh Linh",
+    "bio": "Biên tập viên phụ đề, sửa lỗi chính tả cả trong tin nhắn yêu."
+  },
+  "order": "groom-first",
+  "city": "Hà Nội",
+  "date": "2027-11-20T18:00:00+07:00",
+  "themeColor": "#15120f",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Trần Văn Hải",
+      "mother": "Ngô Thị Hạnh",
+      "address": "Phường Ví Dụ,\nHà Nội"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Phạm Quốc Toàn",
+      "mother": "Đỗ Thị Lan",
+      "address": "Phường Mẫu,\nHà Nội"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-11-20T08:30:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 12 phố Ví Dụ, Phường Mẫu, Hà Nội",
+      "lunar": "Nhằm ngày 22 tháng 10 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-11-20T18:00:00+07:00",
+      "venue": "Trung tâm tiệc cưới Ví Dụ",
+      "address": "Số 88 đường Ví Dụ, Phường Ví Dụ, Hà Nội",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới",
+      "address": "Số 88 đường Ví Dụ, Phường Ví Dụ, Hà Nội",
+      "coords": "21.0285,105.8542"
+    },
+    {
+      "label": "Lễ vu quy",
+      "address": "Số 12 phố Ví Dụ, Phường Mẫu, Hà Nội",
+      "coords": "21.0245,105.8412"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh4.jpg",
+    "bride": "images/anh5.jpg",
+    "thanks": "images/anh6.jpg",
+    "album": [
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh1.jpg",
+      "images/anh5.jpg",
+      "images/anh4.jpg"
+    ],
+    "captions": [
+      "Phố đêm",
+      "Hoàng hôn",
+      "Buổi chiếu đầu",
+      "Biển mùa thu",
+      "Đèn dây"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "../assets/music/dao-buoc.mp3",
+  "sheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "0000000000",
+      "name": "TRAN GIA HUY"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "0000000000",
+      "name": "PHAM KHANH LINH"
+    }
+  ],
+  "story": [
+    {
+      "year": "2018",
+      "title": "Ghế bên cạnh",
+      "text": "Rạp hết vé, chỉ còn hai ghế lẻ cạnh nhau. Anh khóc ở cảnh cuối, em đưa khăn giấy."
+    },
+    {
+      "year": "2020",
+      "title": "Phụ đề sai chính tả",
+      "text": "Em gửi anh danh sách lỗi phụ đề trong đoạn phim anh quay. Anh mời em cà phê để sửa."
+    },
+    {
+      "year": "2025",
+      "title": "Cảnh cầu hôn quay một lần",
+      "text": "Anh chiếu một đoạn phim ngắn trên tường nhà, khung cuối ghi: Em lấy anh nhé?"
+    },
+    {
+      "year": "2027",
+      "title": "Khởi chiếu",
+      "text": "Bộ phim dài nhất đời hai đứa chính thức bắt đầu. Mời bạn tới xem tập đầu tiên."
+    }
+  ]
+}
