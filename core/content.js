@@ -28,8 +28,8 @@ export function pickEditable(obj) {
   return out;
 }
 
-const params = new URLSearchParams(location.search);
-export const inStudio = params.get('studio') === '1' && window.parent !== window;
+const params = new URLSearchParams(typeof location === 'undefined' ? '' : location.search);
+export const inStudio = typeof window !== 'undefined' && params.get('studio') === '1' && window.parent !== window;
 
 // Trong Studio: trang thiệp xin dữ liệu từ khung cha, rồi dựng bằng dữ liệu đó (chưa lưu cũng xem được)
 function fromStudio() {

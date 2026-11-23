@@ -7,11 +7,13 @@
     "build": "node scripts/build.mjs",
     "new": "node scripts/new-invite.mjs",
     "dev": "npx --yes serve .",
-    "test": "node tests/apps-script.mjs && node tests/smoke.mjs",
+    "test": "node tests/apps-script.mjs && node tests/scripts.mjs && node tests/smoke.mjs",
     "images": "node scripts/optimize-images.mjs",
     "xem-truoc": "node scripts/xem-truoc.mjs",
     "studio-link": "node scripts/studio-link.mjs",
-    "apps-script": "node scripts/apps-script.mjs"
+    "apps-script": "node scripts/apps-script.mjs",
+    "sync-studio": "node scripts/sync-studio.mjs",
+    "doctor": "node scripts/doctor.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0",

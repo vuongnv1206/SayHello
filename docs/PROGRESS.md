@@ -21,6 +21,7 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 | 7. Mẫu thứ 6 | **Cuộn Phim**: kéo cần máy chiếu, màn ảnh đếm 3-2-1, rèm nhung, bảng clapper từng cảnh, vé xem phim, dải phim 35mm vuốt ngang có tiếng tạch máy ảnh, lời chúc thành phụ đề, hộp bắp rang, danh đề cuối phim. |
 | 8. Mẫu thứ 7 | **Tin Nhắn**: màn hình khóa có thông báo tin nhắn mời cưới, nhóm chat hiện từng tin kèm "đang soạn tin", danh thiếp, thẻ lịch hẹn, tin ghim đếm ngược, khách xác nhận và chúc bằng bong bóng chat, bao lì xì, "Đã xem". |
 | 9. Vận hành | **Studio tải ảnh**: cặp đôi tự đổi ảnh chính, ảnh cô dâu chú rể, thêm/bớt/sắp xếp album; ảnh thu nhỏ trên máy rồi lưu vào Drive người bán. **Trang `/ban-hang/`**: số đơn, đơn chờ tiền, doanh thu, đám cưới 30 ngày tới (chép lời nhắc), số khách từng thiệp. **Email nhắc** đám cưới còn 7 và 1 ngày, **sao lưu Sheet** mỗi tuần. Code Apps Script có bộ kiểm tra giả lập Google (`tests/apps-script.mjs`, chạy trong `npm test`). |
+| 10. Pha 1 đề xuất | Nhạc mở khóa ở lần chạm đầu (iPhone), khách trùng tên không bị gộp (mã khách ẩn danh, cột "Mã khách" mới trong Sheet), Studio có ô sửa xác nhận tham dự, QR mừng cưới điền sẵn tên khách, trang chủ chỉ tải mẫu khi chạm + ô thử tên, lệnh `npm run sync-studio` và `npm run doctor`. |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết

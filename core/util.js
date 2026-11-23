@@ -2,7 +2,7 @@
 
 export const $ = (s, el = document) => el.querySelector(s);
 export const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const rnd = (a, b) => a + Math.random() * (b - a);
 export const pick = arr => arr[Math.random() * arr.length | 0];
 

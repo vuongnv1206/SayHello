@@ -42,6 +42,11 @@ Phần còn lại (gia đình, lịch lễ, địa điểm, câu chữ, hành tr
 
 **Theo dõi:** trang `/ban-hang/` (lấy link: `npm run studio-link -- --ban-hang`) gom đơn chờ tiền, đám cưới sắp tới kèm lời nhắc soạn sẵn, số khách từng thiệp. Bật email nhắc hằng ngày và sao lưu hằng tuần theo [backend/HUONG-DAN.md](../backend/HUONG-DAN.md).
 
+## Lệnh hỗ trợ
+
+- `npm run doctor` soát lỗi trước khi giao (số giả, thiếu `sheetUrl`, ảnh nặng, thiếu ảnh xem trước, ngày cưới đã qua).
+- `npm run sync-studio -- <thiệp> [--dry-run]` kéo phần cặp đôi đã sửa trong Studio về `invite.json`, làm lại ảnh xem trước và `index.html` để link gửi Zalo khớp nội dung mới. `--dry-run` chỉ in ra phần sẽ đổi.
+
 ## Gợi ý theo gói
 
 - **Cơ bản:** làm như trên.

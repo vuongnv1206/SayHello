@@ -36,12 +36,12 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 ### Đề xuất mở rộng (từ [PROPOSAL.md](PROPOSAL.md), chờ Ngài duyệt)
 
 **Pha 1: sửa lỗi thật, việc nhỏ**
-- [ ] Nhạc trên iPhone: 4 mẫu (`khoa-tinh`, `den-long`, `cuon-phim`, `tin-nhan`) mở thiệp trong `setTimeout`, Safari có thể chặn nhạc. Mở khóa nhạc (tắt tiếng) ngay lúc khách chạm bìa.
-- [ ] Khách trùng tên bị gộp làm một: `latest()` ở `studio/khach.html` và `readAdmin()` ở Apps Script gộp xác nhận theo tên. Đổi sang mã khách.
-- [ ] Studio: thêm ô sửa `rsvp` (số khách tối đa, các lựa chọn bên nhà trai/gái); sửa gợi ý `groom.bio` (6/7 mẫu dùng, không chỉ 2).
-- [ ] Hộp mừng cưới: QR VietQR tự điền nội dung "Mung cuoi <tên khách>" (`addInfo`).
-- [ ] Trang chủ: ảnh tĩnh thay iframe, chạm mới tải mẫu; ô "thử tên hai bạn".
-- [ ] `npm run sync-studio -- <thiệp>` (kéo bản sửa Studio về `invite.json` + ảnh xem trước) và `npm run doctor` (soát lỗi trước khi giao).
+- [x] Nhạc trên iPhone: 4 mẫu (`khoa-tinh`, `den-long`, `cuon-phim`, `tin-nhan`) mở thiệp trong `setTimeout`, Safari có thể chặn nhạc. Mở khóa nhạc (tắt tiếng) ngay lúc khách chạm bìa.
+- [x] Khách trùng tên bị gộp làm một: `latest()` ở `studio/khach.html` và `readAdmin()` ở Apps Script gộp xác nhận theo tên. Đổi sang mã khách.
+- [x] Studio: thêm ô sửa `rsvp` (số khách tối đa, các lựa chọn bên nhà trai/gái); sửa gợi ý `groom.bio` (6/7 mẫu dùng, không chỉ 2).
+- [x] Hộp mừng cưới: QR VietQR tự điền nội dung "Mung cuoi <tên khách>" (`addInfo`).
+- [x] Trang chủ: ảnh tĩnh thay iframe, chạm mới tải mẫu; ô "thử tên hai bạn".
+- [x] `npm run sync-studio -- <thiệp>` (kéo bản sửa Studio về `invite.json` + ảnh xem trước) và `npm run doctor` (soát lỗi trước khi giao).
 
 **Pha 2: cặp đôi tự làm nhiều hơn**
 - [ ] Nhóm khách `?n=` (nhà trai/nhà gái/bạn bè): lời mời, buổi lễ, địa điểm riêng theo nhóm.
