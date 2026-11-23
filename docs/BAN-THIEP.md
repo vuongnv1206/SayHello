@@ -33,7 +33,7 @@ npm run new -- minh-khang-thu-ha --theme ve-may-bay --groom "Minh Khang" --bride
 
 Lệnh tạo thư mục `minh-khang-thu-ha/` theo thiệp mẫu, điền sẵn tên và ngày (lịch lễ dời theo). Sau đó:
 
-1. Thay ảnh trong `minh-khang-thu-ha/images/` (ảnh khách gửi qua Zalo), chạy `npm run images` để nén.
+1. Thay ảnh trong `minh-khang-thu-ha/images/` (ảnh khách gửi qua Zalo), chạy `npm run images` để nén, rồi `npm run xem-truoc -- minh-khang-thu-ha` để làm ảnh xem trước (ảnh cưới + tên + ngày) hiện khi gửi link.
 2. Điền `sheetUrl` trong `invite.json`, chạy `npm run build`, commit và đẩy lên. Vercel tự đăng.
 3. `npm run studio-link -- minh-khang-thu-ha` để lấy link Studio và link quản lý khách, gửi cho cặp đôi.
 4. Đổi Trạng thái đơn thành "Đã giao".
@@ -43,5 +43,5 @@ Phần còn lại (gia đình, lịch lễ, địa điểm, câu chữ, hành tr
 ## Gợi ý theo gói
 
 - **Cơ bản:** làm như trên.
-- **Nâng cao:** thêm link riêng cho từng khách (`/ten-cap-doi/?k=Tên+Khách`), nhạc riêng (`music` trong `invite.json`), ảnh xem trước (`images.preview`), tới 20 ảnh trong `images.album`.
+- **Nâng cao:** thêm link riêng cho từng khách (`/ten-cap-doi/?k=Tên+Khách`), nhạc riêng (`music` trong `invite.json`), tới 20 ảnh trong `images.album`.
 - **Riêng:** làm mẫu mới theo `docs/TAO-MAU-MOI.md`.

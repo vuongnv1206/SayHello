@@ -18,7 +18,7 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 - [ ] Điền `ALLOWED` trong Apps Script khi có thiệp bán đầu tiên (chống ghi rác).
 - [x] Trang chủ: nút "Đặt mẫu này" trên từng mẫu (đi thẳng tới `/dat-thiep/?mau=...`).
 - [ ] Studio: tải ảnh lên (qua thư mục Google Drive của người bán), để cặp đôi tự thay ảnh.
-- [ ] Ảnh xem trước (`xem-truoc.jpg`) tự tạo từ ảnh cưới + tên cặp đôi khi tạo thiệp.
+- [x] Ảnh xem trước (`xem-truoc.jpg`) tự tạo từ ảnh cưới + tên cặp đôi khi tạo thiệp (`npm run xem-truoc`).
 
 ### Mẫu mới (mỗi mẫu một ý tưởng riêng, xem ý tưởng trong [TAO-MAU-MOI.md](TAO-MAU-MOI.md#3-ý-tưởng-cho-các-mẫu-tiếp-theo))
 - [ ] **Cuộn Phim**: máy chiếu, khung phim 35mm, phụ đề.

@@ -4,11 +4,12 @@
 // Sẽ tạo thư mục minh-khang-thu-ha/ (invite.json + ảnh mẫu + index.html). Sau đó:
 //   1. Sửa minh-khang-thu-ha/invite.json (tên, ngày, địa điểm, tài khoản, sheetUrl)
 //   2. Thay ảnh trong minh-khang-thu-ha/images/
-//   3. Chạy lại: node scripts/build.mjs minh-khang-thu-ha
+//   3. Chạy lại: npm run xem-truoc -- minh-khang-thu-ha (ảnh xem trước từ ảnh mới), rồi node scripts/build.mjs minh-khang-thu-ha
 import { cpSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildInvite } from './build.mjs';
+import { makePreview } from './xem-truoc.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -38,6 +39,8 @@ if (opt('date')) {
 }
 delete d.story;
 writeFileSync(p, JSON.stringify(d, null, 2) + '\n');
+// Ảnh xem trước có tên cặp đôi; thay ảnh cưới thật xong thì chạy lại: npm run xem-truoc -- <slug>
+await makePreview(slug).catch(e => console.warn('! Chưa tạo được ảnh xem trước: ' + e.message));
 buildInvite(slug);
 console.log(`✓ Đã tạo ${slug}/ theo mẫu "${theme}" (sao chép từ ${from}/)
   Sửa ${slug}/invite.json và thay ảnh trong ${slug}/images/, rồi chạy: node scripts/build.mjs ${slug}`);

@@ -33,7 +33,7 @@ node scripts/new-invite.mjs minh-khang-thu-ha --theme song-hy
 ```
 
 1. Sửa `minh-khang-thu-ha/invite.json`: tên, ngày giờ, gia đình, sự kiện, địa điểm, tài khoản mừng cưới, `sheetUrl`.
-2. Thay ảnh trong `minh-khang-thu-ha/images/` (giữ tên file hoặc sửa đường dẫn trong `invite.json`). Ảnh `xem-truoc.jpg` cỡ 1200×630 là ảnh hiện khi gửi link qua Zalo/Facebook.
+2. Thay ảnh trong `minh-khang-thu-ha/images/` (giữ tên file hoặc sửa đường dẫn trong `invite.json`). Ảnh `xem-truoc.jpg` (1200×630) là ảnh hiện khi gửi link qua Zalo/Facebook: lệnh tạo thiệp tự làm từ ảnh chính + tên + ngày cưới; thay ảnh xong chạy `npm run xem-truoc -- minh-khang-thu-ha` để làm lại (thêm `--anh images/anh3.jpg` để chọn ảnh khác).
 3. Chạy `npm run images -- minh-khang-thu-ha` để nén ảnh (ảnh cưới thật 3-8MB sẽ còn khoảng 150-300KB, tự xoay đúng chiều và bỏ vị trí GPS). Lệnh này ghi đè ảnh, nên giữ ảnh gốc ở nơi khác.
 4. Chạy `node scripts/build.mjs minh-khang-thu-ha` để sinh lại `index.html` (tiêu đề và ảnh xem trước).
 5. Chạy `npm test` để mở thử mọi thiệp, rồi đưa lên hosting. Link gửi khách: `https://ten-mien/minh-khang-thu-ha/`.
