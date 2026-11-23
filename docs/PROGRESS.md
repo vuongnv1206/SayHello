@@ -39,7 +39,6 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 - Chưa đẩy được lên GitHub: tài khoản GitHub trên máy không có quyền ghi (403).
 - `shop.json` còn giá tạm, tài khoản và Zalo giả (`0000000000`).
 - `git stash` "backup truoc khi lay code moi" chỉ chứa tài liệu, không có code Next.js/Supabase cũ. Bản 2 dựng lại từ đầu.
-- `sharp` (dùng nén ảnh ở `legacy/`) có lỗ hổng mức cao trong thư viện ảnh libvips; bản sửa là 0.35 (đổi API), cần nâng và thử lại lệnh ảnh.
 
 ## Bước tiếp theo
 
