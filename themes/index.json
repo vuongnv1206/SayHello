@@ -139,31 +139,5 @@
       "Phiếu order xác nhận",
       "Hũ tiền tip mừng cưới"
     ]
-  },
-  {
-    "id": "kintsugi",
-    "name": "Gốm Ghép Vàng",
-    "demo": "demo-kintsugi",
-    "tagline": "Hai mảnh gốm ghép lại, đường vàng chảy nối liền vết nứt: hai mảnh ghép thành một",
-    "mood": "Tĩnh · Men ngọc · Vàng kim",
-    "effects": [
-      "Hai mảnh gốm ghép lại",
-      "Đường vàng chảy theo vết nứt",
-      "Dải vàng ngăn các mục",
-      "Khung ảnh men rạn"
-    ]
-  },
-  {
-    "id": "kinh-van-hoa",
-    "name": "Kính Vạn Hoa",
-    "demo": "demo-kinh-van-hoa",
-    "tagline": "Ống kính vạn hoa xoay các mảnh màu, chạm để chúng khớp lại thành ảnh đôi bạn",
-    "mood": "Nghệ thuật · Rực rỡ · Đa sắc",
-    "effects": [
-      "Ống kính vạn hoa xoay",
-      "Mảnh màu khớp thành ảnh",
-      "Khung ảnh lục giác",
-      "Dải hoa văn đối xứng"
-    ]
   }
 ]

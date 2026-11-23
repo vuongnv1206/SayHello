@@ -27,8 +27,6 @@ Mở `http://localhost:3000/` để xem trang giới thiệu các mẫu, hoặc 
 | Thiệp Gấp | `/demo-thiep-gap/` | Thủ công: mở nắp thiệp giấy gấp, các lớp giấy cắt (cổng hoa, đôi uyên ương) dựng đứng, giấy xếp chồng, ngăn kéo giấy đựng quà |
 | Khung Thêu | `/demo-khung-theu/` | Mộc mạc: giữ ngón tay trên khung thêu để đường chỉ chạy thành họa tiết, mảnh vải vá, ảnh trong khung thêu tròn, túi gấm rút dây |
 | Cà Phê Phin | `/demo-ca-phe-phin/` | Ấm cúng: chạm phin để cà phê nhỏ giọt đầy ly, thực đơn "Ngày chung đôi" kẻ chấm, phiếu order xác nhận, hũ tiền tip |
-| Gốm Ghép Vàng | `/demo-kintsugi/` | Tĩnh: hai mảnh gốm ghép lại, đường vàng chảy theo vết nứt, nền men rạn, dải vàng ngăn các mục, chén trà đựng quà |
-| Kính Vạn Hoa | `/demo-kinh-van-hoa/` | Nghệ thuật: ống kính vạn hoa xoay các mảnh màu, chạm để khớp thành ảnh đôi bạn, khung ảnh lục giác, viên đá quý đựng quà |
 | Tin Nhắn | `/demo-tin-nhan/` | Hiện đại: thông báo trên màn hình khóa, nhóm chat hiện từng tin kèm "đang soạn tin", danh thiếp cô dâu chú rể, thẻ lịch hẹn, tin ghim đếm ngược, khách trả lời bằng bong bóng chat, bao lì xì, "Đã xem" |
 
 > Thiệp dùng ES module nên phải mở qua máy chủ web, mở thẳng file `index.html` sẽ không chạy.

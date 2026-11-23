@@ -93,13 +93,5 @@ Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`
 - **Ý tưởng:** góc quán quen. Bìa là bàn gỗ, phin nhôm đặt trên ly thủy tinh; chạm thì nắp phin nhấc lên, giọt cà phê nhỏ xuống đầy ly, hơi nóng bốc lên. Nội dung theo thực đơn "Ngày chung đôi": khai vị (chuyện hai đứa), món chính (lịch lễ kẻ chấm), tráng miệng (album), bảng phấn đếm ngược, phiếu order xác nhận, mẩu giấy nhắn, hũ tiền tip.
 - **Màu:** nâu cà phê, kem, crema. **Chữ:** Playfair Display, Space Mono, Be Vietnam Pro.
 
-### Gốm Ghép Vàng (kintsugi): tĩnh
-- **Ý tưởng:** chiếc bình gốm men ngọc vỡ làm đôi. Chạm thì hai mảnh ghép lại và đường vàng chảy dọc vết nứt, bình sáng lên. Nền nội dung là men rạn, dải vàng ngăn các mục tự vẽ ra khi cuộn tới, ảnh như viên gạch men có vân vàng, chén trà đựng quà.
-- **Màu:** men ngọc, vàng kim. **Chữ:** Cormorant Garamond, Be Vietnam Pro.
-
-### Kính Vạn Hoa: nghệ thuật
-- **Ý tưởng:** ống kính vạn hoa. Ảnh cưới được phản chiếu thành sáu mảnh đối xứng (clip-path + lật gương xen kẽ), xoay và đổi màu liên tục; chạm thì các mảnh mờ đi và bức ảnh thật hiện ra. Nội dung nền chàm với mảng màu rực, khung ảnh lục giác viền cầu vồng, dải tam giác ngăn mục, viên đá quý đựng quà.
-- **Màu:** hồng sẫm, ngọc lam, vàng, tím chàm. **Chữ:** Fraunces, Be Vietnam Pro.
-
 ### Bảng màu có sẵn
 Mỗi mẫu khai báo `palettes` trong `theme.js` (id, tên, 2 màu mẫu, `vars` ghi đè biến CSS của mẫu). Cặp đôi chọn trong Studio, thiệp áp qua `data.palette`. Chỉ đổi các biến màu chính; màu đặt cứng ở chỗ khác trong `theme.css` giữ nguyên.
