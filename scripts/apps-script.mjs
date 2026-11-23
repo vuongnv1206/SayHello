@@ -22,8 +22,11 @@ if (!secret) {
 }
 
 const src = readFileSync(join(ROOT, 'backend/apps-script.gs'), 'utf8');
-const out = src.replace(/const STUDIO_SECRET = '[^']*';/, `const STUDIO_SECRET = '${secret}';`);
+let out = src.replace(/const STUDIO_SECRET = '[^']*';/, `const STUDIO_SECRET = '${secret}';`);
 if (out === src) { console.error('✗ Không tìm thấy dòng STUDIO_SECRET trong backend/apps-script.gs'); process.exit(1); }
+// Địa chỉ web trong email nhắc lấy theo site.json (đổi tên miền thì chạy lại lệnh này)
+const siteUrl = (JSON.parse(readFileSync(join(ROOT, 'site.json'), 'utf8')).baseUrl || '').replace(/\/$/, '');
+if (siteUrl) out = out.replace(/const SITE_URL = '[^']*';/, `const SITE_URL = '${siteUrl}';`);
 const file = join(ROOT, 'backend/apps-script.local.gs');
 writeFileSync(file, out);
 console.log('✓ Đã ghi backend/apps-script.local.gs (code đã điền mã, không đưa lên GitHub)');

@@ -16,7 +16,13 @@
  *   ?invite=ten-cap-doi&type=content -> { content: {...} | null }
  *   ?invite=ten-cap-doi&type=guests&key=... -> { rsvps: [...], wishes: [...] }  (trang quản lý của cặp đôi)
  *
+ *   { invite: 'ten-cap-doi', type: 'upload', key, mime, data }   (Studio tải ảnh lên Google Drive của người bán)
+ *   ?type=admin&key=...  -> { orders, invites, keys }   (trang tổng hợp của người bán /ban-hang/, mã riêng của người bán)
+ *
  * Kiểm duyệt: gõ "x" vào cột "Ẩn" của một lời chúc trong Sheet để ẩn nó khỏi thiệp.
+ *
+ * Chạy tự động (làm một lần): chọn hàm caiDatTuDong → Chạy. Sau đó mỗi sáng tự gửi email nhắc các đám cưới sắp tới
+ * (kèm lời nhắn soạn sẵn để chuyển cho cặp đôi qua Zalo), mỗi tuần tự sao lưu Sheet vào Google Drive.
  */
 
 // Để trống: thiệp nào cũng ghi được. Điền danh sách để chỉ nhận những thiệp đã bán, chống ghi rác:
@@ -27,6 +33,17 @@ const ALLOWED = [];
 // ở máy của Ngài (STUDIO_SECRET=...) để lệnh "npm run studio-link" tạo đúng link Studio.
 const STUDIO_SECRET = 'doi-chuoi-nay-thanh-chuoi-bi-mat-cua-ban';
 
+// Địa chỉ trang web, dùng để soạn link trong email nhắc (npm run apps-script tự điền từ site.json)
+const SITE_URL = 'https://sayhello-wheat.vercel.app';
+// Nhắc trước ngày cưới bao nhiêu ngày
+const REMIND_DAYS = [7, 1];
+// Giữ bao nhiêu bản sao lưu gần nhất (bản cũ hơn chuyển vào thùng rác Drive, còn khôi phục được 30 ngày)
+const KEEP_BACKUPS = 8;
+const IMAGE_FOLDER = 'SayHello – ảnh thiệp';
+const BACKUP_FOLDER = 'SayHello – sao lưu';
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const MAX_UPLOADS = 120; // mỗi thiệp, chống lạm dụng
+
 const CONTENT_SHEET = '_Nội dung';
 const ORDER_SHEET = '_Đơn hàng';
 const ORDER_HEADERS = ['Thời gian', 'Mã đơn', 'Mẫu', 'Gói', 'Số tiền', 'Chú rể', 'Cô dâu', 'Ngày cưới', 'Điện thoại / Zalo', 'Đường dẫn', 'Ghi chú', 'Trạng thái'];
@@ -35,6 +52,7 @@ const MAX_WISHES = 300;
 
 function doGet(e) {
   const p = (e && e.parameter) || {};
+  if (p.type === 'admin') return json(validKey('_admin', p.key) ? readAdmin() : { error: 'key' });
   const slug = cleanSlug(p.invite);
   if (!slug) return json({ error: 'invite?' });
   if (p.type === 'hearts') return json({ hearts: getHearts(slug) });
@@ -56,6 +74,11 @@ function doPost(e) {
   if (d.type === 'heart') {
     const n = Math.max(0, Math.min(50, parseInt(d.n, 10) || 0));
     return json({ ok: true, hearts: addHearts(slug, n) });
+  }
+
+  if (d.type === 'upload') {
+    if (!validKey(slug, d.key)) return json({ ok: false, error: 'key' });
+    return json(saveImage(slug, d));
   }
 
   if (d.type === 'content') {
@@ -230,7 +253,156 @@ function saveOrder(d) {
   }
 }
 
+/* ---------- Ảnh cặp đôi tải lên trong Studio: lưu vào Google Drive của người bán ---------- */
+
+// Mỗi thiệp một thư mục con trong "SayHello – ảnh thiệp". Ảnh để chế độ "ai có link đều xem được" để thiệp hiện được.
+function saveImage(slug, d) {
+  const m = /^image\/(jpeg|png|webp)$/.exec(String(d.mime || ''));
+  if (!m) return { ok: false, error: 'type' };
+  let bytes;
+  try { bytes = Utilities.base64Decode(String(d.data || '')); } catch (err) { return { ok: false, error: 'data' }; }
+  if (!bytes.length || bytes.length > MAX_IMAGE_BYTES) return { ok: false, error: 'too_big' };
+  const props = PropertiesService.getScriptProperties(), countKey = 'uploads:' + slug;
+  const count = Number(props.getProperty(countKey)) || 0;
+  if (count >= MAX_UPLOADS) return { ok: false, error: 'limit' };
+  const parent = folderByName(IMAGE_FOLDER, 'imageFolder');
+  const sub = parent.getFoldersByName(slug);
+  const folder = sub.hasNext() ? sub.next() : parent.createFolder(slug);
+  const ext = m[1] === 'jpeg' ? 'jpg' : m[1];
+  const file = folder.createFile(Utilities.newBlob(bytes, 'image/' + m[1], Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMdd-HHmmss') + '.' + ext));
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  props.setProperty(countKey, String(count + 1));
+  return { ok: true, url: 'https://lh3.googleusercontent.com/d/' + file.getId() };
+}
+
+// Thư mục trên Drive theo tên, nhớ id để lần sau không tạo trùng
+function folderByName(name, prop) {
+  const props = PropertiesService.getScriptProperties(), id = props.getProperty(prop);
+  if (id) { try { return DriveApp.getFolderById(id); } catch (err) {} }
+  const found = DriveApp.getFoldersByName(name);
+  const f = found.hasNext() ? found.next() : DriveApp.createFolder(name);
+  props.setProperty(prop, f.getId());
+  return f;
+}
+
+/* ---------- Trang tổng hợp của người bán (/ban-hang/) ---------- */
+
+function readOrders() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDER_SHEET);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, ORDER_HEADERS.length).getValues().map(r => ({
+    at: iso(r[0]), code: String(r[1]), theme: String(r[2]), pack: String(r[3]), price: Number(r[4]) || 0,
+    groom: String(r[5]), bride: String(r[6]), date: ymd(r[7]), phone: String(r[8]), slug: String(r[9]).trim(), note: String(r[10]), status: String(r[11]),
+  }));
+}
+
+// Ngày cưới cặp đôi đã sửa trong Studio (nếu có) và lúc lưu gần nhất
+function contentInfo() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONTENT_SHEET), out = {};
+  if (!sh || sh.getLastRow() < 2) return out;
+  sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues().forEach(r => {
+    let date = '';
+    try { date = ymd(JSON.parse(r[1]).date || ''); } catch (err) {}
+    out[String(r[0])] = { date: date, savedAt: iso(r[2]) };
+  });
+  return out;
+}
+
+function readAdmin() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), orders = readOrders(), content = contentInfo();
+  const invites = ss.getSheets().map(s => s.getName()).filter(n => /^[a-z0-9][a-z0-9-]{0,59}$/.test(n)).map(slug => {
+    const g = readGuests(slug), last = {};
+    g.rsvps.forEach(r => { last[r.name.toLowerCase().trim()] = r; }); // mỗi người lấy lần xác nhận cuối
+    const rs = Object.keys(last).map(k => last[k]), yes = rs.filter(r => r.attend === 'Có');
+    return { slug: slug, rsvps: rs.length, yes: yes.length, people: yes.reduce((s, r) => s + r.guests, 0), wishes: g.wishes.length,
+      hearts: getHearts(slug), date: (content[slug] || {}).date || '', savedAt: (content[slug] || {}).savedAt || '' };
+  });
+  const keys = {};
+  orders.map(o => o.slug).concat(invites.map(i => i.slug), Object.keys(content)).forEach(s => {
+    if (/^[a-z0-9][a-z0-9-]{0,59}$/.test(s)) keys[s] = editKey(s);
+  });
+  return { orders: orders, invites: invites, keys: keys, content: content, now: new Date().toISOString() };
+}
+
+// Mở trình soạn Apps Script, chọn hàm này → Chạy, rồi xem Nhật ký thực thi để lấy link trang người bán
+function taoLinkBanHang() {
+  Logger.log('Trang tổng hợp (chỉ mình bạn dùng): ' + SITE_URL + '/ban-hang/?ma=' + editKey('_admin'));
+}
+
+/* ---------- Nhắc trước ngày cưới (gửi email cho người bán, kèm lời nhắn soạn sẵn cho cặp đôi) ---------- */
+
+function upcomingWeddings() {
+  const today = ymd(new Date()), content = contentInfo(), seen = {};
+  return readOrders().filter(o => o.slug && !/\bh[uủ]y\b/i.test(o.status) && !seen[o.slug] && (seen[o.slug] = true)).map(o => {
+    const date = (content[o.slug] || {}).date || o.date;
+    return { order: o, date: date, days: date ? daysBetween(today, date) : -1 };
+  }).filter(w => w.days >= 0).sort((a, b) => a.days - b.days);
+}
+
+function reminderText(w) {
+  const o = w.order, key = editKey(o.slug), when = w.days === 0 ? 'hôm nay' : w.days === 1 ? 'ngày mai' : w.days + ' ngày nữa';
+  return 'Đám cưới ' + o.groom + ' & ' + o.bride + ' · ' + w.date.split('-').reverse().join('/') + ' (' + when + ')\n' +
+    'Zalo cặp đôi: ' + o.phone.replace(/^'/, '') + '\n\n' +
+    'Lời nhắn soạn sẵn (chép rồi gửi qua Zalo):\n' +
+    'Chúc mừng hai bạn, ' + when + ' là ngày vui rồi! Danh sách khách đã xác nhận và lời chúc của mọi người ở đây:\n' +
+    SITE_URL + '/studio/khach.html?thiep=' + o.slug + '&ma=' + key + '\n' +
+    'Nếu cần sửa giờ, địa chỉ hay câu chữ trên thiệp: ' + SITE_URL + '/studio/?thiep=' + o.slug + '&ma=' + key;
+}
+
+// Chạy tự động mỗi sáng (bật bằng caiDatTuDong). Mỗi đám cưới chỉ nhắc một lần cho mỗi mốc trong REMIND_DAYS.
+function nhacCuoi() {
+  const props = PropertiesService.getScriptProperties();
+  const due = upcomingWeddings().filter(w => REMIND_DAYS.indexOf(w.days) >= 0 && !props.getProperty('nhac:' + w.order.slug + ':' + w.date + ':' + w.days));
+  if (!due.length) return;
+  MailApp.sendEmail(Session.getEffectiveUser().getEmail(), 'SayHello: ' + due.length + ' đám cưới sắp tới cần nhắc',
+    due.map(reminderText).join('\n\n────────────\n\n') + '\n\nXem tất cả: ' + SITE_URL + '/ban-hang/?ma=' + editKey('_admin'));
+  due.forEach(w => props.setProperty('nhac:' + w.order.slug + ':' + w.date + ':' + w.days, '1'));
+}
+
+/* ---------- Sao lưu Sheet định kỳ vào Google Drive ---------- */
+
+// Chạy tự động mỗi tuần (bật bằng caiDatTuDong). Lượt thả tim lưu riêng nên được ghi kèm vào tab "_Thả tim" trước khi sao.
+function saoLuu() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet(), props = PropertiesService.getScriptProperties().getProperties();
+  const hearts = Object.keys(props).filter(k => k.indexOf('hearts:') === 0).map(k => [k.slice(7), Number(props[k]) || 0]);
+  let hs = ss.getSheetByName('_Thả tim');
+  if (!hs) hs = ss.insertSheet('_Thả tim');
+  hs.clear();
+  hs.getRange(1, 1, hearts.length + 1, 2).setValues([['Thiệp', 'Lượt thả tim']].concat(hearts));
+  const folder = folderByName(BACKUP_FOLDER, 'backupFolder');
+  DriveApp.getFileById(ss.getId()).makeCopy(ss.getName() + ' – ' + Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd HH:mm'), folder);
+  const files = [];
+  const it = folder.getFiles();
+  while (it.hasNext()) files.push(it.next());
+  files.sort((a, b) => b.getDateCreated() - a.getDateCreated());
+  files.slice(KEEP_BACKUPS).forEach(f => f.setTrashed(true));
+}
+
+// Chạy MỘT LẦN trong trình soạn Apps Script (chọn caiDatTuDong → Chạy, cấp quyền Gmail + Drive).
+function caiDatTuDong() {
+  ScriptApp.getProjectTriggers().forEach(t => { if (['nhacCuoi', 'saoLuu'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('nhacCuoi').timeBased().everyDays(1).atHour(8).inTimezone('Asia/Ho_Chi_Minh').create();
+  ScriptApp.newTrigger('saoLuu').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(3).inTimezone('Asia/Ho_Chi_Minh').create();
+  saoLuu();
+  Logger.log('Đã bật: nhắc đám cưới lúc 8 giờ sáng mỗi ngày, sao lưu lúc 3 giờ sáng thứ Hai. Vừa sao lưu bản đầu tiên vào thư mục "' + BACKUP_FOLDER + '".');
+  taoLinkBanHang();
+}
+
 /* ---------- Tiện ích ---------- */
+
+function isDate(v) { return Object.prototype.toString.call(v) === '[object Date]'; }
+function iso(v) { return isDate(v) ? v.toISOString() : String(v == null ? '' : v); }
+
+// Ngày dạng yyyy-MM-dd từ ô Sheet (có thể là Date, "2027-12-05", "2027-12-05T18:00:00+07:00" hoặc "5/12/2027")
+function ymd(v) {
+  if (isDate(v)) return Utilities.formatDate(v, 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+  const s = String(v == null ? '' : v), a = /(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (a) return a[0];
+  const b = /(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  return b ? b[3] + '-' + ('0' + b[2]).slice(-2) + '-' + ('0' + b[1]).slice(-2) : '';
+}
+
+function daysBetween(a, b) { return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5); }
 
 function cleanSlug(s) {
   s = String(s || '').toLowerCase().trim();
