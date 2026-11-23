@@ -48,6 +48,13 @@ export function guestName() {
   return n.replace(/\s+/g, ' ').trim().slice(0, 60);
 }
 
+/* ---------- Nhóm khách (?n=nha-gai): mỗi nhóm có lời mời, buổi lễ, địa điểm riêng ---------- */
+export function guestGroup() {
+  if (typeof location === 'undefined') return '';
+  const q = new URLSearchParams(location.search), h = new URLSearchParams(location.hash.slice(1));
+  return (q.get('n') || q.get('nhom') || h.get('n') || h.get('nhom') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30);
+}
+
 /* ---------- Gộp cấu hình: giá trị mặc định của mẫu + invite.json ---------- */
 export function merge(base, over) {
   if (Array.isArray(over) || typeof over !== 'object' || over === null) return over === undefined ? base : over;

@@ -151,3 +151,9 @@
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .fx-canvas { display: none; }
 }
+
+:where(.group-note) { position: fixed; left: 12px; right: 12px; top: 10px; z-index: 97; max-width: 420px; margin: 0 auto; padding: 10px 34px 10px 14px; border-radius: 14px; background: rgba(20, 16, 12, .88); color: #fff; font: 13px/1.45 system-ui, sans-serif; box-shadow: 0 6px 24px rgba(0, 0, 0, .35); display: none; }
+body.opened :where(.group-note) { display: block; }
+:where(.group-note) p { margin: 0 0 4px; }
+:where(.group-note) a { color: #ffd9a0; font-size: 12.5px; }
+:where(.group-note) button { position: absolute; right: 6px; top: 4px; width: 28px; height: 28px; border: 0; background: none; color: #fff; font-size: 20px; cursor: pointer; }

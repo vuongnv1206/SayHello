@@ -1,5 +1,5 @@
 // Khởi động một thiệp: đọc invite.json cạnh trang, nạp mẫu thiệp (theme), dựng trang, gắn hiệu ứng.
-import { $, html, toStr, merge, loadCss, guestName, fmt } from './util.js';
+import { $, html, toStr, merge, loadCss, guestName, guestGroup, fmt } from './util.js';
 import { createFx } from './fx.js';
 import { createBackend } from './backend.js';
 import { createWidgets } from './widgets.js';
@@ -15,13 +15,21 @@ async function boot() {
   const theme = (await import(new URL('theme.js', themeUrl))).default;
 
   const data = merge(theme.defaults || {}, raw);
+  // Nhóm khách (?n=...): chỉ giữ các buổi lễ của nhóm, địa điểm của nhóm lên đầu; không khớp thì bỏ qua
+  const group = (data.guestGroups || []).find(g => g && String(g.id || '').toLowerCase() === guestGroup()) || null;
+  if (group) {
+    const evs = (group.events || []).map(i => data.events?.[i]).filter(Boolean);
+    if (evs.length) data.events = evs;
+    const pl = data.places?.[group.place];
+    if (pl) data.places = [pl, ...data.places.filter(x => x !== pl)];
+  }
   const slug = data.slug || location.pathname.split('/').filter(Boolean).pop() || 'thiep';
   const [first, second] = data.order === 'bride-first' ? [data.bride, data.groom] : [data.groom, data.bride];
 
   const listeners = {};
   const ctx = {
     data, slug, theme, themeUrl: themeUrl.href,
-    guest: guestName(),
+    guest: guestName(), group,
     names: { groom: data.groom.short, bride: data.bride.short, first: first.short, second: second.short, pair: `${first.short} & ${second.short}` },
     album: data.images?.album || [],
     img(slot, i = 0) { return data.images?.[slot] || this.album[i] || ''; },
@@ -55,6 +63,14 @@ async function boot() {
   main.id = 'card';
   main.innerHTML = toStr(view.main);
   document.body.prepend(cover, main);
+  if (group && (group.greeting || group.note)) {
+    const note = document.createElement('aside'); note.className = 'group-note'; note.setAttribute('role', 'note');
+    const txt = document.createElement('p'); txt.textContent = [group.greeting, group.note].filter(Boolean).join(' · ');
+    const all = document.createElement('a'); all.textContent = 'Xem toàn bộ lịch lễ';
+    const u = new URL(location.href); u.searchParams.delete('n'); u.searchParams.delete('nhom'); u.hash = ''; all.href = u.href;
+    const x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Đóng'); x.addEventListener('click', () => note.remove());
+    note.append(txt, all, x); document.body.append(note);
+  }
   document.body.classList.add('locked', 'theme-' + themeId);
   ctx.widgets.bind(cover); ctx.widgets.bind(main);
   // Mở khóa nhạc ở lần chạm đầu tiên (xem chrome.unlockMusic)

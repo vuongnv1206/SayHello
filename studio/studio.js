@@ -127,6 +127,28 @@ async function buildForm() {
     input(state, 'date', { label: 'Ngày giờ (giờ Việt Nam)', type: 'datetime', hint: 'Dùng cho đếm ngược, lịch và nút lưu vào Google Calendar.' }),
     input(state, 'city', { label: 'Thành phố', placeholder: 'vd. Hà Nội' }))));
 
+  // Nhóm khách: link ?n=<mã nhóm> hiện lời mời, buổi lễ, địa điểm riêng cho nhóm đó
+  const numList = (obj, path, label, hint) => {
+    const cur = get(obj, path), box = el('input', { type: 'text', placeholder: 'vd. 1, 2', value: Array.isArray(cur) ? cur.map(i => i + 1).join(', ') : '' });
+    box.addEventListener('input', () => {
+      const v = box.value.split(/[,s]+/).map(x => parseInt(x, 10) - 1).filter(i => i >= 0 && i < 20);
+      set(obj, path, v.length ? [...new Set(v)] : undefined); changed();
+    });
+    return el('label', { class: 'field' }, el('span', {}, label), box, hint ? el('small', { class: 'hint' }, hint) : null);
+  };
+  const placeNum = obj => {
+    const box = el('input', { type: 'number', min: 1, max: 20, placeholder: '1', value: typeof obj.place === 'number' ? obj.place + 1 : '' });
+    box.addEventListener('input', () => { const n = parseInt(box.value, 10); set(obj, 'place', n >= 1 ? n - 1 : undefined); changed(); });
+    return el('label', { class: 'field' }, el('span', {}, 'Địa điểm hiện đầu tiên (số thứ tự trong phần Địa điểm)'), box);
+  };
+  form.append(group('Nhóm khách', 'nhà trai, nhà gái, bạn bè…', list('guestGroups', 'Nhóm', g => [
+    el('div', { class: 'row2' }, input(g, 'id', { label: 'Mã nhóm (chữ thường, không dấu)', placeholder: 'nha-gai', hint: 'Link mời thêm ?n=nha-gai' }), input(g, 'label', { label: 'Tên nhóm', placeholder: 'Họ nhà gái' })),
+    input(g, 'greeting', { label: 'Lời chào riêng cho nhóm', placeholder: 'Trân trọng kính mời họ nhà gái' }),
+    numList(g, 'events', 'Các buổi lễ nhóm này dự (số thứ tự trong Lịch lễ)', 'Để trống là hiện tất cả buổi lễ.'),
+    placeNum(g),
+    input(g, 'note', { label: 'Ghi chú riêng (xe đón, trang phục…)', type: 'textarea', rows: 2, placeholder: 'Xe đón họ nhà gái xuất phát lúc 7:00' }),
+  ], { id: '', label: '', greeting: '', note: '' })));
+
   // Gia đình
   form.append(group('Hai gia đình', null, list('families', 'Gia đình', f => [
     input(f, 'side', { label: 'Nhà', placeholder: 'Nhà trai / Nhà gái' }),
