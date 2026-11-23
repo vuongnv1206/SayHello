@@ -88,7 +88,7 @@ h2::after { content: ""; display: block; width: 90px; height: 14px; margin: 14px
 .hero { position: relative; padding: 40px 22px 76px; text-align: center; background: radial-gradient(ellipse at 50% 10%, #3a2620, var(--dark) 60%); }
 .marquee { display: inline-block; padding: 10px 22px; margin-bottom: 26px; border-radius: 6px; background: #1a0f0f; border: 2px solid var(--amber);
   box-shadow: 0 0 0 6px #1a0f0f, 0 0 0 8px rgba(232, 163, 61, .6), 0 0 30px rgba(232, 163, 61, .3); }
-.marquee span { font-family: var(--f-sign); font-weight: 800; font-size: 20px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); text-shadow: 0 0 12px rgba(255, 210, 100, .7); }
+.marquee span { font-family: var(--f-sign); font-weight: 800; font-size: clamp(16px, 5vw, 20px); letter-spacing: clamp(.1em, 1.2vw, .24em); text-transform: uppercase; color: var(--gold); text-shadow: 0 0 12px rgba(255, 210, 100, .7); }
 .marquee::before, .marquee::after { content: ""; display: block; height: 6px; margin: -4px -8px 4px; background: radial-gradient(circle, #ffe9a8 0 2px, rgba(255, 200, 90, .4) 3px, transparent 4px) 0 50% / 14px 6px repeat-x; animation: bulbs 1s steps(2) infinite; }
 .marquee::after { margin: 4px -8px -4px; animation-delay: -.5s; }
 .stage { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-top: 26px solid var(--velvet); box-shadow: 0 0 0 6px #120c0b, 0 24px 50px rgba(0, 0, 0, .6); background: #000; }
