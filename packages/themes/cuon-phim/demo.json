@@ -115,5 +115,16 @@
       "title": "Khởi chiếu",
       "text": "Bộ phim dài nhất đời hai đứa chính thức bắt đầu. Mời bạn tới xem tập đầu tiên."
     }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời họ nhà gái",
+      "events": [
+        0
+      ],
+      "note": "Xe đón họ nhà gái xuất phát lúc 7:00"
+    }
   ]
 }

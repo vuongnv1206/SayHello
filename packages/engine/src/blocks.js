@@ -22,7 +22,7 @@ export function rsvpForm(ctx, { yes, no, submit, cls = '', maxGuests, sides } = 
     </div>
     ${events.length > 1 && r.pickEvents !== false ? html`
     <fieldset class="sh-pick" data-when-attend><legend>${say('pickEvents')}</legend>
-      ${events.map((e, i) => html`<label><input type="checkbox" name="ev" value="${i}" checked><span>${e.title}</span></label>`)}
+      ${events.map((e, i) => html`<label data-ev="${i}"><input type="checkbox" name="ev" value="${i}" checked><span>${e.title}</span></label>`)}
     </fieldset>` : ''}
     ${r.note !== false ? html`<label class="sh-field"><span>Ghi chú</span><input name="note" maxlength="160" placeholder="Ăn chay, đi cùng em bé, cần xe đưa đón…"></label>` : ''}
     <label class="sh-field"><span>Lời chúc (không bắt buộc)</span><textarea name="wish" maxlength="500" rows="2" placeholder="${say('wishPh')}"></textarea></label>
@@ -62,7 +62,7 @@ export function quickInfo(ctx, { rsvpScene } = {}) {
       <header><h2 id="sh-quick-t">${say('quickTitle')}</h2><button type="button" class="sh-x" data-sh="quick-close" aria-label="${say('close')}">×</button></header>
       <p class="sh-quick-names">${names.pair}</p>
       <ul class="sh-quick-events">
-        ${events.map(e => html`<li>
+        ${events.map((e, i) => html`<li data-ev="${i}">
           <b>${e.title}</b>
           <span>${fmt.full(e.date)}</span>
           ${e.lunar ? html`<span class="sh-dim">${e.lunar}</span>` : ''}

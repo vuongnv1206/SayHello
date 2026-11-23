@@ -75,9 +75,35 @@ for (const id of THEMES) for (const tier of ['cinematic', 'standard', 'lite']) {
   if (!(await page.isVisible('#sh-quick'))) errors.push('Thông tin nhanh không mở');
   await shot('9-thong-tin-nhanh');
 
+  // Nhạc bắt đầu từ cú chạm lên bìa (thiệp mẫu có nhạc)
+  if (await page.$('#sh-audio')) {
+    const playing = await page.$eval('#sh-audio', a => !a.paused);
+    if (!playing) errors.push('nhạc nền không phát sau khi chạm bìa');
+  }
+
   console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
   errors.forEach(e => console.log('   ' + e));
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
+// Nhóm khách ?n=: chỉ còn buổi lễ của nhóm, có lời chào riêng; mã nhóm lạ thì giữ nguyên thiệp
+for (const id of THEMES) {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  await page.goto(`${BASE}/v2/demo/${id}/?n=nha-gai&open=1`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'));
+  const shown = await page.$$eval('#ve-moi [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (shown.join() !== '0') errors.push(`nhóm nhà gái thấy các buổi ${shown.join()}, mong đợi chỉ buổi 0`);
+  const note = await page.textContent('[data-sh=group-note] p');
+  if (!/họ nhà gái/.test(note) || await page.$eval('[data-sh=group-note]', n => n.hidden)) errors.push('không hiện lời chào của nhóm');
+  await page.goto(`${BASE}/v2/demo/${id}/?n=khong-co&open=1`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'));
+  if (await page.$$eval('#ve-moi [data-ev][hidden]', els => els.length)) errors.push('mã nhóm lạ vẫn ẩn buổi lễ');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · nhóm khách`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/nhóm: ${e}`));
   await ctx.close();
 }
 await browser.close();

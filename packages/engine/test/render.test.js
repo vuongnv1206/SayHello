@@ -73,6 +73,23 @@ test('renderDocument: mẫu không có cảnh rsvp thì Thông tin nhanh chứa 
   assert.doesNotMatch(doc, /class="sh-locked"/);
 });
 
+test('bảng màu: chỉ nhận id của mẫu và biến CSS hợp lệ, không chèn được CSS lạ', () => {
+  const t = defineTheme({ id: 'mau', name: 'M', version: '1.0.0', scenes: [{ id: 'a', provides: ['when', 'where', 'rsvp'], render: () => '' }],
+    palettes: [{ id: 'xanh', vars: { '--velvet': '#14574a', 'color': 'red', '--x': 'red;}body{display:none' } }] });
+  const doc = renderDocument(t, { ...invite, palette: 'xanh' });
+  assert.match(doc, /style="--velvet:#14574a" data-palette="xanh"/);
+  assert.doesNotMatch(doc, /body{display/);
+  assert.doesNotMatch(renderDocument(t, { ...invite, palette: 'khong-co' }), /data-palette/);
+});
+
+test('nhạc nền và nhóm khách: dựng nút nhạc, gửi nhóm cho trình duyệt, đánh dấu buổi lễ', () => {
+  const doc = renderDocument(theme, { ...invite, music: 'nhac/a.mp3', guestGroups: [{ id: 'Nha-Gai', events: [1], greeting: 'Kính mời họ nhà gái' }, { label: 'thiếu id' }] }, { assetBase: '/demo/' });
+  assert.match(doc, /<audio id="sh-audio" src="\/demo\/nhac\/a.mp3" preload="none" loop>/);
+  const data = JSON.parse(/id="sh-data">(.*?)<\/script>/s.exec(doc)[1]);
+  assert.deepEqual(data.groups, [{ id: 'nha-gai', events: [1], greeting: 'Kính mời họ nhà gái', note: '' }]);
+  assert.match(doc, /<li data-ev="0">/);
+});
+
 test('pickMotion: tôn trọng giảm chuyển động, hạ mức máy yếu, thận trọng trong Zalo', () => {
   assert.equal(pickMotion({ reducedMotion: true, webgl2: true, deviceMemory: 8, cores: 8 }), 'lite');
   assert.equal(pickMotion({ saveData: true }), 'lite');

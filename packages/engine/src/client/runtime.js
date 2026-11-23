@@ -11,6 +11,52 @@ function guestName() {
   return (q.get('k') || q.get('khach') || h.get('k') || h.get('khach') || '').replace(/\s+/g, ' ').trim().slice(0, 60);
 }
 
+// Nhóm khách (?n=nha-gai): chỉ giữ các buổi lễ của nhóm (phần tử [data-ev]), hiện lời chào riêng.
+// Mã nhóm không khớp thì bỏ qua, khách vẫn thấy toàn bộ thiệp.
+function applyGroup(data, ctx) {
+  const q = new URLSearchParams(location.search), h = new URLSearchParams(location.hash.slice(1));
+  const id = (q.get('n') || q.get('nhom') || h.get('n') || h.get('nhom') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30);
+  const group = id && (data.groups || []).find(g => g.id === id);
+  if (!group) return;
+  ctx.group = group;
+  if (group.events.length) {
+    const keep = new Set(group.events);
+    document.querySelectorAll('[data-ev]').forEach(el => {
+      if (keep.has(+el.dataset.ev)) return;
+      el.hidden = true;
+      el.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
+    });
+  }
+  const text = [group.greeting, group.note].filter(Boolean).join(' · ');
+  const note = document.querySelector('[data-sh=group-note]');
+  if (note && text) {
+    note.querySelector('p').textContent = text;
+    note.hidden = false;
+    note.querySelector('button')?.addEventListener('click', () => { note.hidden = true; });
+  }
+}
+
+// Nhạc nền: iOS chỉ cho phát khi có thao tác của khách, nên bắt đầu ở cú chạm đầu tiên lên bìa
+// (khoảnh khắc mở thiệp). Khách đã tắt thì nhớ trong phiên, không tự bật lại.
+function bindMusic(ctx) {
+  const audio = document.getElementById('sh-audio'), btn = document.querySelector('[data-sh=music]');
+  if (!audio || !btn) return;
+  const KEY = 'sayhello:music-off';
+  const off = () => { try { return sessionStorage.getItem(KEY) === '1'; } catch { return false; } };
+  const sync = () => { const on = !audio.paused; btn.setAttribute('aria-pressed', String(on)); btn.setAttribute('aria-label', on ? 'Tắt nhạc nền' : 'Bật nhạc nền'); };
+  const play = () => { audio.volume = .6; return audio.play().catch(() => {}); };
+  audio.addEventListener('play', sync); audio.addEventListener('pause', sync);
+  btn.addEventListener('click', () => {
+    if (audio.paused) { play(); try { sessionStorage.removeItem(KEY); } catch {} }
+    else { audio.pause(); try { sessionStorage.setItem(KEY, '1'); } catch {} }
+  });
+  const gate = document.querySelector('.sh-gate');
+  const first = () => { if (!off()) play(); };
+  if (gate) gate.addEventListener('click', first, { capture: true, once: true });
+  else document.addEventListener('pointerdown', first, { capture: true, once: true });
+  ctx.music = { play, pause: () => audio.pause(), get playing() { return !audio.paused; } };
+}
+
 export async function boot(theme) {
   const root = document.documentElement;
   const data = JSON.parse(document.getElementById('sh-data')?.textContent || '{}');
@@ -41,6 +87,8 @@ export async function boot(theme) {
   };
   window.__sayhello = ctx; // để kiểm tra tự động và gỡ lỗi
 
+  applyGroup(data, ctx);
+  bindMusic(ctx);
   bindServices(document, ctx);
   ctx.backend.wishes().then(list => { ctx.wishes.splice(0, ctx.wishes.length, ...list); ctx.emit('wishes', ctx.wishes); });
 

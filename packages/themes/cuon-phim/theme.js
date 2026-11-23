@@ -217,7 +217,7 @@ export default defineTheme({
         <h2 class="title">${t.eventsTitle}</h2>
         <div class="tickets">
           ${events.map((e, i) => html`
-            <article class="ticket ${e.main ? 'main' : ''}">
+            <article class="ticket ${e.main ? 'main' : ''}" data-ev="${i}">
               <div class="tk-body">
                 <p class="tk-brand">Rạp Hạnh Phúc · Vé mời</p>
                 <h3>${e.title}</h3>
