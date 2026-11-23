@@ -25,6 +25,8 @@ function ting() {
 }
 
 export default {
+  // Bảng màu có sẵn: cặp đôi chọn trong Studio; vars ghi đè biến màu của mẫu (xem theme.css)
+  palettes: [{"id":"san-ho","name":"San hô","swatch":["#e0644f","#fbd9cd"]},{"id":"bac-ha","name":"Bạc hà","swatch":["#2f9d88","#cdeee6"],"vars":{"--coral":"#2f9d88","--coral-hi":"#47b8a1","--coral-soft":"#cdeee6","--blush":"#e1f5ef"}},{"id":"lavender","name":"Oải hương","swatch":["#7b61c9","#e3dcf7"],"vars":{"--coral":"#7b61c9","--coral-hi":"#9680dd","--coral-soft":"#e3dcf7","--blush":"#efeaff"}},{"id":"xanh-troi","name":"Xanh trời","swatch":["#3d7fe0","#d3e3fb"],"vars":{"--coral":"#3d7fe0","--coral-hi":"#5b97f0","--coral-soft":"#d3e3fb","--blush":"#e4eefc"}}],
   id: 'tin-nhan',
   name: 'Tin Nhắn',
   fonts: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,600&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',

@@ -122,3 +122,7 @@ details.group > summary small { font-weight: 400; color: var(--soft); margin-lef
 .ph input { width: 100%; font: inherit; font-size: 12.5px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
 .album-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 4px; }
 .add[disabled], .btn[disabled] { opacity: .45; cursor: default; }
+.palettes { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.palettes > span { font-size: 13px; color: var(--soft); margin-right: 4px; }
+.swatch { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.swatch.on { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }

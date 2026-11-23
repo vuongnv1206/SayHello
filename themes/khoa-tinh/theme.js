@@ -9,6 +9,8 @@ const LOCK = '<svg viewBox="0 0 40 48" aria-hidden="true"><path d="M10 20v-6a10 
 const initial = s => (s || '').trim().split(/\s+/).pop()?.[0]?.toUpperCase() || '';
 
 export default {
+  // Bảng màu có sẵn: cặp đôi chọn trong Studio; vars ghi đè biến màu của mẫu (xem theme.css)
+  palettes: [{"id":"dong-thau","name":"Đồng thau","swatch":["#c9a227","#f1d77a"]},{"id":"bac","name":"Bạc","swatch":["#b9c2cc","#eef2f6"],"vars":{"--brass":"#b9c2cc","--brass-hi":"#eef2f6","--brass-lo":"#7a8794"}},{"id":"vang-hong","name":"Vàng hồng","swatch":["#d79a7a","#f6cfba"],"vars":{"--brass":"#d79a7a","--brass-hi":"#f6cfba","--brass-lo":"#98604a","--ribbon":"#c2566a"}}],
   id: 'khoa-tinh',
   name: 'Khóa Tình',
   fonts: 'https://fonts.googleapis.com/css2?family=Alex+Brush&family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',

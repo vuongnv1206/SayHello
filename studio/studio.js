@@ -107,9 +107,14 @@ async function buildForm() {
   form.append(group('Mẫu thiệp', themes.find(t => t.id === state.theme)?.name, el('div', { class: 'group-body' },
     el('div', { class: 'themes' }, themes.map(t => el('button', {
       type: 'button', class: 'theme-card' + (t.id === state.theme ? ' on' : ''),
-      onclick: () => { if (t.id === state.theme) return; state.theme = t.id; delete state.sections; buildForm(); changed(); },
+      onclick: () => { if (t.id === state.theme) return; state.theme = t.id; delete state.sections; delete state.palette; buildForm(); changed(); },
     }, el('b', {}, t.name), el('small', {}, t.tagline)))),
-    el('small', { class: 'hint' }, 'Đổi mẫu không làm mất nội dung đã nhập.')), true));
+    el('small', { class: 'hint' }, 'Đổi mẫu không làm mất nội dung đã nhập.'),
+    (theme.palettes || []).length > 1 ? el('div', { class: 'palettes' }, el('span', {}, 'Bảng màu'), (theme.palettes || []).map((p, i) => el('button', {
+      type: 'button', class: 'swatch' + ((state.palette || theme.palettes[0].id) === p.id ? ' on' : ''), title: p.name, 'aria-label': 'Bảng màu ' + p.name,
+      style: 'background:linear-gradient(135deg,' + p.swatch[0] + ' 60%,' + p.swatch[1] + ' 60%)',
+      onclick: () => { state.palette = i === 0 ? undefined : p.id; if (i === 0) delete state.palette; buildForm(); changed(); },
+    }))) : null), true));
 
   // Cô dâu chú rể
   form.append(group('Cô dâu & chú rể', null, el('div', { class: 'group-body' },

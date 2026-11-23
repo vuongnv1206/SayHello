@@ -14,6 +14,8 @@ const code = s => {
 const PLANE = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M60 30.6c0-2.2-1.8-3.6-4-3.6H40.5L26 6h-6l7.6 21H13.4L8 20H3l3.5 12L3 44h5l5.4-7h14.2L20 58h6l14.5-21H56c2.2 0 4-1.4 4-3.6z" fill="currentColor"/></svg>';
 
 export default {
+  // Bảng màu có sẵn: cặp đôi chọn trong Studio; vars ghi đè biến màu của mẫu (xem theme.css)
+  palettes: [{"id":"hoang-hon","name":"Hoàng hôn","swatch":["#e76f51","#f4a261"]},{"id":"bien-xanh","name":"Biển xanh","swatch":["#2a7fba","#7fc8f8"],"vars":{"--coral":"#2a7fba","--amber":"#7fc8f8"}},{"id":"tim-chieu","name":"Tím chiều","swatch":["#8d5fd3","#d9a3ff"],"vars":{"--coral":"#8d5fd3","--amber":"#d9a3ff"}},{"id":"reu-xanh","name":"Rêu xanh","swatch":["#4c9a62","#b8d86b"],"vars":{"--coral":"#4c9a62","--amber":"#b8d86b"}}],
   id: 've-may-bay',
   name: 'Vé Máy Bay',
   fonts: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;600&display=swap',

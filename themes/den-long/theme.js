@@ -12,6 +12,8 @@ const WALLS = ['#f2c14e', '#7fb7be', '#e8a0a0', '#f2c14e', '#a3c4a8'];
 const initial = s => (s || '').trim().split(/\s+/).pop()?.[0]?.toUpperCase() || '';
 
 export default {
+  // Bảng màu có sẵn: cặp đôi chọn trong Studio; vars ghi đè biến màu của mẫu (xem theme.css)
+  palettes: [{"id":"hoi-an","name":"Hội An","swatch":["#c1121f","#fcbf49"]},{"id":"xanh-ngoc","name":"Xanh ngọc","swatch":["#1f8a7a","#59c9b5"],"vars":{"--red":"#1f8a7a","--orange":"#3fb8a0","--pink":"#59c9b5"}},{"id":"tim-mong","name":"Tím mộng","swatch":["#7a3fb0","#c58de8"],"vars":{"--red":"#7a3fb0","--orange":"#a265d6","--pink":"#c58de8"}}],
   id: 'den-long',
   name: 'Đèn Lồng',
   fonts: 'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Noto+Serif+Display:ital,wght@0,300;0,500;1,300;1,400&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',

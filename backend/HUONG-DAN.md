@@ -59,6 +59,10 @@ Gửi cặp đôi link **Studio** (để sửa thiệp) và link **Quản lý kh
 
 Ảnh được thu nhỏ trên máy cặp đôi (cạnh dài 1600px) rồi lưu vào Drive của bạn, thư mục **"SayHello – ảnh thiệp/<tên thiệp>"**, chế độ "ai có link đều xem được" để thiệp hiện ảnh. Mỗi thiệp tải tối đa 120 ảnh. Đừng xóa thư mục này khi thiệp còn dùng.
 
+## Cột mới trong tab của từng thiệp
+
+Bản mới thêm 4 cột cuối: **Mã khách** (để hai khách trùng tên không bị gộp), **Sự kiện** (khách dự buổi lễ nào), **Ghi chú** và **Ghim**. Tab cũ vẫn dùng được bình thường, không cần sửa tay. Cặp đôi ẩn/ghim lời chúc ngay trên trang quản lý khách; vẫn có thể gõ `x` vào cột **Ẩn** như trước. Danh sách khách mời cặp đôi lưu ở tab `_Khách mời` (chỉ mở được bằng link quản lý của chính thiệp đó).
+
 ## Hằng ngày
 
 - **Xem ai đến:** mở tab của thiệp, lọc cột "Loại" = Xác nhận.

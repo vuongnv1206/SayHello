@@ -44,11 +44,11 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 - [x] `npm run sync-studio -- <thiệp>` (kéo bản sửa Studio về `invite.json` + ảnh xem trước) và `npm run doctor` (soát lỗi trước khi giao).
 
 **Pha 2: cặp đôi tự làm nhiều hơn**
-- [ ] Nhóm khách `?n=` (nhà trai/nhà gái/bạn bè): lời mời, buổi lễ, địa điểm riêng theo nhóm.
-- [ ] Ảnh thẻ mời có tên khách + QR trong trang quản lý khách (gửi Zalo cho người lớn tuổi).
-- [ ] Xác nhận tham dự: chọn buổi lễ, ghi chú ăn chay/xe đón, gửi kèm lời chúc.
-- [ ] Cặp đôi tự ẩn/ghim lời chúc trên web; danh sách khách mời lưu trên Sheet (tab riêng có mã), đánh dấu "đã gửi".
-- [ ] Bảng màu có sẵn cho từng mẫu, chọn trong Studio.
+- [x] Nhóm khách `?n=` (nhà trai/nhà gái/bạn bè): lời mời, buổi lễ, địa điểm riêng theo nhóm.
+- [x] Ảnh thẻ mời có tên khách + QR trong trang quản lý khách (gửi Zalo cho người lớn tuổi).
+- [x] Xác nhận tham dự: chọn buổi lễ, ghi chú ăn chay/xe đón, gửi kèm lời chúc.
+- [x] Cặp đôi tự ẩn/ghim lời chúc trên web; danh sách khách mời lưu trên Sheet (tab riêng có mã), đánh dấu "đã gửi".
+- [x] Bảng màu có sẵn cho từng mẫu, chọn trong Studio.
 
 **Pha 3: vòng đời thiệp, ngày cưới**
 - [ ] Sau ngày cưới chuyển sang trang kỷ niệm; hết hạn gói thì hiện trang lưu niệm (không 404).

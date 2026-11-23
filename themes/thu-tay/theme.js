@@ -7,6 +7,8 @@ import { html, br, fmt, parts } from '../../core/util.js';
 const initial = s => (s || '').trim().split(/\s+/).pop()?.[0] || '';
 
 export default {
+  // Bảng màu có sẵn: cặp đôi chọn trong Studio; vars ghi đè biến màu của mẫu (xem theme.css)
+  palettes: [{"id":"sap-do","name":"Sáp đỏ","swatch":["#8e1b2c","#b08d57"]},{"id":"xanh-reu","name":"Xanh rêu","swatch":["#3f6b4f","#b08d57"],"vars":{"--wax":"#3f6b4f","--wax-hi":"#5e9374"}},{"id":"oai-huong","name":"Tím oải hương","swatch":["#6a4c93","#b08d57"],"vars":{"--wax":"#6a4c93","--wax-hi":"#8f72b8"}},{"id":"dai-duong","name":"Xanh đại dương","swatch":["#1f5f8b","#b08d57"],"vars":{"--wax":"#1f5f8b","--wax-hi":"#3f86b8"}}],
   id: 'thu-tay',
   name: 'Thư Tay',
   fonts: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Ephesis&family=Lora:ital,wght@0,400;0,500;1,400&display=swap',

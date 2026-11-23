@@ -4,7 +4,7 @@
 // Ảnh: chỉ nhận ảnh trong thư mục thiệp (images/...) hoặc ảnh cặp đôi tải lên Google Drive của người bán qua Studio.
 import { merge } from './util.js';
 
-export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp', 'music', 'images', 'guestGroups'];
+export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp', 'music', 'images', 'guestGroups', 'palette'];
 const MUSIC_OK = /^(none|\.\.\/assets\/music\/[a-z0-9-]+\.mp3|[a-z0-9-]+\.mp3)$/;
 export const IMAGE_OK = /^(images\/[\w.-]{1,80}|https:\/\/lh3\.googleusercontent\.com\/d\/[\w-]{10,120})$/;
 export const IMAGE_SLOTS = ['hero', 'couple', 'groom', 'bride', 'band', 'portrait', 'thanks'];
@@ -23,6 +23,7 @@ export function pickEditable(obj) {
   const out = {};
   for (const k of EDITABLE) if (obj && obj[k] !== undefined) out[k] = obj[k];
   if (out.music !== undefined && !MUSIC_OK.test(out.music)) delete out.music;
+  if (out.palette !== undefined && !/^[a-z0-9-]{1,30}$/.test(out.palette)) delete out.palette;
   if (out.images !== undefined) out.images = cleanImages(out.images);
   if (out.images === undefined) delete out.images;
   return out;

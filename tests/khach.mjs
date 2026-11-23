@@ -28,7 +28,7 @@ async function open(withGroups = false) {
     const f = join(ROOT, p);
     if (!existsSync(f)) return route.fulfill({ status: 404, body: '' });
     let body = readFileSync(f);
-    if (p === `/${SLUG}/invite.json`) { const d = JSON.parse(body); d.sheetUrl = HOST + '/exec'; if (withGroups) d.guestGroups = GROUPS; body = JSON.stringify(d); }
+    if (p === `/${SLUG}/invite.json`) { const d = JSON.parse(body); d.sheetUrl = HOST + '/exec'; if (withGroups) { d.guestGroups = GROUPS; d.palette = 'ngoc-bich'; } body = JSON.stringify(d); }
     route.fulfill({ status: 200, contentType: TYPES[extname(f).toLowerCase()] || 'application/octet-stream', body });
   });
   await ctx.route(url => !url.href.startsWith(HOST), r => r.abort());
@@ -113,6 +113,15 @@ async function open(withGroups = false) {
   assert.ok(p, 'không gửi xác nhận');
   assert.equal(p.events, JSON.parse(readFileSync(join(ROOT, SLUG, 'invite.json'), 'utf8')).events[1].title);
   assert.equal(p.note, 'Ăn chay'); assert.equal(p.wish, 'Chúc hai bạn hạnh phúc'); assert.match(p.gid, /^[a-z0-9]{6,12}$/);
+  assert.deepEqual(errors, []); await ctx.close();
+}
+// 5) Bảng màu: thiệp áp màu đã chọn, Studio hiện các ô chọn màu
+{
+  const { ctx, page, errors } = await open(true);
+  await page.goto(`${HOST}/${SLUG}/`); await page.waitForTimeout(800);
+  assert.equal(await page.evaluate(() => document.documentElement.style.getPropertyValue('--red')), '#0f6b5c', 'bảng màu không được áp');
+  await page.goto(`${HOST}/studio/?thiep=${SLUG}&ma=thu`); await page.waitForSelector('.swatch');
+  assert.ok((await page.$$('.swatch')).length >= 3, 'thiếu ô chọn màu');
   assert.deepEqual(errors, []); await ctx.close();
 }
 await browser.close();

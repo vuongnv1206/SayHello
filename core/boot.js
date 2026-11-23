@@ -44,6 +44,9 @@ async function boot() {
     html, fmt,
   };
 
+  // Bảng màu cặp đôi chọn trong Studio (chỉ nhận id có trong mẫu đang dùng)
+  const pal = (theme.palettes || []).find(p => p.id === data.palette);
+  if (pal?.vars) Object.entries(pal.vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
   document.title = data.title || `${ctx.names.pair} | ${fmt.short(data.date)}`;
   document.documentElement.lang = data.lang || 'vi';
   await Promise.all([theme.fonts && loadCss(theme.fonts), loadCss(new URL('core/base.css', ROOT).href), loadCss(new URL('theme.css', themeUrl).href)]);

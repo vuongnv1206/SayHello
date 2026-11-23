@@ -31,6 +31,8 @@ function sound(kind) {
 }
 
 export default {
+  // Bảng màu có sẵn: cặp đôi chọn trong Studio; vars ghi đè biến màu của mẫu (xem theme.css)
+  palettes: [{"id":"nhung-do","name":"Nhung đỏ","swatch":["#7d1a1d","#e8a33d"]},{"id":"luc-bao","name":"Lục bảo","swatch":["#14574a","#e8a33d"],"vars":{"--velvet":"#14574a","--velvet-hi":"#1f8070"}},{"id":"hai-quan","name":"Xanh hải quân","swatch":["#183a6b","#e8a33d"],"vars":{"--velvet":"#183a6b","--velvet-hi":"#2a5ca3"}}],
   id: 'cuon-phim',
   name: 'Cuộn Phim',
   fonts: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800&family=Playfair+Display:ital,wght@0,500;1,400;1,700&family=Space+Mono:wght@400;700&family=Be+Vietnam+Pro:wght@400;500&display=swap',

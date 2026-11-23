@@ -42,6 +42,10 @@ Phần còn lại (gia đình, lịch lễ, địa điểm, câu chữ, hành tr
 
 **Theo dõi:** trang `/ban-hang/` (lấy link: `npm run studio-link -- --ban-hang`) gom đơn chờ tiền, đám cưới sắp tới kèm lời nhắc soạn sẵn, số khách từng thiệp. Bật email nhắc hằng ngày và sao lưu hằng tuần theo [backend/HUONG-DAN.md](../backend/HUONG-DAN.md).
 
+## Cá nhân hóa theo nhóm khách
+
+Trong Studio, mục **Nhóm khách**, cặp đôi tạo các nhóm (vd. `nha-gai`, `ban-be`) với lời chào, buổi lễ, địa điểm và ghi chú riêng. Link mời thêm `&n=nha-gai` thì khách thấy đúng phần của nhóm mình, vẫn có nút **Xem toàn bộ lịch lễ**. Trang quản lý khách tạo link kèm nhóm, tải **ảnh thẻ mời có mã QR** để gửi Zalo, và đánh dấu khách đã gửi.
+
 ## Lệnh hỗ trợ
 
 - `npm run doctor` soát lỗi trước khi giao (số giả, thiếu `sheetUrl`, ảnh nặng, thiếu ảnh xem trước, ngày cưới đã qua).
