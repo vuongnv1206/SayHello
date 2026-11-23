@@ -123,6 +123,13 @@ export function createWidgets(ctx) {
     if ((d.places || []).length < 2) $('.tabs', el).hidden = true;
   };
 
+  // Mã khách ẩn danh lưu trên máy: để hai người trùng tên không bị gộp, còn một người gửi lại thì cập nhật
+  const guestId = () => {
+    const k = 'sayhello:' + ctx.slug + ':gid';
+    try { let v = localStorage.getItem(k); if (!v) { v = Math.random().toString(36).slice(2, 10); localStorage.setItem(k, v); } return v; }
+    catch { return Math.random().toString(36).slice(2, 10); }
+  };
+
   /* ===== Xác nhận tham dự ===== */
   W.rsvp = ({ btn = 'btn', cls = '', yes = 'Sẽ tham dự', no = 'Rất tiếc, không thể', submit = 'Gửi xác nhận' } = {}) => {
     const r = d.rsvp || {}, max = r.maxGuests || 5, sides = r.sides || ['Khách nhà trai', 'Khách nhà gái'];
@@ -147,7 +154,7 @@ export function createWidgets(ctx) {
     const attend = () => form.attend.value === 'Có';
     form.addEventListener('change', () => ($('.row', form).style.opacity = attend() ? '' : .4));
     bindForm(form,
-      fd => ({ type: 'rsvp', name: fd.get('name').trim(), attend: fd.get('attend'), guests: fd.get('guests'), side: fd.get('side') }),
+      fd => ({ type: 'rsvp', name: fd.get('name').trim(), attend: fd.get('attend'), guests: fd.get('guests'), side: fd.get('side'), gid: guestId() }),
       x => x.attend === 'Có' ? `Cảm ơn ${x.name}! Hẹn gặp quý khách trong ngày vui ❤` : `Cảm ơn ${x.name} đã phản hồi. Hẹn gặp quý khách vào dịp khác!`);
   };
 
@@ -186,7 +193,14 @@ export function createWidgets(ctx) {
   }
 
   /* ===== Hộp quà mừng cưới (QR ngân hàng) ===== */
-  W.gift = ({ btn = 'btn', hint = 'Chạm để mở', box = raw('<i class="lid"></i><i class="box"></i>') } = {}) => html`
+  // Nội dung chuyển khoản tự điền tên khách (không dấu) để cặp đôi đối chiếu sao kê
+  const memoFor = n => {
+    const s = String(n || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^A-Za-z0-9 ]/g, '').trim();
+    return s ? ('Mung cuoi ' + s).slice(0, 50) : '';
+  };
+  W.gift = ({ btn = 'btn', hint = 'Chạm để mở', box = raw('<i class="lid"></i><i class="box"></i>') } = {}) => {
+    const memo = memoFor(ctx.guest);
+    return html`
     <div data-w="gift">
       <button class="giftbox" type="button" aria-label="Mở hộp quà">${box}</button>
       <p class="hint">${hint}</p>
@@ -194,12 +208,13 @@ export function createWidgets(ctx) {
         ${(d.accounts || []).map(a => html`
           <div class="acc">
             <h3>${a.who}</h3>
-            <img alt="Mã QR ${a.who}" loading="lazy" src="${a.qr || `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-qr_only.png?accountName=${encodeURIComponent(a.name)}`}">
+            <img alt="Mã QR ${a.who}" loading="lazy" src="${a.qr || `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-qr_only.png?accountName=${encodeURIComponent(a.name)}${memo ? '&addInfo=' + encodeURIComponent(memo) : ''}`}">
             <p>${a.bank}</p><p class="num">${a.number}</p><p>${a.name}</p>
             <button class="${btn}" type="button" data-copy="${a.number}">Sao chép số tài khoản</button>
           </div>`)}
       </div>
     </div>`;
+  };
   binders.gift = el => {
     const box = $('.giftbox', el), accs = $('.accounts', el);
     box.addEventListener('click', () => {

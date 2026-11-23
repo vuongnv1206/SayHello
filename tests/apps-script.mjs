@@ -12,7 +12,7 @@ function makeSheet(name, rows = []) {
   return {
     name, data,
     getName: () => name,
-    getLastRow: () => data.length,
+    getLastRow: () => data.length, getMaxColumns: () => 26,
     appendRow: r => data.push([...r]),
     setFrozenRows() {}, setColumnWidth() {},
     clear: () => { data.length = 0; },
@@ -109,6 +109,10 @@ sheets['_Đơn hàng'].data[3][11] = 'Đã hủy';
 post({ invite: 'an-binh', type: 'rsvp', name: 'Lan', attend: 'Có', guests: 2, side: 'Nhà trai' });
 post({ invite: 'an-binh', type: 'rsvp', name: 'lan ', attend: 'Có', guests: 3, side: 'Nhà trai' });
 post({ invite: 'an-binh', type: 'rsvp', name: 'Huệ', attend: 'Không', guests: 1, side: 'Nhà gái' });
+// Hai khách trùng tên nhưng khác mã khách không bị gộp; cùng mã thì lần sau thay lần trước
+post({ invite: 'an-binh', type: 'rsvp', name: 'Minh', attend: 'Có', guests: 1, side: 'Nhà trai', gid: 'aaaa1111' });
+post({ invite: 'an-binh', type: 'rsvp', name: 'Minh', attend: 'Có', guests: 2, side: 'Nhà trai', gid: 'bbbb2222' });
+post({ invite: 'an-binh', type: 'rsvp', name: 'Minh', attend: 'Có', guests: 4, side: 'Nhà trai', gid: 'bbbb2222' });
 post({ invite: 'an-binh', type: 'wish', name: 'Huệ', message: 'Chúc mừng!' });
 post({ invite: 'an-binh', type: 'heart', n: 5 });
 // Cặp đôi cuong-dung dời ngày cưới trong Studio còn 1 ngày
@@ -119,7 +123,7 @@ assert.deepEqual(get({ type: 'admin', key: 'sai' }), { error: 'key' });
 const a = get({ type: 'admin', key: key('_admin') });
 assert.equal(a.orders.length, 3);
 const ab = a.invites.find(i => i.slug === 'an-binh');
-assert.deepEqual([ab.rsvps, ab.yes, ab.people, ab.wishes, ab.hearts], [2, 1, 3, 1, 5]);
+assert.deepEqual([ab.rsvps, ab.yes, ab.people, ab.wishes, ab.hearts], [4, 3, 8, 1, 5]);
 assert.equal(a.keys['an-binh'], key('an-binh'));
 assert.equal(a.keys['cuong-dung'], key('cuong-dung'));
 assert.ok(!a.invites.some(i => i.slug.startsWith('_')));

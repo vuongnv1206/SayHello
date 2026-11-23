@@ -165,6 +165,17 @@ export function createChrome(ctx) {
     if (eff.loveButton !== false) love.hidden = false;
     startFly();
   };
-  api.playMusic = () => audio?.play().catch(() => {});
+  // iOS chỉ cho phát nhạc ngay trong cử chỉ chạm. Một số mẫu mở bìa sau một khoảng chờ,
+  // nên mở khóa trước (phát tắt tiếng) ở lần chạm đầu, tới lúc mở thiệp thì bật tiếng.
+  let unlocked = false;
+  api.unlockMusic = () => {
+    if (!audio || unlocked || document.body.classList.contains('opened')) return; unlocked = true;
+    audio.muted = true; audio.play().catch(() => {});
+  };
+  api.playMusic = () => {
+    if (!audio) return;
+    if (unlocked) { audio.muted = false; audio.currentTime = 0; }
+    audio.play().catch(() => {});
+  };
   return api;
 }

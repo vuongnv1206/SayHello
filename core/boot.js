@@ -57,6 +57,8 @@ async function boot() {
   document.body.prepend(cover, main);
   document.body.classList.add('locked', 'theme-' + themeId);
   ctx.widgets.bind(cover); ctx.widgets.bind(main);
+  // Mở khóa nhạc ở lần chạm đầu tiên (xem chrome.unlockMusic)
+  ['pointerdown', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => chrome.unlockMusic(), { capture: true, once: true }));
   theme.mounted?.(ctx, { cover, main });
 
   ctx.backend.wishes().then(list => { ctx.wishes.splice(0, ctx.wishes.length, ...list); ctx.emit('wishes', ctx.wishes); });

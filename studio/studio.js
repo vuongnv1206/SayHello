@@ -116,7 +116,7 @@ async function buildForm() {
     el('div', { class: 'row2' }, input(state, 'groom.short', { label: 'Tên chú rể (hiện to)' }), input(state, 'bride.short', { label: 'Tên cô dâu (hiện to)' })),
     el('div', { class: 'row2' }, input(state, 'groom.full', { label: 'Họ tên đầy đủ chú rể' }), input(state, 'bride.full', { label: 'Họ tên đầy đủ cô dâu' })),
     input(state, 'order', { label: 'Tên ai đứng trước', type: 'select', options: [['groom-first', 'Chú rể trước (thiệp nhà trai)'], ['bride-first', 'Cô dâu trước (thiệp nhà gái)']] }),
-    input(state, 'groom.bio', { label: 'Đôi dòng về chú rể', type: 'textarea', rows: 2, hint: 'Hiện ở mẫu Thư Tay và Vé Máy Bay. Để trống nếu không cần.' }),
+    input(state, 'groom.bio', { label: 'Đôi dòng về chú rể', type: 'textarea', rows: 2, hint: 'Hiện ở các mẫu Thư Tay, Vé Máy Bay, Khóa Tình, Đèn Lồng, Cuộn Phim, Tin Nhắn. Để trống nếu không cần.' }),
     input(state, 'bride.bio', { label: 'Đôi dòng về cô dâu', type: 'textarea', rows: 2 })), true));
 
   // Ảnh cưới

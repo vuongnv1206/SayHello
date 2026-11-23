@@ -47,7 +47,7 @@ const MAX_UPLOADS = 120; // mỗi thiệp, chống lạm dụng
 const CONTENT_SHEET = '_Nội dung';
 const ORDER_SHEET = '_Đơn hàng';
 const ORDER_HEADERS = ['Thời gian', 'Mã đơn', 'Mẫu', 'Gói', 'Số tiền', 'Chú rể', 'Cô dâu', 'Ngày cưới', 'Điện thoại / Zalo', 'Đường dẫn', 'Ghi chú', 'Trạng thái'];
-const HEADERS = ['Thời gian', 'Loại', 'Tên', 'Tham dự', 'Số người', 'Khách của', 'Lời chúc', 'Ẩn'];
+const HEADERS = ['Thời gian', 'Loại', 'Tên', 'Tham dự', 'Số người', 'Khách của', 'Lời chúc', 'Ẩn', 'Mã khách'];
 const MAX_WISHES = 300;
 
 function doGet(e) {
@@ -93,9 +93,9 @@ function doPost(e) {
   try {
     const sh = sheetFor(slug);
     if (d.type === 'rsvp') {
-      sh.appendRow([new Date(), 'Xác nhận', cut(d.name, 60), cut(d.attend, 10), cut(d.guests, 4), cut(d.side, 40), '', '']);
+      sh.appendRow([new Date(), 'Xác nhận', cut(d.name, 60), cut(d.attend, 10), cut(d.guests, 4), cut(d.side, 40), '', '', String(d.gid || '').replace(/[^a-z0-9]/gi, '').slice(0, 12)]);
     } else if (d.type === 'wish') {
-      sh.appendRow([new Date(), 'Lời chúc', cut(d.name, 60), '', '', '', cut(d.message, 500), '']);
+      sh.appendRow([new Date(), 'Lời chúc', cut(d.name, 60), '', '', '', cut(d.message, 500), '', '']);
     } else {
       return json({ ok: false, error: 'type' });
     }
@@ -120,10 +120,16 @@ function sheetFor(slug) {
   return sh;
 }
 
+// Tab cũ chỉ có 8 cột: đọc đủ HEADERS.length cột, cột thiếu là chuỗi rỗng
+function readRows(sh) {
+  const n = Math.min(HEADERS.length, sh.getMaxColumns());
+  return sh.getRange(2, 1, sh.getLastRow() - 1, n).getValues().map(r => { while (r.length < HEADERS.length) r.push(''); return r; });
+}
+
 function readWishes(slug) {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(slug);
   if (!sh || sh.getLastRow() < 2) return [];
-  const rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADERS.length).getValues();
+  const rows = readRows(sh);
   const out = [];
   for (let i = rows.length - 1; i >= 0 && out.length < MAX_WISHES; i--) {
     const r = rows[i];
@@ -181,11 +187,11 @@ function saveContent(slug, text) {
 function readGuests(slug) {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(slug);
   if (!sh || sh.getLastRow() < 2) return { rsvps: [], wishes: [] };
-  const rows = sh.getRange(2, 1, sh.getLastRow() - 1, HEADERS.length).getValues();
+  const rows = readRows(sh);
   const rsvps = [], wishes = [];
   rows.forEach(r => {
     const at = r[0] instanceof Date ? r[0].toISOString() : String(r[0]);
-    if (r[1] === 'Xác nhận') rsvps.push({ at, name: String(r[2]), attend: String(r[3]), guests: Number(r[4]) || 1, side: String(r[5]) });
+    if (r[1] === 'Xác nhận') rsvps.push({ at, name: String(r[2]), attend: String(r[3]), guests: Number(r[4]) || 1, side: String(r[5]), gid: String(r[8] || '') });
     if (r[1] === 'Lời chúc') wishes.push({ at, name: String(r[2]), message: String(r[6]), hidden: !!String(r[7]).trim() });
   });
   return { rsvps: rsvps, wishes: wishes };
@@ -308,11 +314,14 @@ function contentInfo() {
   return out;
 }
 
+// Khóa gộp: có mã khách thì theo mã; không thì theo tên + bên (hai người trùng tên khác bên không bị gộp)
+function rsvpKey(r) { return r.gid ? 'g:' + r.gid : 'n:' + r.name.toLowerCase().trim() + '|' + r.side; }
+
 function readAdmin() {
   const ss = SpreadsheetApp.getActiveSpreadsheet(), orders = readOrders(), content = contentInfo();
   const invites = ss.getSheets().map(s => s.getName()).filter(n => /^[a-z0-9][a-z0-9-]{0,59}$/.test(n)).map(slug => {
     const g = readGuests(slug), last = {};
-    g.rsvps.forEach(r => { last[r.name.toLowerCase().trim()] = r; }); // mỗi người lấy lần xác nhận cuối
+    g.rsvps.forEach(r => { last[rsvpKey(r)] = r; }); // mỗi khách lấy lần xác nhận cuối
     const rs = Object.keys(last).map(k => last[k]), yes = rs.filter(r => r.attend === 'Có');
     return { slug: slug, rsvps: rs.length, yes: yes.length, people: yes.reduce((s, r) => s + r.guests, 0), wishes: g.wishes.length,
       hearts: getHearts(slug), date: (content[slug] || {}).date || '', savedAt: (content[slug] || {}).savedAt || '' };
