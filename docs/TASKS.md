@@ -9,8 +9,8 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 - [ ] Xóa 2 dòng thử trong Google Sheet: tab `demo-thu-tay` (lời chúc "Thử hệ thống") và tab `_Đơn hàng` (đơn "Thử Hệ Thống").
 - [ ] Thử Studio: `git pull`, rồi `npm run studio-link -- demo-thu-tay`, mở link, sửa, Lưu.
 - [ ] Nghe thử 3 bài nhạc trong `assets/music/`, bài nào chưa ưng thì báo để làm lại hoặc thay.
-- [ ] **Sửa quyền đẩy code lên GitHub:** máy đang đăng nhập GitHub bằng tài khoản không có quyền ghi vào `vuongnv1206/SayHello` (lỗi 403), nên các commit mới chưa lên được. Đăng nhập lại đúng tài khoản rồi `git push`.
-- [ ] **Cập nhật Apps Script** (bản mới có tải ảnh, trang người bán, nhắc cưới, sao lưu): làm theo mục "Cập nhật code Apps Script" và "Nhắc ngày cưới, sao lưu, trang người bán" trong [backend/HUONG-DAN.md](../backend/HUONG-DAN.md). Xong thì thử tải một ảnh trong Studio của `demo-thu-tay`.
+- [x] **Sửa quyền đẩy code lên GitHub:** (đã đẩy được ngày 2026-11-23) máy đang đăng nhập GitHub bằng tài khoản không có quyền ghi vào `vuongnv1206/SayHello` (lỗi 403), nên các commit mới chưa lên được. Đăng nhập lại đúng tài khoản rồi `git push`.
+- [ ] **Cập nhật Apps Script** (bản mới có tải ảnh, trang người bán, nhắc cưới, sao lưu, và từ Pha 1-3: mã khách, ẩn/ghim lời chúc, danh sách khách mời, xếp bàn check-in, báo trùng đường dẫn, tra cứu đơn; các tính năng này chỉ chạy sau khi cập nhật): làm theo mục "Cập nhật code Apps Script" và "Nhắc ngày cưới, sao lưu, trang người bán" trong [backend/HUONG-DAN.md](../backend/HUONG-DAN.md). Xong thì thử tải một ảnh trong Studio của `demo-thu-tay`.
 - [ ] Chọn **tên miền** (khi sẵn sàng), Claude hướng dẫn gắn vào Vercel.
 
 ## Phát triển (Claude làm)
