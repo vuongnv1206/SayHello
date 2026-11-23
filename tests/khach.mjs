@@ -185,5 +185,19 @@ async function open(withGroups = false, mutate = null) {
   assert.equal((await page.$$('#seat-out tbody tr')).length, 1, 'chỉ khách vãng lai chưa xếp bàn');
   assert.deepEqual(errors, []); await ctx.close();
 }
+// 10) Khung Thêu: phải giữ ngón tay trên khung để thêu; thả sớm thì đường chỉ tụt lại, giữ đủ lâu thì thiệp mở
+{
+  const { ctx, page, errors } = await open();
+  await page.goto(`${HOST}/demo-khung-theu/`); await page.waitForSelector('.th-hoop');
+  const box = await (await page.$('.th-hoop')).boundingBox(), prog = () => page.$eval('.th-art', e => parseFloat(e.style.getPropertyValue('--p') || '0'));
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+  await page.waitForTimeout(900);
+  const mid = await prog(); assert.ok(mid > .2 && mid < .9, 'đường thêu phải chạy dần khi giữ: ' + mid);
+  await page.mouse.up(); await page.waitForTimeout(1500);
+  assert.equal(await prog(), 0, 'thả sớm thì đường chỉ phải tụt về'); assert.ok(!(await page.$('#cover.open')), 'chưa thêu xong mà thiệp đã mở');
+  await page.mouse.down(); await page.waitForTimeout(2300);
+  assert.ok(await page.$('#cover.open'), 'giữ đủ lâu thiệp phải mở');
+  assert.deepEqual(errors, []); await ctx.close();
+}
 await browser.close();
 console.log('✓ Nhóm khách, ảnh thẻ mời, ghim và ẩn lời chúc');

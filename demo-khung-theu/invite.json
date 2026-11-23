@@ -1,0 +1,98 @@
+{
+  "theme": "khung-theu",
+  "slug": "demo-khung-theu",
+  "groom": {
+    "short": "Hoàng Nam",
+    "full": "Nguyễn Hoàng Nam",
+    "bio": "Kỹ sư thích cà phê sáng và những chuyến đi xa."
+  },
+  "bride": {
+    "short": "Bảo Ngọc",
+    "full": "Trần Bảo Ngọc",
+    "bio": "Cô giáo nhỏ yêu sách cũ và hoa cúc họa mi."
+  },
+  "order": "groom-first",
+  "city": "Sài Gòn",
+  "date": "2027-03-14T17:30:00+07:00",
+  "themeColor": "#7b4a3a",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Nguyễn Văn Hải",
+      "mother": "Võ Thị Mai",
+      "address": "Phường Bến Thành,\nTP. Hồ Chí Minh"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Trần Quốc Tuấn",
+      "mother": "Đỗ Thị Hằng",
+      "address": "Phường Phú Hội,\nThành phố Huế"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-03-13T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 8 đường Ví Dụ, Phường Phú Hội, Huế"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-03-14T17:30:00+07:00",
+      "venue": "Sảnh Hoa Ngà, Nhà hàng Ví Dụ",
+      "address": "Số 99 đường Ví Dụ, Phường Bến Thành, TP. Hồ Chí Minh",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới · Sài Gòn",
+      "address": "Số 99 đường Ví Dụ, Phường Bến Thành, TP. Hồ Chí Minh",
+      "coords": "10.7721,106.6983"
+    },
+    {
+      "label": "Lễ vu quy · Huế",
+      "address": "Số 8 đường Ví Dụ, Phường Phú Hội, Huế",
+      "coords": "16.4637,107.5909"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh4.jpg",
+    "bride": "images/anh5.jpg",
+    "thanks": "images/anh6.jpg",
+    "album": [
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh1.jpg",
+      "images/anh5.jpg",
+      "images/anh4.jpg"
+    ],
+    "captions": [
+      "Lần đầu gặp",
+      "Đà Lạt 2024",
+      "Ngày cầu hôn",
+      "Mùa hoa",
+      "Chụp ảnh cưới"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "../assets/music/dao-buoc.mp3",
+  "sheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "MB Bank",
+      "bankCode": "MB",
+      "number": "0000000000",
+      "name": "NGUYEN HOANG NAM"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "ACB",
+      "bankCode": "ACB",
+      "number": "0000000000",
+      "name": "TRAN BAO NGOC"
+    }
+  ]
+}

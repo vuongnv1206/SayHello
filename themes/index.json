@@ -100,5 +100,70 @@
       "Khách trả lời bằng bong bóng chat",
       "Bao lì xì chuyển khoản"
     ]
+  },
+  {
+    "id": "thiep-gap",
+    "name": "Thiệp Gấp",
+    "demo": "demo-thiep-gap",
+    "tagline": "Mở nắp thiệp giấy gấp, những lớp giấy cắt dựng đứng thành cổng hoa và đôi uyên ương",
+    "mood": "Thủ công · Giấy kraft · San hô & ngọc",
+    "effects": [
+      "Thiệp pop-up mở lớp giấy",
+      "Giấy cắt xếp chồng",
+      "Khung ảnh dựng đứng",
+      "Ngăn kéo giấy đựng quà mừng"
+    ]
+  },
+  {
+    "id": "khung-theu",
+    "name": "Khung Thêu",
+    "demo": "demo-khung-theu",
+    "tagline": "Giữ kim chỉ thêu nốt đường thêu chữ cái đầu của hai bạn để mở thiệp",
+    "mood": "Mộc mạc · Vải lanh · Chỉ thêu",
+    "effects": [
+      "Giữ tay thêu hoàn thành họa tiết",
+      "Đường chỉ thêu nét đứt",
+      "Ảnh trong khung thêu tròn",
+      "Túi gấm rút dây"
+    ]
+  },
+  {
+    "id": "ca-phe-phin",
+    "name": "Cà Phê Phin",
+    "demo": "demo-ca-phe-phin",
+    "tagline": "Giọt cà phê phin nhỏ xuống ly, thực đơn \"Ngày chung đôi\" kể chuyện của hai bạn",
+    "mood": "Ấm cúng · Gỗ · Nâu cà phê",
+    "effects": [
+      "Cà phê phin nhỏ giọt đầy ly",
+      "Thực đơn kẻ chấm",
+      "Phiếu order xác nhận",
+      "Hũ tiền tip mừng cưới"
+    ]
+  },
+  {
+    "id": "kintsugi",
+    "name": "Gốm Ghép Vàng",
+    "demo": "demo-kintsugi",
+    "tagline": "Hai mảnh gốm ghép lại, đường vàng chảy nối liền vết nứt: hai mảnh ghép thành một",
+    "mood": "Tĩnh · Men ngọc · Vàng kim",
+    "effects": [
+      "Hai mảnh gốm ghép lại",
+      "Đường vàng chảy theo vết nứt",
+      "Dải vàng ngăn các mục",
+      "Khung ảnh men rạn"
+    ]
+  },
+  {
+    "id": "kinh-van-hoa",
+    "name": "Kính Vạn Hoa",
+    "demo": "demo-kinh-van-hoa",
+    "tagline": "Ống kính vạn hoa xoay các mảnh màu, chạm để chúng khớp lại thành ảnh đôi bạn",
+    "mood": "Nghệ thuật · Rực rỡ · Đa sắc",
+    "effects": [
+      "Ống kính vạn hoa xoay",
+      "Mảnh màu khớp thành ảnh",
+      "Khung ảnh lục giác",
+      "Dải hoa văn đối xứng"
+    ]
   }
 ]
