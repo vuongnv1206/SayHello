@@ -84,6 +84,11 @@ await check('/dat-thiep/?goi=co-ban', false, async (page, errors) => {
 });
 await check(`/studio/?thiep=${allInvites()[0]}`, false);
 await check(`/studio/khach.html?thiep=${allInvites()[0]}`, false);
+// Trang người bán: không có Sheet (đã bỏ trong lúc kiểm tra) thì phải báo rõ, không lỗi JS
+await check('/ban-hang/?ma=thu', false, async (page, errors) => {
+  await page.waitForTimeout(300);
+  if (!/Chưa nối Google Sheet/.test(await page.textContent('#app'))) errors.push('Trang người bán không báo thiếu Sheet');
+});
 for (const slug of allInvites()) {
   const d = JSON.parse(readFileSync(join(ROOT, slug, 'invite.json'), 'utf8'));
   await check(`/${slug}/`, true);
