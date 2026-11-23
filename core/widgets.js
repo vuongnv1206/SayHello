@@ -146,15 +146,33 @@ export function createWidgets(ctx) {
         </select>
         <select name="side" aria-label="Quý khách là khách của">${sides.map(s => html`<option>${s}</option>`)}</select>
       </div>
+      ${(d.events || []).length > 1 && r.pickEvents !== false ? html`
+      <fieldset class="pick" data-pick="events"><legend>Quý khách dự buổi nào?</legend>
+        ${d.events.map((e, i) => html`<label><input type="checkbox" name="ev" value="${i}" checked><span>${e.title}</span></label>`)}
+      </fieldset>` : ''}
+      ${r.note !== false ? html`<input name="note" maxlength="160" placeholder="Ghi chú: ăn chay, đi cùng em bé, cần xe đưa đón…" aria-label="Ghi chú">` : ''}
+      <div class="pick"><label><input type="checkbox" name="withwish"><span>Gửi kèm lời chúc lên sổ lưu bút</span></label></div>
+      <textarea name="wish" placeholder="Lời chúc gửi cô dâu chú rể…" maxlength="500" rows="2" hidden></textarea>
       <button class="${btn}" type="submit">${submit}</button>
       <p class="msg" role="status"></p>
     </form>`;
   };
   binders.rsvp = form => {
     const attend = () => form.attend.value === 'Có';
-    form.addEventListener('change', () => ($('.row', form).style.opacity = attend() ? '' : .4));
+    form.addEventListener('change', () => {
+      $('.row', form).style.opacity = attend() ? '' : .4;
+      const pick = $('[data-pick=events]', form); if (pick) pick.hidden = !attend();
+      form.wish.hidden = !form.withwish.checked;
+    });
     bindForm(form,
-      fd => ({ type: 'rsvp', name: fd.get('name').trim(), attend: fd.get('attend'), guests: fd.get('guests'), side: fd.get('side'), gid: guestId() }),
+      fd => {
+        const evs = attend() ? fd.getAll('ev').map(i => d.events[+i]?.title).filter(Boolean) : [];
+        const out = { type: 'rsvp', name: fd.get('name').trim(), attend: fd.get('attend'), guests: fd.get('guests'), side: fd.get('side'), gid: guestId(),
+          events: evs.join('; '), note: (fd.get('note') || '').trim() };
+        const wish = fd.get('withwish') ? (fd.get('wish') || '').trim() : '';
+        if (wish) out.wish = wish;
+        return out;
+      },
       x => x.attend === 'Có' ? `Cảm ơn ${x.name}! Hẹn gặp quý khách trong ngày vui ❤` : `Cảm ơn ${x.name} đã phản hồi. Hẹn gặp quý khách vào dịp khác!`);
   };
 

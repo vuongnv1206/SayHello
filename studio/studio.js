@@ -127,11 +127,35 @@ async function buildForm() {
     input(state, 'date', { label: 'Ngày giờ (giờ Việt Nam)', type: 'datetime', hint: 'Dùng cho đếm ngược, lịch và nút lưu vào Google Calendar.' }),
     input(state, 'city', { label: 'Thành phố', placeholder: 'vd. Hà Nội' }))));
 
+  // Xác nhận tham dự: số khách tối đa, các lựa chọn "khách của", chọn buổi lễ, ô ghi chú
+  const dropEmptyRsvp = () => { if (state.rsvp && !Object.keys(state.rsvp).length) delete state.rsvp; };
+  const sidesBox = el('textarea', { rows: 3, placeholder: 'Khách nhà trai\nKhách nhà gái' }, (get(state, 'rsvp.sides') || []).join('\n'));
+  sidesBox.addEventListener('input', () => {
+    const v = sidesBox.value.split('\n').map(x => x.trim().slice(0, 40)).filter(Boolean).slice(0, 8);
+    set(state, 'rsvp.sides', v.length ? v : undefined); dropEmptyRsvp(); changed();
+  });
+  const maxBox = el('input', { type: 'number', min: 1, max: 10, placeholder: '5', value: get(state, 'rsvp.maxGuests') ?? '' });
+  maxBox.addEventListener('input', () => {
+    const n = Math.max(1, Math.min(10, parseInt(maxBox.value, 10) || 1));
+    set(state, 'rsvp.maxGuests', maxBox.value ? n : undefined); dropEmptyRsvp(); changed();
+  });
+  const flag = (path, text) => { // bật/tắt một tùy chọn, mặc định bật
+    const box = el('input', { type: 'checkbox', checked: get(state, path) !== false });
+    box.addEventListener('change', () => { set(state, path, box.checked ? undefined : false); dropEmptyRsvp(); changed(); });
+    return el('label', { class: 'check' }, box, text);
+  };
+  form.append(group('Xác nhận tham dự', 'số người, nhà trai/nhà gái, buổi lễ', el('div', { class: 'group-body' },
+    el('label', { class: 'field' }, el('span', {}, 'Số người tối đa mỗi lượt xác nhận'), maxBox, el('small', { class: 'hint' }, 'Để trống là 5.')),
+    el('label', { class: 'field' }, el('span', {}, 'Khách chọn mình là khách của (mỗi dòng một lựa chọn)'), sidesBox,
+      el('small', { class: 'hint' }, 'Để trống là "Khách nhà trai" và "Khách nhà gái".')),
+    flag('rsvp.pickEvents', 'Cho khách chọn dự buổi lễ nào (khi có từ 2 buổi lễ)'),
+    flag('rsvp.note', 'Có ô ghi chú (ăn chay, đi cùng em bé, cần xe đưa đón…)'))));
+
   // Nhóm khách: link ?n=<mã nhóm> hiện lời mời, buổi lễ, địa điểm riêng cho nhóm đó
   const numList = (obj, path, label, hint) => {
     const cur = get(obj, path), box = el('input', { type: 'text', placeholder: 'vd. 1, 2', value: Array.isArray(cur) ? cur.map(i => i + 1).join(', ') : '' });
     box.addEventListener('input', () => {
-      const v = box.value.split(/[,s]+/).map(x => parseInt(x, 10) - 1).filter(i => i >= 0 && i < 20);
+      const v = box.value.split(/[,\s]+/).map(x => parseInt(x, 10) - 1).filter(i => i >= 0 && i < 20);
       set(obj, path, v.length ? [...new Set(v)] : undefined); changed();
     });
     return el('label', { class: 'field' }, el('span', {}, label), box, hint ? el('small', { class: 'hint' }, hint) : null);

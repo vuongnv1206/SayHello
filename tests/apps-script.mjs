@@ -161,3 +161,48 @@ assert.deepEqual(sheets['_Thả tim'].data, [['Thiệp', 'Lượt thả tim'], [
 G.caiDatTuDong(); G.caiDatTuDong();
 assert.deepEqual(triggers.map(t => t.getHandlerFunction()).sort(), ['nhacCuoi', 'saoLuu']);
 console.log('✓ Apps Script: nhắc ngày cưới, sao lưu, cài chạy tự động');
+
+// RSVP nhiều buổi lễ + ghi chú + lời chúc gửi kèm; ẩn và ghim lời chúc
+{
+  const S = 'ghim-thu', K = key(S);
+  post({ invite: S, type: 'rsvp', name: 'Hà', attend: 'Có', guests: 2, side: 'Nhà gái', gid: 'h1', events: 'Lễ Ăn Hỏi; Tiệc tối', note: 'Ăn chay', wish: 'Chúc hai bạn trăm năm!' });
+  post({ invite: S, type: 'wish', name: 'Bình', message: 'Hạnh phúc nhé' });
+  post({ invite: S, type: 'wish', name: '=SPAM()', message: 'Quảng cáo' });
+  const g1 = get({ invite: S, type: 'guests', key: K });
+  assert.equal(g1.rsvps[0].events, 'Lễ Ăn Hỏi; Tiệc tối'); assert.equal(g1.rsvps[0].note, 'Ăn chay');
+  assert.equal(g1.wishes.length, 3, 'lời chúc gửi kèm RSVP phải thành một dòng riêng');
+  const w = n => g1.wishes.find(x => x.name.endsWith(n));
+  // Sai mã thì không sửa được
+  assert.equal(post({ invite: S, type: 'moderate', key: 'sai', at: w('Bình').at, name: 'Bình', message: w('Bình').message, hide: true }).error, 'key');
+  // Ghim lời chúc cũ nhất: lên đầu danh sách trên thiệp
+  assert.equal(post({ invite: S, type: 'moderate', key: K, at: w('Hà').at, name: 'Hà', message: w('Hà').message, pin: true }).ok, true);
+  // Tên bắt đầu bằng "=" được lưu kèm dấu ' (chống công thức Sheet); trang quản lý gửi lại đúng tên đó
+  assert.equal(post({ invite: S, type: 'moderate', key: K, at: w('=SPAM()').at, name: w('=SPAM()').name, message: 'Quảng cáo', hide: true }).ok, true);
+  // Không khớp đủ ba thông tin thì không sửa gì
+  assert.equal(post({ invite: S, type: 'moderate', key: K, at: w('Bình').at, name: 'Bình', message: 'Sai nội dung', hide: true }).error, 'notfound');
+  const shown = get({ invite: S, type: 'wishes' });
+  assert.deepEqual(shown.map(x => x.name), ['Hà', 'Bình']); assert.equal(shown[0].pinned, true);
+  const g2 = get({ invite: S, type: 'guests', key: K });
+  assert.equal(g2.wishes.find(x => x.name.endsWith('SPAM()')).hidden, true);
+  // Hiện lại + bỏ ghim
+  post({ invite: S, type: 'moderate', key: K, at: w('Hà').at, name: 'Hà', message: w('Hà').message, pin: false });
+  assert.deepEqual(get({ invite: S, type: 'wishes' }).map(x => x.name), ['Bình', 'Hà']);
+  console.log('✓ Apps Script: RSVP nhiều lễ, ẩn và ghim lời chúc');
+}
+
+// Danh sách khách mời riêng tư của cặp đôi
+{
+  const S = 'danh-sach', K = key(S);
+  assert.equal(get({ invite: S, type: 'invite_list', key: 'sai' }).error, 'key');
+  assert.deepEqual(get({ invite: S, type: 'invite_list', key: K }).list, []);
+  assert.equal(post({ invite: S, type: 'invite_list', key: 'sai', list: [] }).error, 'key');
+  assert.equal(post({ invite: S, type: 'invite_list', key: K, list: [{ name: '  Chị   Lan ', group: 'Nha-Gai!', sent: 1 }, { name: '' }, { name: '=1+1' }] }).count, 2);
+  assert.deepEqual(get({ invite: S, type: 'invite_list', key: K }).list, [{ name: 'Chị Lan', group: 'nha-gai', sent: true }, { name: '=1+1', group: '', sent: false }]);
+  post({ invite: S, type: 'invite_list', key: K, list: [{ name: 'Anh Tuấn' }] }); // ghi lại thay bản cũ, không thêm dòng
+  assert.equal(get({ invite: S, type: 'invite_list', key: K }).list.length, 1);
+  assert.equal(sheets['_Khách mời'].data.length, 2);
+  assert.equal(post({ invite: S, type: 'invite_list', key: K, list: 'x' }).error, 'list');
+  // Danh sách không lộ qua các đường công khai
+  assert.ok(!JSON.stringify(get({ invite: S, type: 'content' })).includes('Anh Tuấn'));
+  console.log('✓ Apps Script: danh sách khách mời riêng tư');
+}

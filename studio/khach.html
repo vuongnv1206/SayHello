@@ -71,29 +71,47 @@
   const when = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); };
   $('#studio').href = `./?thiep=${slug}&ma=${key}`;
 
-  // Mỗi khách chỉ tính lần xác nhận mới nhất (theo tên)
-  const latest = list => [...list.reduce((m, r) => m.set(r.name.trim().toLowerCase(), r), new Map()).values()];
+  // Mỗi khách chỉ tính lần xác nhận mới nhất: theo mã khách, không có mã thì theo tên + bên (trùng tên khác bên không bị gộp)
+  const latest = list => [...list.reduce((m, r) => m.set(r.gid ? 'g:' + r.gid : 'n:' + r.name.trim().toLowerCase() + '|' + r.side, r), new Map()).values()];
 
   function render() {
     const rs = latest(data.rsvps), yes = rs.filter(r => r.attend === 'Có'), people = yes.reduce((s, r) => s + r.guests, 0);
     const bySide = yes.reduce((m, r) => (m[r.side] = (m[r.side] || 0) + r.guests, m), {});
+    // Số người theo từng buổi lễ (chỉ tính khách đã chọn buổi; khách cũ chưa chọn thì bỏ qua)
+    const byEvent = yes.reduce((m, r) => { (r.events || '').split('; ').filter(Boolean).forEach(e => (m[e] = (m[e] || 0) + r.guests)); return m; }, {});
     $('#stats').innerHTML = [
       ['hi', people, 'người sẽ đến'], ['', yes.length, 'lượt xác nhận đến'], ['', rs.length - yes.length, 'không đến được'],
-      ...Object.entries(bySide).map(([s, n]) => ['', n, s]), ['', data.wishes.filter(w => !w.hidden).length, 'lời chúc'],
+      ...Object.entries(bySide).map(([s, n]) => ['', n, s]), ...Object.entries(byEvent).map(([e, n]) => ['', n, e]), ['', data.wishes.filter(w => !w.hidden).length, 'lời chúc'],
     ].map(([c, n, t]) => `<div class="stat ${c}"><b>${n}</b><span>${esc(t)}</span></div>`).join('');
     const f = $('#search').value.trim().toLowerCase(), match = x => !f || x.name.toLowerCase().includes(f);
     $('#search').hidden = $('#csv').hidden = tab === 'links';
     if (tab === 'links') return renderLinks();
     if (tab === 'rsvps') {
       const rows = rs.filter(match).sort((a, b) => b.at.localeCompare(a.at));
-      $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Tham dự</th><th>Số người</th><th>Khách của</th><th>Lúc</th></tr></thead><tbody>${rows.map(r =>
-        `<tr><td>${esc(r.name)}</td><td class="${r.attend === 'Có' ? 'yes' : 'no'}">${r.attend === 'Có' ? 'Sẽ đến' : 'Không đến'}</td><td class="n">${r.attend === 'Có' ? r.guests : ''}</td><td>${esc(r.side)}</td><td><time>${when(r.at)}</time></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có ai xác nhận.</p>';
+      $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Tham dự</th><th>Số người</th><th>Khách của</th><th>Buổi lễ · ghi chú</th><th>Lúc</th></tr></thead><tbody>${rows.map(r =>
+        `<tr><td>${esc(r.name)}</td><td class="${r.attend === 'Có' ? 'yes' : 'no'}">${r.attend === 'Có' ? 'Sẽ đến' : 'Không đến'}</td><td class="n">${r.attend === 'Có' ? r.guests : ''}</td><td>${esc(r.side)}</td><td>${esc([r.events, r.note].filter(Boolean).join(' · '))}</td><td><time>${when(r.at)}</time></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có ai xác nhận.</p>';
     } else {
       const rows = data.wishes.filter(match).sort((a, b) => b.at.localeCompare(a.at));
-      $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Lời chúc</th><th>Lúc</th></tr></thead><tbody>${rows.map(w =>
-        `<tr class="${w.hidden ? 'hidden-wish' : ''}"><td>${esc(w.name)}</td><td>${esc(w.message)}${w.hidden ? ' <i>(đã ẩn)</i>' : ''}</td><td><time>${when(w.at)}</time></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có lời chúc nào.</p>';
+      $('#list').innerHTML = rows.length ? `<table><thead><tr><th>Tên</th><th>Lời chúc</th><th>Lúc</th><th></th></tr></thead><tbody>${rows.map(w =>
+        `<tr class="${w.hidden ? 'hidden-wish' : ''}"><td>${esc(w.name)}</td><td>${w.pinned ? '📌 ' : ''}${esc(w.message)}${w.hidden ? ' <i>(đã ẩn)</i>' : ''}</td><td><time>${when(w.at)}</time></td><td class="cp"><button type="button" data-mod="hide" data-at="${esc(w.at)}" data-n="${esc(w.name)}" data-m="${esc(w.message)}">${w.hidden ? 'Hiện' : 'Ẩn'}</button> <button type="button" data-mod="pin" data-at="${esc(w.at)}" data-n="${esc(w.name)}" data-m="${esc(w.message)}">${w.pinned ? 'Bỏ ghim' : 'Ghim'}</button></td></tr>`).join('')}</tbody></table>` : '<p class="msg">Chưa có lời chúc nào.</p>';
     }
   }
+
+  // Ẩn/hiện, ghim lời chúc: gửi đủ thời điểm + tên + nội dung để máy chủ tìm đúng dòng
+  async function moderate(btn) {
+    const w = data.wishes.find(x => x.at === btn.dataset.at && x.name === btn.dataset.n && x.message === btn.dataset.m);
+    if (!w || !inv?.sheetUrl) return;
+    const body = { invite: slug, type: 'moderate', key, at: w.at, name: w.name, message: w.message };
+    if (btn.dataset.mod === 'hide') body.hide = !w.hidden; else body.pin = !w.pinned;
+    btn.disabled = true;
+    try {
+      const r = await (await fetch(inv.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })).json();
+      if (!r.ok) throw new Error(r.error);
+      if (body.hide !== undefined) w.hidden = body.hide; else w.pinned = body.pin;
+      render();
+    } catch { btn.textContent = 'Lỗi, thử lại'; btn.disabled = false; }
+  }
+  $('#list').addEventListener('click', e => { const b = e.target.closest('[data-mod]'); if (b) moderate(b); });
 
   // Mỗi khách một link ghi sẵn tên (và nhóm): bìa thiệp ghi "kính mời <tên>", tên điền sẵn vào ô xác nhận.
   // Mỗi dòng: "Tên" hoặc "Tên | mã-nhóm" (mã nhóm lấy từ phần Nhóm khách trong Studio).
@@ -102,41 +120,75 @@
   const parseLine = (line, def) => { const [n, g] = line.split('|').map(x => x.trim()); return { name: n, group: (g || def || '').toLowerCase() }; };
   const baseUrl = () => (inv?.publicUrl ? inv.publicUrl.replace(/\/$/, '') + '/' : location.origin + '/' + slug + '/');
   const inviteUrl = ({ name, group }) => baseUrl() + '?k=' + encodeURIComponent(name).replace(/%20/g, '+') + (group ? '&n=' + encodeURIComponent(group) : '');
-  function renderLinks() {
-    let names = ''; try { names = localStorage.getItem(SAVED_NAMES) || ''; } catch {}
+  // Danh sách khách mời lưu trên Google Sheet (tab riêng, chỉ mở được bằng link quản lý này), dùng được trên mọi thiết bị
+  let guests = null, saveT = null, filter = '';
+  const listUrl = () => inv.sheetUrl + (inv.sheetUrl.includes('?') ? '&' : '?') + new URLSearchParams({ invite: slug, type: 'invite_list', key });
+  async function loadList() {
+    if (guests) return;
+    try { guests = (await (await fetch(listUrl())).json()).list || []; } catch { guests = []; }
+    if (!guests.length) { // nhập danh sách tên cũ đã lưu trên máy (bản trước đây)
+      let old = ''; try { old = localStorage.getItem(SAVED_NAMES) || ''; } catch {}
+      guests = old.split('\n').map(x => x.trim()).filter(Boolean).map(l => ({ ...parseLine(l, ''), sent: false })).filter(g => g.name);
+    }
+  }
+  function saveList() {
+    clearTimeout(saveT); $('#list-status') && ($('#list-status').textContent = 'Đang lưu…');
+    saveT = setTimeout(async () => {
+      try {
+        const r = await (await fetch(inv.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ invite: slug, type: 'invite_list', key, list: guests }) })).json();
+        if (!r.ok) throw new Error(r.error);
+        $('#list-status') && ($('#list-status').textContent = 'Đã lưu ✓');
+      } catch { $('#list-status') && ($('#list-status').textContent = 'Chưa lưu được, kiểm tra mạng'); }
+    }, 700);
+  }
+  const answered = () => new Map(latest(data.rsvps).map(r => [r.name.trim().toLowerCase(), r.attend]));
+  const statusOf = (g, ans) => ans.has(g.name.toLowerCase()) ? (ans.get(g.name.toLowerCase()) === 'Có' ? 'Sẽ đến' : 'Không đến') : g.sent ? 'Đã gửi · chờ phản hồi' : 'Chưa gửi';
+
+  async function renderLinks() {
+    if (!inv?.sheetUrl) { $('#list').innerHTML = '<p class="msg">Thiệp chưa nối Google Sheets.</p>'; return; }
+    $('#list').innerHTML = '<p class="msg">Đang tải danh sách…</p>';
+    await loadList();
     const groups = groupsOf();
     $('#list').innerHTML = '<div class="links">' +
-      '<p>Mỗi dòng một tên khách, đúng cách bạn muốn hiện trên thiệp (vd. <i>Anh Tuấn &amp; chị Hoa</i>, <i>Gia đình cô Lan</i>).' +
-      (groups.length ? ' Muốn gán nhóm riêng cho một người, thêm <b>| mã nhóm</b> sau tên (vd. <i>Chị Lan | ' + esc(groups[0].id) + '</i>).' : '') + '</p>' +
-      (groups.length ? '<label>Nhóm mặc định cho cả danh sách: <select id="def-group"><option value="">Không chia nhóm</option>' +
+      '<p>Dán danh sách khách, mỗi dòng một tên đúng như muốn hiện trên thiệp (vd. <i>Anh Tuấn &amp; chị Hoa</i>, <i>Gia đình cô Lan</i>).' +
+      (groups.length ? ' Gán nhóm riêng cho một người bằng <b>| mã nhóm</b> sau tên (vd. <i>Chị Lan | ' + esc(groups[0].id) + '</i>).' : '') + ' Danh sách được lưu trên Google Sheet, mở ở máy nào cũng thấy.</p>' +
+      (groups.length ? '<label>Nhóm mặc định cho các tên vừa dán: <select id="def-group"><option value="">Không chia nhóm</option>' +
         groups.map(g => '<option value="' + esc(g.id) + '">' + esc(g.label || g.id) + ' (' + esc(g.id) + ')</option>').join('') + '</select></label>' : '') +
-      '<textarea id="names" placeholder="Chị Lan&#10;Anh Tuấn và người thương&#10;Gia đình bác Hải">' + esc(names) + '</textarea>' +
-      '<div class="row"><button class="main" type="button" id="make">Tạo link</button><button type="button" id="links-csv">Tải danh sách link (CSV)</button></div>' +
+      '<textarea id="names" placeholder="Chị Lan&#10;Anh Tuấn và người thương&#10;Gia đình bác Hải"></textarea>' +
+      '<div class="row"><button class="main" type="button" id="make">Thêm vào danh sách</button><button type="button" id="links-csv">Tải danh sách (CSV)</button>' +
+      '<label>Lọc: <select id="flt"><option value="">Tất cả</option><option value="unsent">Chưa gửi</option><option value="wait">Đã gửi, chưa trả lời</option></select></label><span class="no" id="list-status"></span></div>' +
       '<div id="out"></div></div>';
-    const list = () => $('#names').value.split('\n').map(s => s.trim()).filter(Boolean).map(l => parseLine(l, $('#def-group')?.value));
-    const draw = () => {
-      const gs = list(); try { localStorage.setItem(SAVED_NAMES, $('#names').value); } catch {}
-      $('#out').innerHTML = gs.length ? '<table><thead><tr><th>Khách</th><th>Link</th><th></th></tr></thead><tbody>' + gs.map((g, i) =>
-        '<tr><td>' + esc(g.name) + (g.group ? ' <small class="no">(' + esc(g.group) + ')</small>' : '') + '</td><td class="url">' + esc(inviteUrl(g)) +
-        '</td><td class="cp"><button type="button" data-i="' + i + '">Sao chép</button> <button type="button" data-card="' + i + '">Ảnh mời</button></td></tr>').join('') + '</tbody></table>' : '';
-      $('#out').querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', async () => {
-        const g = gs[b.dataset.i], msg = 'Trân trọng kính mời ' + g.name + ' tới dự lễ cưới của chúng mình: ' + inviteUrl(g);
-        try { await navigator.clipboard.writeText(msg); b.textContent = 'Đã chép ✓'; } catch { b.textContent = 'Không chép được'; }
-        setTimeout(() => (b.textContent = 'Sao chép'), 1800);
-      }));
-      $('#out').querySelectorAll('[data-card]').forEach(b => b.addEventListener('click', async () => {
-        b.disabled = true; b.textContent = 'Đang vẽ…';
-        try { await downloadCard(gs[b.dataset.card]); b.textContent = 'Đã tải ✓'; } catch (e) { b.textContent = 'Lỗi, thử lại'; console.error(e); }
-        b.disabled = false; setTimeout(() => (b.textContent = 'Ảnh mời'), 2200);
-      }));
-    };
-    $('#make').addEventListener('click', draw);
-    $('#links-csv').addEventListener('click', () => {
-      const cell = v => '"' + String(v).replace(/"/g, '""') + '"';
-      const blob = new Blob(['﻿' + [['Khách', 'Nhóm', 'Link'], ...list().map(g => [g.name, g.group, inviteUrl(g)])].map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = slug + '-link-moi.csv'; a.click();
+    $('#flt').value = filter;
+    $('#make').addEventListener('click', () => {
+      const add = $('#names').value.split('\n').map(x => x.trim()).filter(Boolean).map(l => parseLine(l, $('#def-group')?.value)).filter(g => g.name);
+      add.forEach(n => { if (!guests.some(g => g.name.toLowerCase() === n.name.toLowerCase() && g.group === n.group)) guests.push({ ...n, sent: false }); });
+      $('#names').value = ''; draw(); if (add.length) saveList();
     });
-    if (names) draw();
+    $('#flt').addEventListener('change', () => { filter = $('#flt').value; draw(); });
+    $('#links-csv').addEventListener('click', () => {
+      const ans = answered(), cell = v => '"' + String(v).replace(/"/g, '""') + '"';
+      const blob = new Blob(['﻿' + [['Khách', 'Nhóm', 'Trạng thái', 'Link'], ...guests.map(g => [g.name, g.group, statusOf(g, ans), inviteUrl(g)])].map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = slug + '-danh-sach-khach.csv'; a.click();
+    });
+    draw();
+  }
+  function draw() {
+    const ans = answered(), rows = guests.map((g, i) => ({ g, i, st: statusOf(g, ans) })).filter(({ st }) => !filter || (filter === 'unsent' ? st === 'Chưa gửi' : st === 'Đã gửi · chờ phản hồi'));
+    $('#out').innerHTML = guests.length ? '<p class="no">' + guests.filter(g => g.sent).length + '/' + guests.length + ' khách đã được gửi link</p><table><thead><tr><th>Đã gửi</th><th>Khách</th><th>Trạng thái</th><th></th></tr></thead><tbody>' + rows.map(({ g, i, st }) =>
+      '<tr><td><input type="checkbox" data-sent="' + i + '"' + (g.sent ? ' checked' : '') + ' aria-label="Đã gửi link cho ' + esc(g.name) + '"></td><td>' + esc(g.name) + (g.group ? ' <small class="no">(' + esc(g.group) + ')</small>' : '') +
+      '</td><td class="' + (st === 'Sẽ đến' ? 'yes' : 'no') + '">' + st + '</td><td class="cp"><button type="button" data-i="' + i + '">Sao chép</button> <button type="button" data-card="' + i + '">Ảnh mời</button> <button type="button" data-del="' + i + '" aria-label="Xóa ' + esc(g.name) + '">✕</button></td></tr>').join('') + '</tbody></table>' : '';
+    $('#out').querySelectorAll('[data-sent]').forEach(c => c.addEventListener('change', () => { guests[c.dataset.sent].sent = c.checked; draw(); saveList(); }));
+    $('#out').querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => { if (confirm('Xóa khách này khỏi danh sách?')) { guests.splice(+b.dataset.del, 1); draw(); saveList(); } }));
+    $('#out').querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', async () => {
+      const g = guests[b.dataset.i], msg = 'Trân trọng kính mời ' + g.name + ' tới dự lễ cưới của chúng mình: ' + inviteUrl(g);
+      try { await navigator.clipboard.writeText(msg); b.textContent = 'Đã chép ✓'; } catch { b.textContent = 'Không chép được'; }
+      setTimeout(() => (b.textContent = 'Sao chép'), 1800);
+    }));
+    $('#out').querySelectorAll('[data-card]').forEach(b => b.addEventListener('click', async () => {
+      b.disabled = true; b.textContent = 'Đang vẽ…';
+      try { await downloadCard(guests[b.dataset.card]); b.textContent = 'Đã tải ✓'; } catch (e) { b.textContent = 'Lỗi, thử lại'; console.error(e); }
+      b.disabled = false; setTimeout(() => (b.textContent = 'Ảnh mời'), 2200);
+    }));
   }
 
   // Ảnh thẻ mời 1080x1350 có tên khách và mã QR: gửi qua Zalo cho người lớn tuổi, hoặc in kẹp thiệp giấy
@@ -188,7 +240,7 @@
   $('#csv').addEventListener('click', () => {
     const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const rows = tab === 'rsvps'
-      ? [['Tên', 'Tham dự', 'Số người', 'Khách của', 'Lúc'], ...latest(data.rsvps).map(r => [r.name, r.attend, r.guests, r.side, when(r.at)])]
+      ? [['Tên', 'Tham dự', 'Số người', 'Khách của', 'Buổi lễ', 'Ghi chú', 'Lúc'], ...latest(data.rsvps).map(r => [r.name, r.attend, r.guests, r.side, r.events || '', r.note || '', when(r.at)])]
       : [['Tên', 'Lời chúc', 'Lúc'], ...data.wishes.map(w => [w.name, w.message, when(w.at)])];
     const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${slug}-${tab === 'rsvps' ? 'xac-nhan' : 'loi-chuc'}.csv`; a.click();

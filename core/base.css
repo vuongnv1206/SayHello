@@ -157,3 +157,9 @@ body.opened :where(.group-note) { display: block; }
 :where(.group-note) p { margin: 0 0 4px; }
 :where(.group-note) a { color: #ffd9a0; font-size: 12.5px; }
 :where(.group-note) button { position: absolute; right: 6px; top: 4px; width: 28px; height: 28px; border: 0; background: none; color: #fff; font-size: 20px; cursor: pointer; }
+
+.form .pick input[type=checkbox] { width: auto; flex: none; padding: 0; margin: 0; border: 0; accent-color: currentColor; }
+.form .pick label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.form fieldset.pick { border: 0; display: grid; gap: 6px; text-align: left; }
+.form fieldset.pick legend { font-size: .9em; opacity: .75; margin-bottom: 4px; }
+.form .pick { text-align: left; }

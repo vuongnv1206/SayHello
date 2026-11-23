@@ -18,7 +18,11 @@ export function createBackend(sheetUrl, slug) {
   return {
     online: !!sheetUrl,
     async send(data) {
-      if (!sheetUrl) { localAdd({ ...data, at: Date.now() }); return; }
+      if (!sheetUrl) {
+        localAdd({ ...data, at: Date.now() });
+        if (data.type === 'rsvp' && data.wish) localAdd({ type: 'wish', name: data.name, message: data.wish, at: Date.now() });
+        return;
+      }
       await post(data);
     },
     async wishes() {

@@ -5,7 +5,7 @@
  * Cài đặt: xem backend/HUONG-DAN.md
  *
  * Thiệp gửi lên (POST, body là JSON dạng text/plain):
- *   { invite: 'ten-cap-doi', type: 'rsvp', name, attend, guests, side }
+ *   { invite: 'ten-cap-doi', type: 'rsvp', name, attend, guests, side, gid, events, note, wish }   (wish: lời chúc gửi kèm)
  *   { invite: 'ten-cap-doi', type: 'wish', name, message }
  *   { invite: 'ten-cap-doi', type: 'heart', n }
  *   { invite: 'ten-cap-doi', type: 'content', key, content: {...} }   (Studio lưu nội dung cặp đôi sửa)
@@ -15,11 +15,15 @@
  *   ?invite=ten-cap-doi&type=hearts  -> { hearts: 123 }
  *   ?invite=ten-cap-doi&type=content -> { content: {...} | null }
  *   ?invite=ten-cap-doi&type=guests&key=... -> { rsvps: [...], wishes: [...] }  (trang quản lý của cặp đôi)
+ *   ?invite=ten-cap-doi&type=invite_list&key=... -> { list: [{ name, group, sent }] }  (danh sách khách mời cặp đôi đã lưu, riêng tư)
+ *   { invite: 'ten-cap-doi', type: 'invite_list', key, list: [...] }   (lưu danh sách khách mời, đánh dấu đã gửi)
  *
  *   { invite: 'ten-cap-doi', type: 'upload', key, mime, data }   (Studio tải ảnh lên Google Drive của người bán)
  *   ?type=admin&key=...  -> { orders, invites, keys }   (trang tổng hợp của người bán /ban-hang/, mã riêng của người bán)
  *
- * Kiểm duyệt: gõ "x" vào cột "Ẩn" của một lời chúc trong Sheet để ẩn nó khỏi thiệp.
+ *   { invite: 'ten-cap-doi', type: 'moderate', key, at, name, message, hide, pin }   (cặp đôi ẩn/hiện, ghim lời chúc trên trang quản lý khách)
+ *
+ * Kiểm duyệt: cặp đôi bấm Ẩn/Ghim trên trang quản lý khách, hoặc gõ "x" vào cột "Ẩn" của lời chúc trong Sheet.
  *
  * Chạy tự động (làm một lần): chọn hàm caiDatTuDong → Chạy. Sau đó mỗi sáng tự gửi email nhắc các đám cưới sắp tới
  * (kèm lời nhắn soạn sẵn để chuyển cho cặp đôi qua Zalo), mỗi tuần tự sao lưu Sheet vào Google Drive.
@@ -45,9 +49,10 @@ const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const MAX_UPLOADS = 120; // mỗi thiệp, chống lạm dụng
 
 const CONTENT_SHEET = '_Nội dung';
+const LIST_SHEET = '_Khách mời';
 const ORDER_SHEET = '_Đơn hàng';
 const ORDER_HEADERS = ['Thời gian', 'Mã đơn', 'Mẫu', 'Gói', 'Số tiền', 'Chú rể', 'Cô dâu', 'Ngày cưới', 'Điện thoại / Zalo', 'Đường dẫn', 'Ghi chú', 'Trạng thái'];
-const HEADERS = ['Thời gian', 'Loại', 'Tên', 'Tham dự', 'Số người', 'Khách của', 'Lời chúc', 'Ẩn', 'Mã khách'];
+const HEADERS = ['Thời gian', 'Loại', 'Tên', 'Tham dự', 'Số người', 'Khách của', 'Lời chúc', 'Ẩn', 'Mã khách', 'Sự kiện', 'Ghi chú', 'Ghim'];
 const MAX_WISHES = 300;
 
 function doGet(e) {
@@ -57,6 +62,10 @@ function doGet(e) {
   if (!slug) return json({ error: 'invite?' });
   if (p.type === 'hearts') return json({ hearts: getHearts(slug) });
   if (p.type === 'content') return json({ content: readContent(slug) });
+  if (p.type === 'invite_list') {
+    if (!validKey(slug, p.key)) return json({ error: 'key' });
+    return json({ list: readInviteList(slug) });
+  }
   if (p.type === 'guests') {
     if (!validKey(slug, p.key)) return json({ error: 'key' });
     return json(readGuests(slug));
@@ -76,6 +85,11 @@ function doPost(e) {
     return json({ ok: true, hearts: addHearts(slug, n) });
   }
 
+  if (d.type === 'invite_list') {
+    if (!validKey(slug, d.key)) return json({ ok: false, error: 'key' });
+    return json(saveInviteList(slug, d.list));
+  }
+
   if (d.type === 'upload') {
     if (!validKey(slug, d.key)) return json({ ok: false, error: 'key' });
     return json(saveImage(slug, d));
@@ -93,9 +107,14 @@ function doPost(e) {
   try {
     const sh = sheetFor(slug);
     if (d.type === 'rsvp') {
-      sh.appendRow([new Date(), 'Xác nhận', cut(d.name, 60), cut(d.attend, 10), cut(d.guests, 4), cut(d.side, 40), '', '', String(d.gid || '').replace(/[^a-z0-9]/gi, '').slice(0, 12)]);
+      sh.appendRow([new Date(), 'Xác nhận', cut(d.name, 60), cut(d.attend, 10), cut(d.guests, 4), cut(d.side, 40), '', '',
+        String(d.gid || '').replace(/[^a-z0-9]/gi, '').slice(0, 12), cut(d.events, 120), cut(d.note, 160), '']);
+      if (d.wish) sh.appendRow([new Date(), 'Lời chúc', cut(d.name, 60), '', '', '', cut(d.wish, 500), '', '', '', '', '']);
     } else if (d.type === 'wish') {
-      sh.appendRow([new Date(), 'Lời chúc', cut(d.name, 60), '', '', '', cut(d.message, 500), '', '']);
+      sh.appendRow([new Date(), 'Lời chúc', cut(d.name, 60), '', '', '', cut(d.message, 500), '', '', '', '', '']);
+    } else if (d.type === 'moderate') {
+      if (!validKey(slug, d.key)) return json({ ok: false, error: 'key' });
+      return json(moderateWish(sh, d));
     } else {
       return json({ ok: false, error: 'type' });
     }
@@ -126,16 +145,34 @@ function readRows(sh) {
   return sh.getRange(2, 1, sh.getLastRow() - 1, n).getValues().map(r => { while (r.length < HEADERS.length) r.push(''); return r; });
 }
 
+// Lời chúc hiện trên thiệp: lời ghim (quét hết các dòng) lên đầu, sau đó mới nhất trước
 function readWishes(slug) {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(slug);
   if (!sh || sh.getLastRow() < 2) return [];
   const rows = readRows(sh);
-  const out = [];
-  for (let i = rows.length - 1; i >= 0 && out.length < MAX_WISHES; i--) {
+  const pinned = [], out = [];
+  for (let i = rows.length - 1; i >= 0; i--) {
     const r = rows[i];
-    if (r[1] === 'Lời chúc' && r[6] && !String(r[7]).trim()) out.push({ name: String(r[2]), message: String(r[6]) });
+    if (r[1] !== 'Lời chúc' || !r[6] || String(r[7]).trim()) continue;
+    if (String(r[11]).trim()) pinned.push({ name: String(r[2]), message: String(r[6]), pinned: true });
+    else if (out.length < MAX_WISHES) out.push({ name: String(r[2]), message: String(r[6]) });
   }
-  return out; // mới nhất trước
+  return pinned.concat(out);
+}
+
+// Ẩn/hiện hoặc ghim một lời chúc. Tìm dòng theo đủ ba thông tin (thời điểm + tên + nội dung), không theo số dòng,
+// để người bán xóa hay sắp xếp lại dòng trong Sheet cũng không sửa nhầm lời chúc khác.
+function moderateWish(sh, d) {
+  if (sh.getLastRow() < 2) return { ok: false, error: 'notfound' };
+  const rows = readRows(sh), name = String(d.name || ''), msg = String(d.message || ''), at = String(d.at || ''); // đúng như trang quản lý nhận được từ readGuests
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    if (r[1] !== 'Lời chúc' || iso(r[0]) !== at || String(r[2]) !== name || String(r[6]) !== msg) continue;
+    if (d.hide !== undefined) sh.getRange(i + 2, 8).setValue(d.hide ? 'x' : '');
+    if (d.pin !== undefined) sh.getRange(i + 2, 12).setValue(d.pin ? 'ghim' : '');
+    return { ok: true };
+  }
+  return { ok: false, error: 'notfound' };
 }
 
 /* ---------- Nội dung cặp đôi sửa trong Studio: tab "_Nội dung", mỗi thiệp một dòng ---------- */
@@ -184,6 +221,45 @@ function saveContent(slug, text) {
   }
 }
 
+/* ---------- Danh sách khách mời của cặp đôi: tab "_Khách mời", mỗi thiệp một dòng, chỉ đọc/ghi được khi có mã sửa ---------- */
+
+function readInviteList(slug) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LIST_SHEET);
+  const row = sh ? findContentRow(sh, slug) : 0;
+  if (!row) return [];
+  try { const v = JSON.parse(sh.getRange(row, 2).getValue()); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+}
+
+function saveInviteList(slug, list) {
+  if (!Array.isArray(list)) return { ok: false, error: 'list' };
+  const clean = list.slice(0, 600).map(x => ({
+    name: String((x && x.name) || '').replace(/\s+/g, ' ').trim().slice(0, 60),
+    group: String((x && x.group) || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30),
+    sent: !!(x && x.sent),
+  })).filter(x => x.name);
+  const text = JSON.stringify(clean);
+  if (text.length > 45000) return { ok: false, error: 'too_big' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(LIST_SHEET);
+    if (!sh) {
+      sh = ss.insertSheet(LIST_SHEET);
+      sh.appendRow(['Thiệp', 'Danh sách khách mời (JSON)', 'Lưu lúc']);
+      sh.setFrozenRows(1);
+      sh.getRange(1, 1, 1, 3).setFontWeight('bold');
+    }
+    let row = findContentRow(sh, slug);
+    if (!row) { sh.appendRow([slug, '', '']); row = sh.getLastRow(); }
+    sh.getRange(row, 2).setNumberFormat('@').setValue(text);
+    sh.getRange(row, 3).setValue(new Date());
+    return { ok: true, count: clean.length };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function readGuests(slug) {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(slug);
   if (!sh || sh.getLastRow() < 2) return { rsvps: [], wishes: [] };
@@ -191,8 +267,8 @@ function readGuests(slug) {
   const rsvps = [], wishes = [];
   rows.forEach(r => {
     const at = r[0] instanceof Date ? r[0].toISOString() : String(r[0]);
-    if (r[1] === 'Xác nhận') rsvps.push({ at, name: String(r[2]), attend: String(r[3]), guests: Number(r[4]) || 1, side: String(r[5]), gid: String(r[8] || '') });
-    if (r[1] === 'Lời chúc') wishes.push({ at, name: String(r[2]), message: String(r[6]), hidden: !!String(r[7]).trim() });
+    if (r[1] === 'Xác nhận') rsvps.push({ at, name: String(r[2]), attend: String(r[3]), guests: Number(r[4]) || 1, side: String(r[5]), gid: String(r[8] || ''), events: String(r[9] || ''), note: String(r[10] || '') });
+    if (r[1] === 'Lời chúc') wishes.push({ at, name: String(r[2]), message: String(r[6]), hidden: !!String(r[7]).trim(), pinned: !!String(r[11] || '').trim() });
   });
   return { rsvps: rsvps, wishes: wishes };
 }
