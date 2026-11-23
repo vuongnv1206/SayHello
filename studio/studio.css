@@ -106,3 +106,19 @@ details.group > summary small { font-weight: 400; color: var(--soft); margin-lef
   #device { display: none; }
   .pv-bar { padding: 8px 12px; }
 }
+
+/* ===== Ảnh cưới ===== */
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.slot { display: grid; gap: 6px; align-content: start; justify-items: start; font-size: 13px; }
+.slot .thumb { width: 100%; aspect-ratio: 4 / 5; border-radius: 10px; overflow: hidden; background: var(--bg); border: 1px solid var(--line); display: grid; place-items: center; text-align: center; color: var(--soft); font-size: 11.5px; padding: 0; }
+.slot .thumb span { padding: 8px; }
+.slot img, .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.link { color: var(--accent); font-size: 12.5px; text-decoration: underline; padding: 0; }
+.album-ed { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.ph { position: relative; display: grid; gap: 6px; margin: 0; }
+.ph img { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); }
+.ph-tools { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+.ph-tools button { width: 26px; height: 26px; border-radius: 8px; background: rgba(255, 255, 255, .92); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); font-size: 12px; }
+.ph input { width: 100%; font: inherit; font-size: 12.5px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.album-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 4px; }
+.add[disabled], .btn[disabled] { opacity: .45; cursor: default; }

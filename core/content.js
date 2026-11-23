@@ -1,15 +1,30 @@
 // Nội dung thiệp = invite.json (người bán soạn) + phần cặp đôi tự sửa trong Studio (lưu ở Google Sheets).
-// Cặp đôi chỉ sửa được các trường trong EDITABLE; ảnh, sheetUrl, slug luôn lấy từ invite.json.
+// Cặp đôi chỉ sửa được các trường trong EDITABLE; sheetUrl, slug, ảnh xem trước luôn lấy từ invite.json.
 // Nhạc: chỉ chọn được bài trong assets/music/, file .mp3 trong thư mục thiệp, hoặc 'none' (tắt nhạc).
+// Ảnh: chỉ nhận ảnh trong thư mục thiệp (images/...) hoặc ảnh cặp đôi tải lên Google Drive của người bán qua Studio.
 import { merge } from './util.js';
 
-export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp', 'music'];
+export const EDITABLE = ['theme', 'groom', 'bride', 'order', 'date', 'city', 'families', 'events', 'places', 'story', 'texts', 'sections', 'effects', 'accounts', 'rsvp', 'music', 'images'];
 const MUSIC_OK = /^(none|\.\.\/assets\/music\/[a-z0-9-]+\.mp3|[a-z0-9-]+\.mp3)$/;
+export const IMAGE_OK = /^(images\/[\w.-]{1,80}|https:\/\/lh3\.googleusercontent\.com\/d\/[\w-]{10,120})$/;
+export const IMAGE_SLOTS = ['hero', 'couple', 'groom', 'bride', 'band', 'portrait', 'thanks'];
+
+// Lọc ảnh cặp đôi sửa: bỏ mọi đường dẫn lạ, giữ tối đa 30 ảnh album
+export function cleanImages(im) {
+  if (!im || typeof im !== 'object') return undefined;
+  const out = {};
+  for (const s of IMAGE_SLOTS) if (typeof im[s] === 'string' && IMAGE_OK.test(im[s])) out[s] = im[s];
+  if (Array.isArray(im.album)) out.album = im.album.filter(x => typeof x === 'string' && IMAGE_OK.test(x)).slice(0, 30);
+  if (Array.isArray(im.captions)) out.captions = im.captions.slice(0, 30).map(x => String(x ?? '').slice(0, 80));
+  return out;
+}
 
 export function pickEditable(obj) {
   const out = {};
   for (const k of EDITABLE) if (obj && obj[k] !== undefined) out[k] = obj[k];
   if (out.music !== undefined && !MUSIC_OK.test(out.music)) delete out.music;
+  if (out.images !== undefined) out.images = cleanImages(out.images);
+  if (out.images === undefined) delete out.images;
   return out;
 }
 

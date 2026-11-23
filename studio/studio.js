@@ -1,6 +1,6 @@
 // Studio: cặp đôi tự sửa nội dung thiệp, xem trước ngay, bấm Lưu là thiệp thật cập nhật luôn.
 // Link: /studio/?thiep=<slug>&ma=<mã sửa>  (tạo bằng: npm run studio-link -- <slug>)
-import { pickEditable } from '../core/content.js';
+import { pickEditable, cleanImages } from '../core/content.js';
 import { merge } from '../core/util.js';
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -10,7 +10,7 @@ const slug = (q.get('thiep') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
 const key = q.get('ma') || '';
 const DRAFT = `sayhello:draft:${slug}`;
 
-let base = null, themes = [], themeMods = {}, state = {}, saved = '', reloadT = null;
+let base = null, baseImages = {}, themes = [], themeMods = {}, state = {}, saved = '', reloadT = null;
 
 /* ---------- Nhãn tiếng Việt ---------- */
 const SECTION_NAMES = {
@@ -119,6 +119,9 @@ async function buildForm() {
     input(state, 'groom.bio', { label: 'Đôi dòng về chú rể', type: 'textarea', rows: 2, hint: 'Hiện ở mẫu Thư Tay và Vé Máy Bay. Để trống nếu không cần.' }),
     input(state, 'bride.bio', { label: 'Đôi dòng về cô dâu', type: 'textarea', rows: 2 })), true));
 
+  // Ảnh cưới
+  form.append(group('Ảnh cưới', 'đổi ảnh, thêm ảnh album', imagesBody()));
+
   // Ngày cưới
   form.append(group('Ngày giờ lễ chính', null, el('div', { class: 'group-body' },
     input(state, 'date', { label: 'Ngày giờ (giờ Việt Nam)', type: 'datetime', hint: 'Dùng cho đếm ngược, lịch và nút lưu vào Google Calendar.' }),
@@ -203,6 +206,101 @@ async function buildForm() {
   ], { who: '', bank: '', bankCode: '', number: '', name: '' })));
 }
 
+/* ---------- Ảnh: cặp đôi tải ảnh lên Google Drive của người bán (qua Apps Script) ---------- */
+const SLOT_NAMES = { hero: 'Ảnh chính (mở đầu)', groom: 'Ảnh chú rể', bride: 'Ảnh cô dâu', couple: 'Ảnh hai bạn', thanks: 'Ảnh cuối thiệp' };
+const UPLOAD_ERR = { key: 'Link sửa không đúng, hãy dùng đúng link được gửi.', too_big: 'Ảnh quá lớn.', type: 'Chỉ nhận ảnh JPG, PNG hoặc WEBP.', limit: 'Thiệp đã tải quá nhiều ảnh, nhắn người bán giúp nhé.' };
+const canUpload = () => !!(base?.sheetUrl && key);
+const imgSrc = s => (/^https:/.test(s) ? s : `../${slug}/${s}`);
+
+// Thu nhỏ ảnh trên máy (cạnh dài 1600px, JPEG) trước khi gửi: ảnh điện thoại 5-10MB còn khoảng 300KB
+async function shrink(file) {
+  const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  const s = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+  const c = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * s), height: Math.round(bmp.height * s) });
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .82));
+  const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
+  return url.slice(url.indexOf(',') + 1);
+}
+
+async function uploadOne(file) {
+  const data = await shrink(file).catch(() => { throw new Error(`Không đọc được ảnh "${file.name}".`); });
+  const r = await fetch(base.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ invite: slug, type: 'upload', key, mime: 'image/jpeg', data }) });
+  const d = await r.json();
+  if (!d.ok) throw new Error(UPLOAD_ERR[d.error] || 'Tải ảnh chưa được, vui lòng thử lại.');
+  return d.url;
+}
+
+function pickFiles(multiple) {
+  return new Promise(res => {
+    const inp = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp,image/heic', multiple });
+    inp.addEventListener('change', () => res([...inp.files]));
+    inp.click();
+  });
+}
+
+// Tải lần lượt, báo tiến độ trên thanh trên cùng; trả về các link đã tải được
+async function uploadFiles(files) {
+  const urls = [];
+  for (const [i, f] of files.entries()) {
+    status(`Đang tải ảnh ${i + 1}/${files.length}…`);
+    try { urls.push(await uploadOne(f)); } catch (err) { status(err.message, 'err'); break; }
+  }
+  return urls;
+}
+
+function imagesBody() {
+  const body = el('div', { class: 'group-body' });
+  const im = () => (state.images ??= {});
+  const render = () => {
+    body.textContent = '';
+    const cur = state.images || {}, album = cur.album || [], caps = cur.captions || [];
+    const done = () => { render(); changed(); status('Ảnh đã tải lên. Bấm "Lưu" để thiệp đổi ảnh.'); };
+    if (!canUpload()) body.append(el('small', { class: 'hint' }, 'Chỉ tải ảnh lên được khi mở bằng link Studio có mã sửa và thiệp đã nối Google Sheets.'));
+    body.append(el('div', { class: 'slots' }, Object.entries(SLOT_NAMES).map(([s, name]) => el('div', { class: 'slot' },
+      el('div', { class: 'thumb' }, cur[s] ? el('img', { src: imgSrc(cur[s]), alt: name, loading: 'lazy' }) : el('span', {}, 'Đang dùng ảnh trong album')),
+      el('b', {}, name),
+      el('button', { type: 'button', class: 'btn small ghost', disabled: !canUpload(), onclick: async () => {
+        const [url] = await uploadFiles(await pickFiles(false));
+        if (url) { im()[s] = url; done(); }
+      } }, 'Đổi ảnh'),
+      cur[s] !== baseImages[s] ? el('button', { type: 'button', class: 'link', onclick: () => {
+        if (baseImages[s]) im()[s] = baseImages[s]; else delete im()[s];
+        render(); changed();
+      } }, 'Dùng lại ảnh cũ') : null))));
+    const swap = (i, j) => {
+      const a = im().album, c = (im().captions ||= []);
+      [a[i], a[j]] = [a[j], a[i]]; [c[i], c[j]] = [c[j] ?? '', c[i] ?? ''];
+      render(); changed();
+    };
+    body.append(el('div', { class: 'field' }, el('span', {}, `Album · ${album.length} ảnh`),
+      el('div', { class: 'album-ed' }, album.map((src, i) => el('figure', { class: 'ph' },
+        el('img', { src: imgSrc(src), alt: `Ảnh ${i + 1}`, loading: 'lazy' }),
+        el('div', { class: 'ph-tools' },
+          i > 0 ? el('button', { type: 'button', title: 'Lên trước', onclick: () => swap(i, i - 1) }, '←') : null,
+          i < album.length - 1 ? el('button', { type: 'button', title: 'Ra sau', onclick: () => swap(i, i + 1) }, '→') : null,
+          el('button', { type: 'button', title: 'Bỏ ảnh này khỏi album', onclick: () => {
+            im().album.splice(i, 1); (im().captions ||= []).splice(i, 1); render(); changed();
+          } }, '✕')),
+        el('input', { value: caps[i] || '', placeholder: 'Chú thích', maxlength: 80, oninput: e => {
+          const c = (im().captions ||= []);
+          while (c.length < i) c.push('');
+          c[i] = e.target.value; changed();
+        } })))),
+      el('div', { class: 'album-actions' },
+        el('button', { type: 'button', class: 'add', disabled: !canUpload(), onclick: async () => {
+          const urls = await uploadFiles(await pickFiles(true));
+          if (urls.length) { (im().album ||= []).push(...urls); done(); }
+        } }, '+ Thêm ảnh vào album'),
+        JSON.stringify(cleanImages({ album, captions: caps })) !== JSON.stringify(cleanImages({ album: baseImages.album || [], captions: baseImages.captions || [] }))
+          ? el('button', { type: 'button', class: 'link', onclick: () => { im().album = [...(baseImages.album || [])]; im().captions = [...(baseImages.captions || [])]; render(); changed(); } }, 'Dùng lại album cũ') : null),
+      el('small', { class: 'hint' }, 'Ảnh được thu nhỏ trước khi tải lên và lưu ở Google Drive của người bán. Tối đa 30 ảnh album.')));
+  };
+  render();
+  return body;
+}
+
 /* ---------- Xem trước ---------- */
 const frame = $('#frame'), wrap = $('#frameWrap');
 let view = 'inside';
@@ -255,9 +353,12 @@ $('#save').addEventListener('click', async () => {
   const btn = $('#save');
   if (!state.date) { status('Cần điền ngày giờ lễ chính', 'err'); return; }
   btn.disabled = true; status('Đang lưu…');
+  // Ảnh chưa đổi thì không lưu kèm, để người bán còn thay ảnh trong invite.json mà không bị bản lưu cũ đè
+  const content = clean(state);
+  if (JSON.stringify(cleanImages(content.images) || {}) === JSON.stringify(baseImages)) delete content.images;
   try {
     const r = await fetch(base.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ invite: slug, type: 'content', key, content: clean(state) }) });
+      body: JSON.stringify({ invite: slug, type: 'content', key, content }) });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error === 'key' ? 'Link sửa không đúng. Hãy dùng đúng link được gửi.' : d.error === 'too_big' ? 'Nội dung quá dài.' : 'Lưu chưa được.');
     saved = JSON.stringify(clean(state));
@@ -289,6 +390,7 @@ async function start() {
       fetch('../themes/index.json').then(r => r.json()),
     ]);
   } catch { $('#who').textContent = `Không tìm thấy thiệp "${slug}"`; return; }
+  baseImages = cleanImages(base.images) || {};
 
   let edits = null;
   if (base.sheetUrl) {
