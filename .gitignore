@@ -6,3 +6,8 @@ node_modules/
 *.log
 test-results/
 *.local.gs
+
+# Next.js
+.next/
+next-env.d.ts
+tsconfig.tsbuildinfo

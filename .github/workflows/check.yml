@@ -1,12 +1,13 @@
-name: Kiểm tra thiệp
+name: Kiểm tra
 
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, redesign]
 
 jobs:
-  check:
+  legacy:
+    name: Thiệp bản 1 (legacy)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -17,9 +18,26 @@ jobs:
           cache: npm
       - run: npm ci
       - name: index.html của mọi thiệp khớp với invite.json
+        working-directory: legacy
         run: |
           node scripts/build.mjs
-          git diff --exit-code -- '*/index.html' || (echo "::error::Hãy chạy 'node scripts/build.mjs' rồi commit lại index.html" && exit 1)
+          git diff --exit-code -- '*/index.html' || (echo "::error::Hãy chạy 'node scripts/build.mjs' trong legacy/ rồi commit lại index.html" && exit 1)
       - run: npx playwright install --with-deps chromium
       - name: Mở thử từng thiệp
-        run: npm test
+        run: npm test -w @sayhello/legacy
+
+  v2:
+    name: Bộ máy thiệp + ứng dụng bản 2
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Kiểm tra bộ máy thiệp
+        run: npm test -w @sayhello/engine
+      - name: Build ứng dụng Next.js
+        run: npm run build -w @sayhello/web

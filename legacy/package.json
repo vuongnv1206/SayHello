@@ -1,0 +1,24 @@
+{
+  "name": "@sayhello/legacy",
+  "private": true,
+  "type": "module",
+  "description": "Site thiệp tĩnh hiện tại (bản 1). Vẫn phục vụ các thiệp đã bán trong lúc chuyển sang bản 2.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "new": "node scripts/new-invite.mjs",
+    "dev": "node scripts/serve.mjs 3001",
+    "test": "node tests/apps-script.mjs && node tests/scripts.mjs && node tests/qr.mjs && node tests/khach.mjs && node tests/smoke.mjs",
+    "images": "node scripts/optimize-images.mjs",
+    "xem-truoc": "node scripts/xem-truoc.mjs",
+    "chup-bia": "node scripts/chup-bia.mjs",
+    "studio-link": "node scripts/studio-link.mjs",
+    "apps-script": "node scripts/apps-script.mjs",
+    "sync-studio": "node scripts/sync-studio.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "domain": "node scripts/domain.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "sharp": "^0.34.5"
+  }
+}

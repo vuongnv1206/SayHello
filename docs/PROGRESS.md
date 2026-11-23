@@ -25,6 +25,7 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 | 11. Pha 2 đề xuất | **Nhóm khách** `?n=nha-gai` (lời chào, buổi lễ, địa điểm, ghi chú riêng theo nhóm, cấu hình trong Studio). **Ảnh thẻ mời** 1080×1350 có tên khách và mã QR (bộ tạo QR tự viết, có bộ giải mã kiểm tra). **Xác nhận tham dự** chọn từng buổi lễ, ghi chú ăn chay/xe đón, gửi kèm lời chúc. Cặp đôi tự **ẩn/ghim lời chúc** trên trang quản lý khách. **Danh sách khách mời** lưu trên Sheet (tab `_Khách mời` riêng tư), đánh dấu đã gửi, lọc chưa trả lời. **Bảng màu** có sẵn cho cả 7 mẫu, chọn trong Studio. |
 | 12. Pha 3 đề xuất | **Vòng đời thiệp:** sau ngày cưới thành trang kỷ niệm (ẩn ô xác nhận, nút album ảnh, lời cảm ơn), hết hạn gói thì hiện trang lưu niệm thay vì 404 (`npm run new -- ... --goi co-ban` đặt hạn 6/12 tháng). **Tên miền riêng** (`npm run domain`, CORS trong `vercel.json`, `publicUrl`). **Tường lời chúc** `<thiệp>/?wall=1` cho màn hình LED sảnh tiệc. **Xếp bàn và check-in** trong trang quản lý khách (nhiều lễ tân cùng dùng). **/dat-thiep/** báo trùng đường dẫn và có mục tra cứu đơn bằng mã đơn + 4 số cuối điện thoại. |
 | 13. Năm mẫu mới | **Thiệp Gấp** (pop-up giấy), **Khung Thêu** (giữ tay để thêu), **Cà Phê Phin** (cà phê nhỏ giọt, thực đơn), **Gốm Ghép Vàng** (kintsugi), **Kính Vạn Hoa**. Tổng 12 mẫu, mỗi mẫu có bảng màu chọn trong Studio. Giữ khung thêu có kiểm tra tự động. |
+| 14. Dọn mẫu, bắt đầu bản 2 | Xóa **Gốm Ghép Vàng** và **Kính Vạn Hoa** (màu xấu), còn 10 mẫu. Poster trang chủ chụp từ màn bìa thật (`npm run chup-bia`), sửa lỗi poster bị thu nhỏ. Lời văn phần dùng chung theo giọng mẫu (`core/voice.js`). Kế hoạch bản 2 SaaS ([REDESIGN.md](REDESIGN.md)), Pha 0 xong ở nhánh `redesign`: monorepo `apps/web` (Next.js 16) + `packages/engine` + `legacy/` + `supabase/`, số đo tốc độ mốc. |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết
@@ -37,7 +38,8 @@ Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 - Ảnh tải lên dùng link `lh3.googleusercontent.com/d/<id>` của Drive; nếu Google đổi cách phục vụ ảnh công khai thì cần đổi sang chỗ lưu khác.
 - Chưa đẩy được lên GitHub: tài khoản GitHub trên máy không có quyền ghi (403).
 - `shop.json` còn giá tạm, tài khoản và Zalo giả (`0000000000`).
-- Trên máy Ngài còn `.next/`, `next-env.d.ts`, `tsconfig.tsbuildinfo` từ bản Next.js cũ (xóa tay được). Bản Next.js + Supabase dở dang được cất trong `git stash` ("backup truoc khi lay code moi").
+- `git stash` "backup truoc khi lay code moi" chỉ chứa tài liệu, không có code Next.js/Supabase cũ. Bản 2 dựng lại từ đầu.
+- `sharp` (dùng nén ảnh ở `legacy/`) có lỗ hổng mức cao trong thư viện ảnh libvips; bản sửa là 0.35 (đổi API), cần nâng và thử lại lệnh ảnh.
 
 ## Bước tiếp theo
 

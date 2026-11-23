@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* Màu nền ứng dụng (trình sửa, bảng điều khiển), lấy theo Studio bản 1 trong docs/DESIGN.md */
+:root {
+  --background: #f6f2ec;
+  --foreground: #26211d;
+  --accent: #8e1b2c;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-vn), system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #14110f;
+    --foreground: #f4ede1;
+    --accent: #d9a86c;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}

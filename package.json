@@ -1,24 +1,23 @@
 {
   "name": "sayhello",
   "private": true,
-  "type": "module",
-  "description": "Bộ thiệp cưới online: mỗi thiệp là một thư mục, nhiều mẫu, nhiều hiệu ứng, lưu dữ liệu bằng Google Sheets.",
+  "description": "SayHello: thiệp cưới online tự phục vụ. Monorepo: apps/web (Next.js), packages/engine (bộ máy thiệp), legacy (site tĩnh bản 1).",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "legacy"
+  ],
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "new": "node scripts/new-invite.mjs",
-    "dev": "npx --yes serve .",
-    "test": "node tests/apps-script.mjs && node tests/scripts.mjs && node tests/qr.mjs && node tests/khach.mjs && node tests/smoke.mjs",
-    "images": "node scripts/optimize-images.mjs",
-    "xem-truoc": "node scripts/xem-truoc.mjs",
-    "chup-bia": "node scripts/chup-bia.mjs",
-    "studio-link": "node scripts/studio-link.mjs",
-    "apps-script": "node scripts/apps-script.mjs",
-    "sync-studio": "node scripts/sync-studio.mjs",
-    "doctor": "node scripts/doctor.mjs",
-    "domain": "node scripts/domain.mjs"
+    "dev": "npm run dev -w @sayhello/web",
+    "dev:legacy": "npm run dev -w @sayhello/legacy",
+    "build": "npm run build -w @sayhello/web",
+    "test": "npm test -w @sayhello/engine && npm test -w @sayhello/legacy",
+    "test:legacy": "npm test -w @sayhello/legacy",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset"
   },
   "devDependencies": {
-    "playwright": "^1.63.0",
-    "sharp": "^0.34.5"
+    "supabase": "^2.0.0"
   }
 }
