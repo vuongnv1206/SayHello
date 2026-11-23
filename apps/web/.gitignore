@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Bản chép engine + mẫu cho trình duyệt (scripts/sync-engine.mjs)
+/public/_e/

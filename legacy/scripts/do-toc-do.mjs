@@ -34,10 +34,10 @@ for (const p of PAGES) {
       new PerformanceObserver(l => { for (const e of l.getEntries()) window.__lcp = e.startTime; }).observe({ type: 'largest-contentful-paint', buffered: true });
     });
     const t0 = Date.now();
-    await page.goto(base + p + (p.startsWith('/demo') ? '?k=Khách+mời' : ''), { waitUntil: 'commit' });
+    await page.goto(base + p + (/^\/(v2\/)?demo/.test(p) ? '?k=Khách+mời' : ''), { waitUntil: 'commit' });
     let cover = null;
-    if (p.startsWith('/demo')) {
-      await page.waitForSelector('[data-open]', { state: 'visible', timeout: 60000 }).catch(() => {});
+    if (/^\/(v2\/)?demo/.test(p)) {
+      await page.waitForSelector('[data-open], .lever', { state: 'visible', timeout: 60000 }).catch(() => {});
       cover = Date.now() - t0;
     }
     const coverBytes = bytes;

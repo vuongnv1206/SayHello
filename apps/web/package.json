@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "sync": "node scripts/sync-engine.mjs",
+    "predev": "node scripts/sync-engine.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/sync-engine.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -14,7 +17,8 @@
     "react-dom": "19.3.0",
     "@sayhello/engine": "*",
     "@supabase/supabase-js": "^2.58.0",
-    "@supabase/ssr": "^0.7.0"
+    "@supabase/ssr": "^0.7.0",
+    "@sayhello/theme-cuon-phim": "*"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",

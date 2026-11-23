@@ -171,6 +171,57 @@ Mục tiêu bản 2: bìa hiện dưới 1,5s, bấm được dưới 2,5s trên
 - Sửa bug `fit` ở `index.html:144`.
 - Đổi lời văn "quý khách" trong core cho khớp giọng của từng mẫu.
 
+### Pha 1: lát cắt đầu tiên (23/11/2026)
+
+**Engine** (`packages/engine`, 13 test). Cách viết mẫu xem trong `packages/engine/README.md`.
+- `renderDocument` dựng trên máy chủ cả trang. Trang gồm: bìa khoá cuộn, các cảnh `data-scene`, ngăn kéo **Thông tin nhanh** (luôn có; nếu mẫu không có cảnh xác nhận thì ngăn kéo chứa form), import map, và dữ liệu nhúng được thoát ký tự để không ai chèn được thẻ `</script>`.
+- `client/runtime.js` chạy trên trình duyệt:
+  - điền tên khách (chỉ bằng `textContent`);
+  - chọn mức `cinematic`, `standard` hoặc `lite` (`tier.js`), có đo FPS ở màn bìa và chỉ được hạ mức;
+  - gắn form xác nhận, lời chúc và đếm ngược mà không phụ thuộc markup của mẫu;
+  - nạp GSAP 3.13 (ghim phiên bản) sau khi bìa mở.
+- `splitText` tách chữ bằng `Intl.Segmenter`, có test với dạng dấu tổ hợp NFD.
+
+**Cuộn Phim v2** (`packages/themes/cuon-phim`) gồm 9 cảnh:
+- **Phòng chiếu:** kéo hoặc chạm cần máy chiếu, phim đầu đếm 3-2-1.
+- **Mở màn:** cảnh được ghim, cuộn đến đâu rèm kéo ra đến đó, tên hiện từng chữ.
+- **Diễn viên:** khung phim trượt vào theo cuộn.
+- **Những cảnh phim:** cuộn dọc thành tua ngang, clapper đập.
+- **Vé mời:** xé cuống vé để hiện chỉ đường và nút lưu lịch, kèm đếm ngược.
+- **Giữ ghế:** sơ đồ ghế kèm form xác nhận, lời chúc chạy thành phụ đề.
+- **Album 35mm:** có tiếng tạch và đèn flash.
+- **Quầy bắp nước:** chạm hộp bắp để hiện QR VietQR. Nội dung chuyển khoản kèm tên khách không dấu.
+- **Danh đề:** chữ chạy theo cuộn, có tên khách.
+
+Mức `lite` không ghim cảnh và rèm mở sẵn. Nếu GSAP không tải được, cảnh tự chuyển về dạng tĩnh.
+
+**Route** `/v2/demo/[theme]/`: HTML dựng sẵn lúc build (`generateStaticParams`). File chạy trên trình duyệt được chép vào `public/_e/` (`apps/web/scripts/sync-engine.mjs`).
+
+**Test** `apps/web/tests/thiep-v2.mjs` mở thiệp ở cả 3 mức và kiểm tra:
+- tên khách trên bìa và trong form;
+- mở bìa, đủ cảnh, có ghim cảnh ở mức `standard`;
+- gửi xác nhận, lời chúc thành phụ đề;
+- xé vé, Thông tin nhanh.
+
+CI đã chạy test này.
+
+**Tốc độ** (cùng điều kiện đo mốc):
+
+| Trang | FCP | LCP | Bìa bấm được | KB trước khi bìa sẵn sàng |
+|---|---|---|---|---|
+| `/demo-cuon-phim/` (bản 1) | 6.43s | 8.85s | 7.94s | 639 |
+| `/v2/demo/cuon-phim/` | **1.72s** | **1.86s** | **2.82s** | **278** |
+
+Vẫn còn hơi trên mục tiêu (1,5s và 2,5s). Phần lớn dung lượng trước khi bìa hiện là 4 họ font. Việc tiếp: chỉ nạp trước font của bìa, tự host font đã cắt bộ ký tự tiếng Việt, preload ảnh màn mở.
+
+**Chưa làm ở Pha 1:**
+- nhạc nền;
+- chọn bảng màu (`palettes` đã khai báo nhưng chưa áp);
+- WebGL thật cho mức `cinematic` (hiện mới thêm hiệu ứng nhấp nháy máy chiếu);
+- lọc theo nhóm khách `?n=`;
+- tường lời chúc;
+- trình sửa sinh form từ `slots`.
+
 ## 7. Câu hỏi còn mở
 
 1. Bán dưới pháp nhân nào (cá nhân, hộ kinh doanh hay công ty)? Câu này quyết định dùng PayOS hay SePay, và có xuất hoá đơn không.

@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-cuon-phim",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Mẫu Cuộn Phim bản 2: thiệp là một suất chiếu đặc biệt, các cảnh toàn màn hình ghim theo cuộn.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}
