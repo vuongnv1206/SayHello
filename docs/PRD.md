@@ -23,7 +23,7 @@ Bộ công cụ làm **thiệp cưới online** để **bán theo từng thiệp
 
 ## Tính năng đã có
 
-- 5 mẫu: **Song Hỷ**, **Thư Tay**, **Vé Máy Bay**, **Khóa Tình**, **Đèn Lồng**.
+- 6 mẫu: **Song Hỷ**, **Thư Tay**, **Vé Máy Bay**, **Khóa Tình**, **Đèn Lồng**, **Cuộn Phim**.
 - Mục dùng chung: đếm ngược, lịch, album, bản đồ, xác nhận tham dự, sổ lưu bút, hộp mừng cưới QR, nhạc nền, thả tim, lời chúc bay, link riêng từng khách `?k=Tên`.
 - **Studio** `/studio/`: cặp đôi tự sửa nội dung, xem trước theo thiết bị, lưu lên Sheet.
 - **Trang khách** `/studio/khach.html`: thống kê, danh sách, tìm kiếm, tải CSV.

@@ -1,6 +1,6 @@
 # Tiến độ · SayHello
 
-Cập nhật: 2026-11-22. Web: https://sayhello-wheat.vercel.app
+Cập nhật: 2026-11-23. Web: https://sayhello-wheat.vercel.app
 
 ## Đã xong
 
@@ -17,6 +17,8 @@ Cập nhật: 2026-11-22. Web: https://sayhello-wheat.vercel.app
 | Link mời | Trang quản lý khách có tab **Tạo link mời**: dán danh sách tên, ra link riêng từng khách, sao chép kèm lời mời, tải CSV. |
 | 5. Mẫu thứ 4 | **Khóa Tình**: xoay ổ khóa số đúng ngày cưới để mở thiệp, mặt dây chuyền, chùm chìa khóa, ảnh treo lan can, ném chìa xuống sông. Trang chủ có nút **Đặt mẫu này** cho từng mẫu. |
 | 6. Mẫu thứ 5 | **Đèn Lồng** (Hội An): thả hoa đăng để mở thiệp, dây đèn lồng sáng dần khi cuộn, cửa chớp gỗ mở album, lời chúc thành hoa đăng, thả đèn trời. |
+| Ảnh xem trước | `npm run xem-truoc -- <thiệp>` ghép ảnh cưới + tên + ngày thành ảnh 1200×630 khi gửi link; `npm run new` tự chạy. |
+| 7. Mẫu thứ 6 | **Cuộn Phim**: kéo cần máy chiếu, màn ảnh đếm 3-2-1, rèm nhung, bảng clapper từng cảnh, vé xem phim, dải phim 35mm vuốt ngang có tiếng tạch máy ảnh, lời chúc thành phụ đề, hộp bắp rang, danh đề cuối phim. |
 | Tài liệu | PRD, ARCHITECTURE, DESIGN, RULES, TASKS, PROGRESS trong `docs/`. |
 
 ## Lỗi / hạn chế đã biết
@@ -31,8 +33,8 @@ Cập nhật: 2026-11-22. Web: https://sayhello-wheat.vercel.app
 ## Bước tiếp theo
 
 1. Ngài điền giá, tài khoản, Zalo → bật bán thật.
-2. Nút "Đặt mẫu này" trên trang chủ, tải ảnh lên trong Studio.
-3. Mẫu thứ 4: Cuộn Phim hoặc Mở Khóa Tình Yêu.
+2. Tải ảnh lên trong Studio (cặp đôi tự thay ảnh).
+3. Mẫu thứ 7: Tin Nhắn (giao diện trò chuyện).
 4. Tên miền riêng.
 
 Danh sách đầy đủ: [TASKS.md](TASKS.md).

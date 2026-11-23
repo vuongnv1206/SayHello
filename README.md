@@ -23,6 +23,7 @@ Mở `http://localhost:3000/` để xem trang giới thiệu các mẫu, hoặc 
 | Vé Máy Bay | `/demo-ve-may-bay/` | Trẻ trung: xé cuống thẻ lên máy bay, máy bay bay theo đường cuộn, bảng giờ bay lật chữ, hộ chiếu đóng dấu, ảnh qua ô cửa sổ, vali mừng cưới |
 | Khóa Tình | `/demo-khoa-tinh/` | Lãng mạn: xoay ổ khóa số đúng ngày cưới để mở, mặt dây chuyền đung đưa, chùm chìa khóa kỷ niệm, ảnh treo lan can cầu, hộp nhẫn, ném chìa xuống sông |
 | Đèn Lồng | `/demo-den-long/` | Hoài cổ phố Hội: thả hoa đăng để mở, dây đèn lồng sáng dần, đôi đèn lồng ôm ảnh, cửa chớp gỗ mở album, lời chúc thành hoa đăng, thả đèn trời |
+| Cuộn Phim | `/demo-cuon-phim/` | Điện ảnh: kéo cần máy chiếu, màn ảnh đếm 3-2-1, rèm nhung mở ảnh cưới, bảng clapper từng cảnh, vé xem phim, dải phim 35mm vuốt ngang (có tiếng tạch máy ảnh), lời chúc thành phụ đề, hộp bắp rang mừng cưới, danh đề cuối phim |
 
 > Thiệp dùng ES module nên phải mở qua máy chủ web, mở thẳng file `index.html` sẽ không chạy.
 

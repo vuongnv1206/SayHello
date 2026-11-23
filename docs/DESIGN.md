@@ -43,6 +43,11 @@ Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`
 - **Màu:** đêm `#0f1a2b`, tường vàng `#f2c14e`, ngói `#8c2f1b`, gỗ `#4a2c1a`, cửa chớp xanh rêu `#2f6f5e`, đỏ đèn lồng `#c1121f`, cam `#f77f00`, vàng nến `#fcbf49`, hoa giấy `#e75480`, kem `#fdf3dc`.
 - **Chữ:** Dancing Script (tên), Noto Serif Display nghiêng (tiêu đề, nội dung), Be Vietnam Pro (chữ nhỏ).
 
+### Cuộn Phim: điện ảnh
+- **Ý tưởng:** thiệp là một suất chiếu đặc biệt. Bìa là phòng chiếu tối: khách kéo cần máy chiếu, đèn chiếu bật, cuộn phim quay (có tiếng lạch cạch tự tạo bằng Web Audio), màn ảnh đếm 3-2-1 rồi thiệp mở. Bên trong: biển đèn rạp, rèm nhung mở ra ảnh cưới, câu mở đầu hiện như phụ đề, diễn viên chính trong khung phim, gia đình là "nhà sản xuất", mỗi kỷ niệm là một cảnh phim có bảng clapper đập khi cuộn tới, lịch lễ là vé xem phim, đếm ngược kiểu vòng đầu phim, album là dải phim 35mm vuốt ngang (chạm có tiếng tạch và chớp flash), sơ đồ ghế đôi giữ chỗ, lời chúc thành phụ đề, hộp bắp rang mừng cưới, cuối thiệp là danh đề chạy chữ (có tên khách mời).
+- **Màu:** rạp tối `#15120f`, phim `#0d0b0a`, nhung đỏ `#7d1a1d`/`#a8262b`, hổ phách `#e8a33d`, phụ đề vàng `#ffe27a`, màn ảnh `#f5efe3`, vé giấy `#f3eadb`.
+- **Chữ:** Big Shoulders Display (biển rạp, tiêu đề), Playfair Display nghiêng (tên), Space Mono (mã phim, nhãn nhỏ), Be Vietnam Pro (nội dung).
+
 ## Trang bán hàng (trang chủ, đặt thiệp)
 - Nền tối ấm `#14110f`, chữ kem `#f4ede1`, nhấn vàng đồng `#d9a86c`, đỏ rượu mờ làm ánh sáng nền.
 - Chữ: Cormorant Garamond (tiêu đề), Be Vietnam Pro (nội dung).
