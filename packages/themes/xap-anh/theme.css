@@ -1,7 +1,7 @@
 /* Xấp Ảnh — một màn, mặt bàn màu trơn, ảnh in viền trắng, tab phân trang nhiều màu. Chữ: Fraunces (tên, mặt sau ảnh), Lexend (giao diện). */
 :root {
   --xa-table: #36414c; --xa-table-2: #2d3740; --xa-light: #f3f4f6; --xa-mute: #b9c1ca; --xa-paper: #fbfaf7; --xa-ink: #1d232a; --xa-ink-2: #555e69;
-  --xa-t1: #f2c14e; --xa-t2: #ef6f5e; --xa-t3: #8fc1e3; --xa-t4: #9ccf9f; --xa-stamp: #5b3f8c;
+  --xa-t1: #efe9dc; --xa-t2: #f2c14e; --xa-t3: #efe9dc; --xa-t4: #efe9dc; --xa-stamp: #5b3f8c; /* tab phong bì tiệm ảnh: một màu giấy, riêng Trả lời nổi màu */
   --xa-d: 'Fraunces', 'Noto Serif', 'Times New Roman', serif; --xa-t: 'Lexend', 'Noto Sans', Arial, sans-serif;
   --sh-bg: var(--xa-table); --sh-ink: var(--xa-ink); --sh-accent: var(--xa-ink); --sh-accent-ink: #fff; --sh-soft: rgba(29, 35, 42, .25); --sh-panel: var(--xa-paper); --sh-radius: 6px;
 }
@@ -22,7 +22,9 @@ html.xa-on, html.xa-on body { overscroll-behavior: none; }
 .xa-names .xa-n { white-space: nowrap; }
 .xa-names .xa-and { font: italic 400 .55em/1 var(--xa-d); color: var(--xa-mute); }
 .xa-when { margin: 6px 0 0; font-size: 15px; color: var(--xa-mute); }
-.xa-when b { display: block; font: 600 16px/1.35 var(--xa-t); color: var(--xa-light); }
+.xa-when i { display: block; order: 2; font: italic 400 15px/1.35 var(--xa-d); color: var(--xa-mute); }
+.xa-when { display: flex; flex-direction: column; }
+.xa-when b { order: 1; display: block; font: 600 16px/1.35 var(--xa-t); color: var(--xa-light); }
 
 .xa-deck { position: relative; container-type: size; margin: 6px 0; }
 .xa-print { --w: min(86cqw, 74cqh); position: absolute; left: 50%; top: 50%; width: var(--w); margin: calc(var(--w) * -.625 - 10px) 0 0 calc(var(--w) * -.5 - 10px); padding: 10px; background: #fff; box-shadow: 0 2px 2px #0002, 0 14px 30px -12px #000a; transform: translate(calc(var(--d) * 5px), calc(var(--d) * 7px)) rotate(var(--r)); transition: transform .55s cubic-bezier(.2, .7, .2, 1), opacity .4s; perspective: 1400px; }

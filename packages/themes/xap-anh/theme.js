@@ -55,7 +55,7 @@ export default defineTheme({
         return html`
         <header class="xa-head">
           <h1 class="xa-names"><span class="xa-n">${n.first}</span> <span class="xa-and">và</span> <span class="xa-n">${n.second}</span></h1>
-          <p class="xa-when"><b>${p ? `${WD[p.wd]}, ${p.d} tháng ${p.mo} năm ${p.y}` : ''}</b>${main ? html`<span>${main.title} lúc ${hm(main.date)}${main.venue ? html`, ${main.venue}` : city ? html`, ${city}` : ''}</span>` : ''}</p>
+          <p class="xa-when">${lunar ? html`<i>${lunar}</i>` : ''}<b>${p ? `${WD[p.wd]}, ${p.d} tháng ${p.mo} năm ${p.y}` : ''}</b>${main ? html`<span style="order:3">${main.title} lúc ${hm(main.date)}${main.venue ? html`, ${main.venue}` : city ? html`, ${city}` : ''}</span>` : ''}</p>
         </header>
 
         <div class="xa-deck" aria-roledescription="xấp ảnh" aria-label="Xấp ảnh, ${album.length} tấm">

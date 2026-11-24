@@ -65,6 +65,7 @@ export default defineTheme({
               <p class="tl-num">${p ? p.d : ''}</p>
               <p class="tl-wd">${p ? WD[p.wd] : ''}</p>
               ${lunar ? html`<p class="tl-lunar">${lunar}</p>` : ''}
+              <ul class="tl-day-evs">${events.map((e, i) => html`<li data-ev="${i}"><b>${hm(e.date)}</b><span>${e.title}${e.venue ? html`<br><small>${e.venue}</small>` : ''}</span></li>`)}</ul>
               <h1 class="tl-names"><span class="tl-n">${n.first}</span><span class="tl-and">và</span><span class="tl-n">${n.second}</span></h1>
               <p class="tl-where">Báo hỷ${city ? html` tại ${city}` : ''}</p>
               <p class="tl-left" data-days="${date}"></p>
@@ -173,7 +174,7 @@ export default defineTheme({
             <h2 id="tl-gift-h">${t.giftTitle}</h2>
             ${accounts.map(a => html`
               <article class="tl-acc">
-                ${qrUrl(a, 'Mung cuoi') ? html`<img class="tl-qr" data-qr="${a.qr ? '' : '1'}" src="${qrUrl(a, 'Mung cuoi')}" alt="Mã QR chuyển khoản tới ${a.name}" loading="lazy" width="132" height="132">` : ''}
+                ${qrUrl(a, 'Mung cuoi') ? html`<img class="tl-qr" data-qr="${a.qr ? '' : '1'}" src="${qrUrl(a, 'Mung cuoi')}" alt="Mã QR chuyển khoản tới ${a.name}" loading="eager" width="132" height="132">` : ''}
                 <div>
                   <h3>${a.who}</h3>
                   <p>${a.bank}</p>

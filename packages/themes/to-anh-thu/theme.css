@@ -33,6 +33,11 @@ body.sh { background: var(--ta-paper); color: var(--ta-ink); font: 400 17px/1.55
 .ta-frame { position: relative; }
 .ta-open { display: block; width: 100%; padding: 6px; border: 0; background: var(--ta-ink); cursor: zoom-in; }
 .ta-open img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+/* khung thứ 3, 6, 9… kín bề ngang: ảnh nào cũng có lúc thật lớn mà không cần mở kính lúp */
+.ta-frame:nth-child(3n) { grid-column: 1 / -1; }
+.ta-frame:nth-child(3n) .ta-open img { aspect-ratio: auto; max-height: 80svh; }
+.ta-open { position: relative; }
+.ta-open::after { content: ''; position: absolute; right: 12px; bottom: 12px; width: 30px; height: 30px; border-radius: 50%; background: #fffc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23141516' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10' cy='10' r='6'/%3E%3Cpath d='M15 15l5 5'/%3E%3C/svg%3E") center / 18px no-repeat; }
 .ta-open:focus-visible { outline: 3px solid var(--ta-pen); outline-offset: 3px; }
 .ta-fn { display: block; margin-top: 4px; font: 600 14px/1 var(--ta-d); color: var(--ta-mute); }
 /* vòng bút sáp: vẽ dần khi khoanh */
