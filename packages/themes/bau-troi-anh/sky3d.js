@@ -185,7 +185,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
     const flyGeo = new THREE.BufferGeometry(); flyGeo.setAttribute('position', new THREE.BufferAttribute(fp, 3)); flyGeo.setAttribute('aS', new THREE.BufferAttribute(fs, 1));
     const flies = new THREE.Points(flyGeo, new THREE.ShaderMaterial({
       uniforms: { uT, uC: { value: accent }, uNight, uPx: { value: 1 } },
-      vertexShader: `attribute float aS; uniform float uT,uPx; varying float vB; void main(){ vB=pow(.5+.5*sin(uT*1.3+aS*3.),3.); vec3 p=position+vec3(sin(uT*.4+aS),cos(uT*.33+aS)*.4,cos(uT*.37+aS))*.35; gl_PointSize=3.*uPx; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.); }`,
+      vertexShader: `attribute float aS; uniform float uT,uPx; varying float vB; void main(){ vB=pow(max(.5+.5*sin(uT*1.3+aS*3.),0.),3.); vec3 p=position+vec3(sin(uT*.4+aS),cos(uT*.33+aS)*.4,cos(uT*.37+aS))*.35; gl_PointSize=3.*uPx; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.); }`,
       fragmentShader: `uniform vec3 uC; uniform float uNight; varying float vB; void main(){ float a=smoothstep(.5,0.,length(gl_PointCoord-.5)); gl_FragColor=vec4(uC*vB*a*2.2*(.4+uNight),1.);${SHADER_TAIL} }`,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     }));
@@ -239,12 +239,26 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
       if (scrollY > 40) el.classList.remove('show-hint');
       dirty = true;
     };
-    let base = null;
+    // Con quay: dựng quaternion hướng máy (như DeviceOrientationControls) rồi lấy hướng nhìn của camera sau,
+    // vì góc Euler thô (alpha/beta) lật 180° đúng lúc khách giơ máy thẳng đứng ngắm trời; có bù xoay màn hình.
+    let base = null, lastYaw = 0;
+    const gq = new THREE.Quaternion(), gEu = new THREE.Euler(), gF = new V3();
+    const qX = new THREE.Quaternion(-Math.sqrt(.5), 0, 0, Math.sqrt(.5)), qS = new THREE.Quaternion(), zAx = new V3(0, 0, 1);
     life.listen(window, 'deviceorientation', e => {
       if (e.alpha == null || e.beta == null) return;
-      if (!base) base = { a: e.alpha, b: e.beta };
-      let da = e.alpha - base.a; if (da > 180) da -= 360; if (da < -180) da += 360;
-      view.gyroYaw = -da; view.gyroPitch = clamp(e.beta - base.b, -30, 60);
+      const orient = (screen.orientation?.angle ?? window.orientation ?? 0) * D2R;
+      gEu.set(e.beta * D2R, e.alpha * D2R, -(e.gamma || 0) * D2R, 'YXZ');
+      gq.setFromEuler(gEu).multiply(qX).multiply(qS.setFromAxisAngle(zAx, -orient));
+      gF.set(0, 0, -1).applyQuaternion(gq);
+      const p = Math.asin(clamp(gF.y, -1, 1)) / D2R;
+      // gần thiên đỉnh thì hướng ngang không xác định: giữ hướng cũ
+      const y = Math.abs(gF.y) > .97 ? lastYaw : Math.atan2(gF.x, -gF.z) / D2R; lastYaw = y;
+      if (!base) base = { y, p };
+      let dy = y - base.y; if (dy > 180) dy -= 360; if (dy < -180) dy += 360;
+      const gy = dy, gp = clamp(p - base.p, -30, 60); // quay sang trái: hướng giảm, như yaw của camera
+      // bỏ rung nhỏ của cảm biến để máy đặt yên thì vòng vẽ được nghỉ
+      if (Math.abs(gy - view.gyroYaw) < .15 && Math.abs(gp - view.gyroPitch) < .15) return;
+      view.gyroYaw = gy; view.gyroPitch = gp;
       dirty = true;
     });
     let drag = null;

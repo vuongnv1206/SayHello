@@ -126,7 +126,7 @@ export function createPhotoLoader(THREE, renderer, { maxTex = 1024, life } = {})
         return { image: bmp, w, h, flipY: false };
       } catch {}
     }
-    const im = new Image(); im.decoding = 'async'; im.src = src; await im.decode();
+    const im = new Image(); im.decoding = 'async'; im.crossOrigin = 'anonymous'; im.src = src; await im.decode();
     const s = Math.min(1, maxTex / Math.max(im.naturalWidth, im.naturalHeight));
     const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
     c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
@@ -153,8 +153,8 @@ export function createPhotoLoader(THREE, renderer, { maxTex = 1024, life } = {})
     pump() {
       const r = ready.shift(); if (!r) return false;
       renderer.initTexture(r.tex);
-      r.tex.image?.close?.();
-      r.onReady(r.it, r.tex, r.aspect);
+      // onReady trước khi đóng bitmap: mẫu có thể đọc ảnh (vd. lấy màu trung bình)
+      try { r.onReady(r.it, r.tex, r.aspect); } finally { r.tex.image?.close?.(); }
       return true;
     },
   };
@@ -195,18 +195,24 @@ export function scrollStops(els) {
 }
 
 /**
- * Canh FPS: sau `grace` giây, nếu cinematic < 24fps thì onSlow() (tắt hậu kỳ); vẫn < 14fps hai lần thì onTooSlow()
+ * Canh FPS: sau `grace` giây vẽ, nếu cinematic < 24fps thì onSlow() (tắt hậu kỳ); vẫn < 14fps hai lần thì onTooSlow()
  * (về bản phẳng). Gọi tick(t) mỗi khung hình đã vẽ.
+ * Chỉ đo những quãng vẽ liên tục: vòng vẽ theo nhu cầu sẽ nghỉ khi khách đứng yên, và tab bị ẩn khi khách
+ * chuyển sang Zalo; những khoảng nghỉ đó không phải máy chậm. Đồng hồ bắt đầu ở khung vẽ đầu tiên, không phải
+ * lúc tạo (tải ảnh, biên dịch shader trên 4G có thể mất vài giây).
  */
 export function fpsGuard({ grace = 3, onSlow, onTooSlow, disabled }) {
-  let n = 0, t0 = performance.now(), slow = 0, degraded = false; const start = t0;
+  let n = 0, t0 = 0, last = 0, drawn = 0, slow = 0, degraded = false;
+  const GAP = 250;
   return {
     fps: 0,
+    reset() { t0 = 0; n = 0; },
     tick(t) {
-      n++;
+      if (!t0 || t - last > GAP) { if (t0) drawn += Math.max(0, last - t0); t0 = t; last = t; n = 0; return; }
+      n++; last = t;
       if (t - t0 < 2000) return;
-      const fps = n * 1000 / (t - t0); n = 0; t0 = t; this.fps = fps;
-      if (disabled || (t - start) / 1000 < grace) return;
+      const fps = n * 1000 / (t - t0); drawn += t - t0; n = 0; t0 = t; this.fps = fps;
+      if (disabled || drawn / 1000 < grace) return;
       if (!degraded && fps < 24) { degraded = true; onSlow?.(); }
       else if (degraded && fps < 14) { if (++slow >= 2) onTooSlow?.(); }
       else if (fps >= 14) slow = 0;

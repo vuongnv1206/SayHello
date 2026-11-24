@@ -176,10 +176,16 @@ export default defineTheme({
         };
         sw.addEventListener('pointerdown', e => { y0 = e.clientY; });
         sw.addEventListener('pointermove', e => { if (y0 != null && e.clientY - y0 > 24) on(); });
-        sw.addEventListener('pointerup', () => { y0 = null; });
-        // iOS chỉ cho đọc con quay khi xin quyền trong một cú chạm (click), không tính thao tác kéo
-        sw.addEventListener('click', () => {
+        // iOS chỉ cho đọc con quay khi xin quyền trong một thao tác của khách: click, hoặc lúc nhấc tay sau khi kéo công tắc
+        let asked = false;
+        const askGyro = () => {
+          if (asked) return; asked = true;
           try { const D = window.DeviceOrientationEvent; if (D && typeof D.requestPermission === 'function') D.requestPermission().catch(() => {}); } catch {}
+        };
+        sw.addEventListener('pointerup', () => { y0 = null; if (done) askGyro(); });
+        sw.addEventListener('touchend', () => { if (done) askGyro(); });
+        sw.addEventListener('click', () => {
+          askGyro();
           on();
         });
       },

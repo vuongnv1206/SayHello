@@ -76,7 +76,7 @@ export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} })
       vertexShader: `varying vec3 vD; void main(){ vD=normalize(position); vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.); gl_Position=p.xyww; }`,
       fragmentShader: `uniform vec3 uZen,uHor,uSun; uniform sampler2D uClouds; uniform float uNight; varying vec3 vD;
         void main(){ float h=clamp(vD.y,0.,1.);
-          vec3 c=mix(uHor,uZen,pow(h,.55));
+          vec3 c=mix(uHor,uZen,pow(max(h,0.),.55));
           vec3 sd=normalize(vec3(.35,.18,-1.)); float s=max(dot(vD,sd),0.);
           c+=uSun*(pow(s,900.)*(uNight>.5?2.2:3.)+pow(s,12.)*.18);
           vec2 uv=vec2(atan(vD.x,-vD.z)/6.2832+.5,clamp(h*2.2,0.,1.));
@@ -106,14 +106,16 @@ export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} })
         d+=vec2(-.3,-.95)*cos(dot(p,vec2(-.3,-.95))*9.1+uT*3.)*.01*w;
         for(int i=0;i<${RINGS};i++){ vec4 r=uRings[i]; float age=uT-r.z; if(age<0.||age>7.) continue;
           vec2 v=p-r.xy; float dist=length(v)+1e-4; float front=age*1.15;
-          float env=exp(-pow((dist-front)*1.4,2.))*exp(-age*.55)*r.w;
+          float e=(dist-front)*1.4; float env=exp(-e*e)*exp(-age*.55)*r.w;
           d+=(v/dist)*cos((dist-front)*9.)*env*.55; }
         return d;
       }`;
     const ringAt = (x, z, amp = 1) => { rings[ringI].set(x, z, uni.uT.value, amp); ringI = (ringI + 1) % RINGS; animUntil = Math.max(animUntil, uni.uT.value + 6); };
 
     /* ---------- Phản chiếu: camera soi gương qua mặt nước, vẽ nửa độ phân giải ---------- */
-    const reflRT = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
+    // Nửa-float nếu máy vẽ được vào đó; nhiều GPU Android chỉ có 8-bit (thiếu thì phản chiếu đen)
+    const rtType = renderer.extensions.has('EXT_color_buffer_float') || renderer.extensions.has('EXT_color_buffer_half_float') ? THREE.HalfFloatType : THREE.UnsignedByteType;
+    const reflRT = new THREE.WebGLRenderTarget(1, 1, { type: rtType });
     life.own(() => reflRT.dispose());
     const reflCam = new THREE.PerspectiveCamera(); reflCam.layers.set(1);
     const texMat = new THREE.Matrix4();
@@ -143,14 +145,14 @@ export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} })
           vec2 s=slope(vW.xz);
           vec3 nrm=normalize(vec3(-s.x,1.,-s.y));
           vec3 v=normalize(cameraPosition-vW); float ct=max(dot(nrm,v),0.);
-          float fr=clamp((.02+.98*pow(1.-ct,5.))*uBoost,0.,1.);
+          float fr=clamp((.02+.98*pow(max(1.-ct,0.),5.))*uBoost,0.,1.);
           vec2 ruv=vR.xy/vR.w+nrm.xz*.035;
           vec3 refl=texture2D(tRefl,ruv).rgb;
           vec3 body=mix(uWater,uDeep,.35+.5*ct);
           vec3 c=mix(body,refl,fr);
           vec3 sd=normalize(vec3(.35,.18,-1.)); c+=uSun*pow(max(dot(reflect(-v,nrm),sd),0.),180.)*.8;
           float a=mix(.5,1.,fr);
-          float dist=length(cameraPosition-vW); float fg=1.-exp(-pow(uFogD*dist,2.));
+          float dist=length(cameraPosition-vW); float fg=1.-exp(-(uFogD*dist)*(uFogD*dist));
           c=mix(c,uFog,fg); a=mix(a,1.,fg);
           gl_FragColor=vec4(c,a);${SHADER_TAIL} }`,
       transparent: true, depthWrite: false,
@@ -382,7 +384,10 @@ export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} })
       if (a === 90) { gx = e.beta; gy = -e.gamma; } else if (a === -90 || a === 270) { gx = -e.beta; gy = e.gamma; }
       if (!base) base = { g: gx, b: gy };
       base.g += (gx - base.g) * .004; base.b += (gy - base.b) * .004;
-      look.x = clamp((gx - base.g) / 22, -1, 1); look.y = clamp((gy - base.b) / 22, -1, 1);
+      // bỏ rung nhỏ (~0,2°) của cảm biến: máy đặt yên thì vòng vẽ được nghỉ, đỡ tốn pin
+      const nx = clamp((gx - base.g) / 22, -1, 1), ny = clamp((gy - base.b) / 22, -1, 1);
+      if (Math.abs(nx - look.x) < .008 && Math.abs(ny - look.y) < .008) return;
+      look.x = nx; look.y = ny;
     });
     const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane0 = new THREE.Plane(new V3(0, 1, 0), 0);
     const toNdc = (x, y) => { const r = canvas.getBoundingClientRect(); return ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1); };

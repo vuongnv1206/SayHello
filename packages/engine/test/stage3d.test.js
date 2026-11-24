@@ -28,6 +28,17 @@ test('fpsGuard: tắt hậu kỳ khi < 24fps, về bản phẳng khi vẫn < 14f
   for (let i = 0; i < 100; i++) off.tick(performance.now() + i * 200);
 });
 
+test('fpsGuard: khoảng nghỉ (đứng ngắm, chuyển app) và lúc tải không bị tính là máy chậm', () => {
+  let slow = 0, flat = 0;
+  const g = fpsGuard({ grace: 3, onSlow: () => slow++, onTooSlow: () => flat++ });
+  let t = 10_000; // tạo guard từ lâu (tải ảnh, biên dịch shader) rồi mới vẽ khung đầu
+  const run = (fps, secs) => { for (let i = 0; i < fps * secs; i++) { t += 1000 / fps; g.tick(t); } };
+  for (let k = 0; k < 8; k++) { run(60, .5); t += 5000; } // vẽ nửa giây rồi nghỉ 5 giây, nhiều lần
+  assert.equal(slow, 0); assert.equal(flat, 0);
+  run(60, 4); assert.equal(slow, 0);
+  assert.ok(g.fps > 55);
+});
+
 test('flicker: tắt trước khi bật, sáng hẳn sau ~0,35s, kẹp trong [0,1]', () => {
   assert.equal(flicker(0), 0);
   assert.ok(flicker(.08) < .2);

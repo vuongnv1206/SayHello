@@ -9,6 +9,8 @@
 // Hậu kỳ (cinematic): bloom chỉ cho thứ phát sáng (ngưỡng 1,6), tone mapping Neutral (giữ màu ảnh), hạt phim.
 // Hiệu năng: chỉ vẽ các điểm dừng gần; đứng yên thì không vẽ lại; FPS thấp thì tự tắt hậu kỳ, rồi rơi về bản phẳng.
 
+import { fpsGuard } from '@sayhello/engine/client/stage3d.js';
+
 const PX = 1 / 400;            // 400px chữ DOM = 1 mét trong phòng
 const HALF = 3.4, H = 4.2;     // nửa chiều rộng hành lang, chiều cao trần
 const STEP = 3.8;              // khoảng cách giữa hai điểm dừng
@@ -166,7 +168,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
         float spot=mix(1.,.86+.18*smoothstep(1.1,.05,d),uSpot);
         float torch=uTorchI*smoothstep(.55,0.,distance(vW,uTorch));
         vec3 col=c*(uLit*spot+torch*.9+uEmit);
-        float fres=pow(1.-abs(dot(normalize(vN),normalize(vV))),3.);
+        float fres=pow(max(1.-abs(dot(normalize(vN),normalize(vV))),0.),3.);
         float band=smoothstep(.07,0.,abs(vUv.x*.8+vUv.y*.55-uGlint));
         col+=vec3(1.,.97,.92)*(band*.025+fres*.04)*(uLit+uEmit+.12);
         gl_FragColor=vec4(col,uOp);${TAIL}
@@ -180,7 +182,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
       uniforms: { map: { value: blank }, uOp: { value: 0 } },
       vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
       fragmentShader: `uniform sampler2D map; uniform float uOp; varying vec2 vUv;
-        void main(){ vec3 c=texture2D(map,vec2(1.-vUv.x,vUv.y*.9),5.).rgb; float a=uOp*pow(1.-vUv.y,3.5)*smoothstep(0.,.18,vUv.x)*smoothstep(1.,.82,vUv.x); gl_FragColor=vec4(c*a,1.);${TAIL} }`,
+        void main(){ vec3 c=texture2D(map,vec2(1.-vUv.x,vUv.y*.9),5.).rgb; float a=uOp*pow(max(1.-vUv.y,0.),3.5)*smoothstep(0.,.18,vUv.x)*smoothstep(1.,.82,vUv.x); gl_FragColor=vec4(c*a,1.);${TAIL} }`,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     });
     const beamMat = () => new THREE.ShaderMaterial({
@@ -451,14 +453,24 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
     camera.add(insideQuad);
     const inside = { item: null, view: -1, t: 0, dir: 0, mixT: 1 };
     const outBtn = el.querySelector('.ptl-out');
-    listen(document, 'touchmove', e => { if (inside.item || cc.t >= 0) e.preventDefault(); }, { passive: false });
+    // Chặn cuộn trang chỉ trong lúc đang ở trong ảnh / màn chào; ngoài lúc đó không giữ listener chủ động
+    // (listener passive:false thường trực bắt mọi lần cuộn phải chờ luồng chính trên Android tầm trung)
+    const blockMove = e => e.preventDefault();
+    let blocking = false;
+    const syncTouch = () => {
+      const need = !!inside.item || cc.t >= 0;
+      if (need === blocking) return; blocking = need;
+      if (need) document.addEventListener('touchmove', blockMove, { passive: false });
+      else document.removeEventListener('touchmove', blockMove, { passive: false });
+    };
+    off.push(() => document.removeEventListener('touchmove', blockMove, { passive: false }));
 
     function enter(item) {
       if (inside.dir || inside.item || !item.tex) return;
       inside.item = item; inside.view = allItems.indexOf(item); inside.t = 0; inside.dir = 1; inside.mixT = 1;
       const u = insideMat.uniforms;
       u.map.value = item.tex; u.uIA.value = item.aspect; u.uMix.value = 0;
-      insideQuad.visible = true; root.classList.add('ptl-inside');
+      insideQuad.visible = true; root.classList.add('ptl-inside'); syncTouch();
       outBtn.tabIndex = 0; setTimeout(() => alive && outBtn.focus({ preventScroll: true }), 900);
     }
     function leave() { if (inside.item && inside.dir !== -1) inside.dir = -1; }
@@ -483,7 +495,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
     const ccOn = k => k === FIN ? ccLen - .5 : .8 + (FIN - 1 - k) * .3;
     function curtain() {
       if (cc.t >= 0 || cc.done || !finSt.items.length) return;
-      cc.t = 0; root.classList.add('ptl-cc'); clickSound(.8);
+      cc.t = 0; root.classList.add('ptl-cc'); syncTouch(); clickSound(.8);
     }
     for (const b of [el.querySelector('.ptl-track [data-sh-allon]'), finSt.pl?.cel.querySelector('[data-sh-allon]')].filter(Boolean)) {
       listen(b, 'pointerdown', e => { e.stopPropagation(); cc.holding = true; dirty = true; });
@@ -640,7 +652,10 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
       if (a === 90) { gx = e.beta; gy = -e.gamma; } else if (a === -90 || a === 270) { gx = -e.beta; gy = e.gamma; }
       if (!base) base = { g: gx, b: gy };
       base.g += (gx - base.g) * .004; base.b += (gy - base.b) * .004; // mốc trôi chậm theo tư thế cầm máy
-      look.x = clamp((gx - base.g) / 22, -1, 1); look.y = clamp((gy - base.b) / 22, -1, 1);
+      // bỏ rung nhỏ (~0,2°) của cảm biến: máy đặt yên thì vòng vẽ được nghỉ, đỡ tốn pin
+      const nx = clamp((gx - base.g) / 22, -1, 1), ny = clamp((gy - base.b) / 22, -1, 1);
+      if (Math.abs(nx - look.x) < .008 && Math.abs(ny - look.y) < .008) return;
+      look.x = nx; look.y = ny;
     });
     listen(window, 'orientationchange', () => { base = null; setTimeout(() => { resize(true); readScroll(); }, 350); });
 
@@ -692,7 +707,9 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
     const cur = { pos: new V3(), look: new V3(), init: false };
     const want = new V3(), wantL = new V3(), tmp = new V3(), tmpC = new THREE.Color();
     const rail = { el: el.querySelector('.ptl-rail i'), last: -1 };
-    let last = performance.now(), fpsN = 0, fpsT = last, slow = 0, readyAt = 0;
+    let last = performance.now();
+    // Canh FPS dùng chung: chỉ đo quãng vẽ liên tục (đứng ngắm tranh hay chuyển app không bị tính là máy chậm)
+    const guard = fpsGuard({ disabled: SNAP, onSlow: () => { if (!composer) return; composer.dispose(); composer = null; grade = null; renderer.setPixelRatio(1); resize(true); }, onTooSlow: () => { teardown(); ctx.downgrade('fps'); } });
     const torchTargets = () => roomMeshes.concat(prints.filter(shown));
 
     function lightOf(st) {
@@ -784,7 +801,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
         const q = ease(clamp((cc.t - .8) / (ccLen - .6)));
         want.lerpVectors(finSt.longCam, finSt.closeCam, q); wantL.lerpVectors(finSt.longTarget, finSt.closeTarget, q);
         if (cc.t > ccLen + 1) {
-          cc.t = -1; cc.done = true; root.classList.remove('ptl-cc');
+          cc.t = -1; cc.done = true; root.classList.remove('ptl-cc'); syncTouch();
           finSt.cam = finSt.closeCam; finSt.target = finSt.closeTarget; finSt.litAt = now - 2;
           stops.forEach(s => { if (s.litAt < 0) s.litAt = now - 2; s.items.forEach(it => { if (it.rlAt < 0) it.rlAt = now - 2; }); });
         }
@@ -807,7 +824,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
         if (inside.mixT < 1) { inside.mixT = Math.min(1, inside.mixT + dt * (SNAP ? 20 : 2.5)); insideMat.uniforms.uMix.value = ease(inside.mixT); }
         if (inside.dir < 0 && inside.t <= 0) {
           inside.item = null; inside.dir = 0; insideQuad.visible = false;
-          root.classList.remove('ptl-inside'); outBtn.tabIndex = -1;
+          root.classList.remove('ptl-inside'); outBtn.tabIndex = -1; syncTouch();
         } else if (inside.dir > 0 && inside.t >= 1) inside.dir = 0;
       }
 
@@ -880,16 +897,8 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
       css.render(scene, camera);
 
       // Máy không kham nổi: tắt hậu kỳ trước, vẫn chậm thì về bản phẳng
-      fpsN++;
-      if (t - fpsT > 2000) {
-        const fps = fpsN * 1000 / (t - fpsT); fpsN = 0; fpsT = t;
-        window.__ptl = { fps, p, pT, gpu };
-        if (!SNAP && now > readyAt + 3) {
-          if (composer && fps < 24) { composer.dispose(); composer = null; grade = null; renderer.setPixelRatio(1); resize(true); }
-          else if (!composer && fps < 14 && ++slow >= 2) { teardown(); ctx.downgrade('fps'); }
-          else if (fps >= 14) slow = 0;
-        }
-      }
+      guard.tick(t);
+      window.__ptl = { fps: guard.fps, p, pT, gpu };
       if (SNAP) window.__ptl = { ...(window.__ptl || {}), p, pT, cc: cc.t, ccDone: cc.done };
     }
 
@@ -928,7 +937,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
     try { await withTimeout(renderer.compileAsync(scene, camera), 4000, 'compile'); } catch {}
     insideQuad.visible = false;
     if (!alive) return { teardown };
-    started = true; readyAt = performance.now() / 1000;
+    started = true; guard.reset();
     if (!document.hidden) frame(performance.now());
     root.classList.add('ptl-ready');
     setTimeout(() => { if (alive && scrollY < 40) el.classList.add('show-hint'); }, 2200);
