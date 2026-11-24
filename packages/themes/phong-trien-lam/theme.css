@@ -2,8 +2,8 @@
    Ba trạng thái từ cùng một HTML: bìa (tường tối + công tắc), sách triển lãm phẳng (lite, hoặc lúc 3D lỗi),
    chữ trên tường trong cảnh 3D (html.ptl-3d, bản sao trong .ptl-css). */
 :root {
-  --wall: #34433e;
-  --void: #0b0e0e;
+  --wall: #2b3a3c;
+  --void: #07090a;
   --label: #eeebe4;
   --ink: #1a1c1b;
   --ink-on-wall: #e9e6df;
@@ -130,21 +130,28 @@ html.ptl-inside .ptl-rail, html.ptl-cc .ptl-rail { opacity: 0; transition: opaci
 html.ptl-inside, html.ptl-cc { overflow: hidden; }
 
 /* Chữ trên tường (bản sao trong CSS3D). 400px = 1 mét. */
-.ptl-c { color: var(--ink-on-wall); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 300; }
+.ptl-c { color: #e4e0d8; font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 300; }
+/* Chữ dán tường dịu đi ở ngoài vệt đèn, như được chính đèn rọi chiếu vào */
+.ptl-c-title, .ptl-c-info, .ptl-c-text { -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, #000 55%, rgba(0, 0, 0, .55)); mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, #000 55%, rgba(0, 0, 0, .55)); }
+.ptl-c .ptl-names { font-weight: 300; letter-spacing: -.01em; line-height: .95; }
+.ptl-c .ptl-dates, .ptl-c .ptl-time { font-variant-numeric: tabular-nums lining-nums; }
+.ptl-c .ptl-kind { font-weight: 500; opacity: .85; }
 .ptl-c a, .ptl-c button { pointer-events: inherit; }
 .ptl-c-title .ptl-vinyl { width: 900px; padding: 0; }
-.ptl-c-title .ptl-names { font-size: 150px; }
-.ptl-c-title .ptl-kind { font-size: 30px; }
-.ptl-c-title .ptl-dates { font-size: 40px; }
+.ptl-c-title .ptl-names { font-size: 120px; }
+.ptl-c-title .ptl-kind { font-size: 26px; }
+.ptl-c-title .ptl-dates { font-size: 38px; font-weight: 400; }
 .ptl-c-title .ptl-welcome { font-size: 30px; }
-.ptl-c-work .ptl-label { width: 270px; font-size: 18px; padding: 18px 20px; box-shadow: 0 6px 14px rgba(0,0,0,.35); }
-.ptl-c-work .ptl-label small { font-size: 15px; }
+/* Nhãn bảo tàng: thẻ nhỏ, không đổ bóng kiểu giao diện, chỉ một viền mảnh */
+.ptl-c-work .ptl-label { width: 220px; font-size: 16px; padding: 14px 16px; background: #efece6; box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); }
+.ptl-c-work .ptl-label small { font-size: 14px; }
 .ptl-c-info .ptl-wall, .ptl-c-text .ptl-wall { width: 780px; max-width: none; padding: 0; }
 .ptl-c-info .ptl-evs { grid-template-columns: 1fr 1fr; gap: 40px; }
-.ptl-c-info h2 { font-size: 92px; }
+.ptl-c-info h2 { font-size: 64px; font-weight: 300; }
 .ptl-c-info .ptl-evs li { font-size: 21px; }
 .ptl-c-info .ptl-evs b { font-size: 26px; }
-.ptl-c-info .ptl-time { font-size: 72px; }
+.ptl-c-info .ptl-time { font-size: 56px; font-weight: 300; }
+.ptl-c-info a { text-decoration-color: rgba(228, 224, 216, .45); }
 .ptl-c-info .ptl-maps { font-size: 21px; }
 /* Bảng đứng trên bục cuối phòng */
 .ptl-c-finale .ptl-end { width: 520px; padding: 26px 28px 22px; background: rgba(11, 14, 14, .55); }
@@ -154,12 +161,12 @@ html.ptl-inside, html.ptl-cc { overflow: hidden; }
 .ptl-c-finale .ptl-go { font-size: 20px; }
 /* Màn dọc (điện thoại): khung chữ hẹp lại, chữ to lên để vẫn đọc được từ xa */
 html.ptl-portrait .ptl-c-title .ptl-vinyl { width: 560px; }
-html.ptl-portrait .ptl-c-title .ptl-names { font-size: 112px; }
-html.ptl-portrait .ptl-c-work .ptl-label { width: 380px; font-size: 27px; }
-html.ptl-portrait .ptl-c-work .ptl-label small { font-size: 23px; }
+html.ptl-portrait .ptl-c-title .ptl-names { font-size: 96px; }
+html.ptl-portrait .ptl-c-work .ptl-label { width: 340px; font-size: 25px; padding: 18px 20px; }
+html.ptl-portrait .ptl-c-work .ptl-label small { font-size: 21px; }
 html.ptl-portrait .ptl-c-info .ptl-wall, html.ptl-portrait .ptl-c-text .ptl-wall { width: 540px; }
 html.ptl-portrait .ptl-c-info .ptl-evs { grid-template-columns: 1fr; gap: 28px; }
-html.ptl-portrait .ptl-c-info h2 { font-size: 76px; }
+html.ptl-portrait .ptl-c-info h2 { font-size: 60px; }
 html.ptl-portrait .ptl-c-info .ptl-evs li, html.ptl-portrait .ptl-c-info .ptl-maps { font-size: 27px; }
 html.ptl-portrait .ptl-c-info .ptl-evs b { font-size: 32px; }
 html.ptl-portrait .ptl-c-finale .ptl-end { width: 380px; padding: 20px 22px 16px; }

@@ -132,14 +132,18 @@ export default defineTheme({
   // Mỗi bảng màu là một preset không khí: biến CSS cho phần chữ, preset cho cảnh 3D.
   //   wash: ánh sáng chung (lạnh), light: đèn rọi tranh (ấm); tách hai nhiệt độ màu để tường không ngả vàng đục.
   palettes: [
-    { id: 'xam-luc', name: 'Tường xám lục', swatch: ['#2e3b37', '#d23a2a'],
-      preset: { wall: '#3a4a45', floor: '#17191a', void: '#090c0d', wash: '#b8c7d1', light: '#ffe4c0', frame: '#121212', mat: '#e6e2da', fog: .045, exposure: 1.05, bloom: .5, env: .2 } },
+    { id: 'xam-luc', name: 'Tường xám lục', swatch: ['#2b3a3c', '#d23a2a'],
+      preset: { wall: '#2b3a3c', floor: '#161718', void: '#07090a', fogColor: '#121817', wash: '#7d93a0', light: '#fff0d8', frame: '#1a1714', mat: '#e2ded5', fog: .032, exposure: 1.0, bloom: .35, env: .12 } },
     { id: 'nhung-man', name: 'Nhung mận', swatch: ['#3a2230', '#d23a2a'],
-      vars: { '--wall': '#3a2230', '--void': '#0e0709' },
-      preset: { wall: '#4d2c3c', floor: '#171113', void: '#0d0709', wash: '#c3bfd4', light: '#ffdcb4', frame: '#2b1b12', mat: '#ece4dc', fog: .05, exposure: 1.1, bloom: .55, env: .18 } },
+      vars: { '--wall': '#3f2433', '--void': '#0a0507' },
+      preset: { wall: '#3f2433', floor: '#151012', void: '#0a0507', fogColor: '#1a1016', wash: '#9d93ad', light: '#ffeedc', frame: '#2b1b12', mat: '#e8e1d8', fog: .034, exposure: 1.02, bloom: .35, env: .12 } },
     { id: 'thach-cao', name: 'Thạch cao trắng', swatch: ['#e7e3dc', '#c7362a'],
       vars: { '--wall': '#e7e3dc', '--void': '#cfcac1', '--ink-on-wall': '#1c1f22', '--label': '#ffffff' },
-      preset: { wall: '#e4e0d9', floor: '#8a857c', void: '#cdc8bf', wash: '#eef2f5', light: '#fff1de', frame: '#f4f2ed', mat: '#ffffff', fog: .025, exposure: .8, bloom: .2, env: .55 } },
+      preset: { wall: '#e4e0d9', floor: '#8a857c', void: '#cdc8bf', fogColor: '#d6d1c8', wash: '#eef2f5', light: '#fff1de', frame: '#f4f2ed', mat: '#ffffff', fog: .022, exposure: .8, bloom: .2, env: .55 } },
+    // Men lam: xanh men gốm Chu Đậu, khung sơn trắng; ánh đèn ấm trên tường chàm thành xanh đá sạch, tôn màu da
+    { id: 'men-lam', name: 'Men lam', swatch: ['#22304a', '#d23a2a'],
+      vars: { '--wall': '#22304a', '--void': '#06080d' },
+      preset: { wall: '#22304a', floor: '#121418', void: '#06080d', fogColor: '#0f1522', wash: '#9fb3d9', light: '#fff2e0', frame: '#ece9e2', mat: '#f6f4ef', fog: .035, exposure: 1.05, bloom: .4, env: .15 } },
   ],
   defaults: { texts: {} },
 
