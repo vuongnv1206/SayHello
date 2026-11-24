@@ -296,29 +296,66 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
     }
 
     /* ---------- Gom trời: giữ mặt trăng, ảnh bay về ghép thành chữ cái đầu tên ---------- */
-    const gather = { t: -1, hold: 0, holding: false };
-    const initials = nameText.map(t => [...new Intl.Segmenter('vi', { granularity: 'grapheme' }).segment(t)][0]?.segment || '').join(' ');
+    const gather = { t: -1, hold: 0, holding: false, w: 0 };
+    const letters = nameText.map(t => [...new Intl.Segmenter('vi', { granularity: 'grapheme' }).segment(t)][0]?.segment || '').filter(Boolean);
+    let gk = .36, GW = 160, GH = 100;
+    const GATHER_ALT = 34;
+    const glyphDir = ([x, y], r = R_PHOTO) => dirOf((x - GW / 2) * gk, GATHER_ALT - (y - GH / 2) * gk, r);
     function gatherTargets() {
-      const c = document.createElement('canvas'); c.width = 160; c.height = 100;
-      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.font = '900 86px Fraunces, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(initials, 80, 54);
-      const d = g.getImageData(0, 0, 160, 100).data, pts = [];
-      for (let y = 0; y < 100; y += 2) for (let x = 0; x < 160; x += 2) if (d[(y * 160 + x) * 4 + 3] > 128) pts.push([x, y]);
+      // Màn dọc: hai chữ xếp chồng (tận dụng chiều cao); màn ngang: một hàng
+      const tall = camera.aspect < .9, rows = tall ? letters.map(l => [l]) : [letters];
+      GW = tall ? 110 : 160; GH = tall ? 84 * rows.length + 8 : 100;
+      const c = document.createElement('canvas'); c.width = GW; c.height = GH;
+      const g = c.getContext('2d', { willReadFrequently: true }); g.fillStyle = '#fff'; g.font = '900 86px Fraunces, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      const rowH = GH / rows.length;
+      rows.forEach((r, k) => g.fillText(r.join(' '), GW / 2, rowH * (k + .54)));
+      // cỡ chữ trên trời vừa góc nhìn: điện thoại dọc chỉ thấy ~35° ngang
+      const vf = camera.fov, hf = 2 * Math.atan(Math.tan(vf * D2R / 2) * camera.aspect) / D2R;
+      const tw = Math.max(40, ...rows.map(r => g.measureText(r.join(' ')).width));
+      gk = clamp(Math.min(.84 * hf / tw, .62 * vf / GH), .12, .36);
+      const d = g.getImageData(0, 0, GW, GH).data, pts = [], edge = [];
+      const on = (x, y) => x >= 0 && y >= 0 && x < GW && y < GH && d[(y * GW + x) * 4 + 3] > 128;
+      for (let y = 0; y < GH; y += 2) for (let x = 0; x < GW; x += 2) if (on(x, y)) pts.push([x, y]);
+      // viền nét chữ: chuỗi sao nhỏ vẽ ra hình chữ theo thứ tự đọc, để mắt đọc được chữ trước khi ảnh bay tới
+      for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) if (on(x, y) && (!on(x - 1, y) || !on(x + 1, y) || !on(x, y - 1) || !on(x, y + 1))) edge.push([x, y]);
+      const step = Math.max(1, Math.ceil(edge.length / 800));
+      setTrace(edge.filter((_, k) => k % step === 0), ([x, y]) => (Math.min(rows.length - 1, Math.floor(y / rowH)) + x / GW) / rows.length);
       if (!pts.length) return items.map(it => it.home);
       // lấy mẫu điểm xa nhau nhất để ảnh rải đều trên nét chữ
       const pick = [pts[Math.floor(pts.length / 2)]];
-      const dist = pts.map(p => Infinity);
+      const dist = pts.map(() => Infinity);
       while (pick.length < items.length) {
         const last = pick[pick.length - 1]; let bi = 0, bd = -1;
         pts.forEach((p, k) => { dist[k] = Math.min(dist[k], (p[0] - last[0]) ** 2 + (p[1] - last[1]) ** 2); if (dist[k] > bd) { bd = dist[k]; bi = k; } });
         pick.push(pts[bi]);
       }
-      return pick.map(([x, y]) => dirOf((x - 80) * .36, 34 - (y - 50) * .3, R_PHOTO));
+      return pick.map(p => glyphDir(p));
+    }
+    const uG = { value: -1 };
+    const trace = new THREE.Points(new THREE.BufferGeometry(), new THREE.ShaderMaterial({
+      uniforms: { uG, uT, uC: { value: C('accent').multiplyScalar(1.6) }, uPx: { value: 1 } },
+      vertexShader: `attribute float aD; uniform float uG,uT,uPx; varying float vB;
+        void main(){ float a=smoothstep(aD,aD+.5,uG)*(1.-smoothstep(6.,7.8,uG)); vB=a*(.75+.25*sin(uT*3.+aD*40.));
+          gl_PointSize=(2.2+2.5*(1.-smoothstep(aD+.1,aD+.9,uG)))*uPx*a; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+      fragmentShader: `uniform vec3 uC; varying float vB; void main(){ float r=length(gl_PointCoord-.5); if(r>.5) discard; gl_FragColor=vec4(uC*vB*(1.-r*1.8),1.);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
+    trace.frustumCulled = false; trace.visible = false; scene.add(trace);
+    function setTrace(edge, order) {
+      // vẽ theo thứ tự đọc như tay viết: độ trễ 0,4s → 2s
+      const pos = new Float32Array(edge.length * 3), del = new Float32Array(edge.length);
+      edge.forEach((p, k) => { const v = glyphDir(p, R_PHOTO + .3); pos.set([v.x, v.y, v.z], k * 3); del[k] = .4 + order(p) * 1.6 + Math.random() * .15; });
+      trace.geometry.dispose(); trace.geometry = new THREE.BufferGeometry();
+      trace.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      trace.geometry.setAttribute('aD', new THREE.BufferAttribute(del, 1));
     }
     const startGather = () => {
       if (gather.t >= 0) return;
       const tg = gatherTargets(); items.forEach((it, k) => { it.gatherTo = tg[k]; bloom(it, uT.value); });
-      gather.t = 0; root.classList.add('bt-gathering'); turnTo(0, 32);
+      gather.t = 0; root.classList.add('bt-gathering'); turnTo(0, pitchBase + view.gyroPitch + view.pitchDrag);
     };
     ctx.on('gather', () => life.alive && startGather());
     const moonPl = plates.find(p => p.cel.classList.contains('bt-c-moon'));
@@ -333,7 +370,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
       W = innerWidth; H = innerHeight; aspect = W / H;
       camera.fov = aspect < 1 ? 68 : 56; camera.aspect = aspect; camera.updateProjectionMatrix();
       renderer.setSize(W, H, false); css.setSize(W, H); post?.setSize(W, H);
-      const pr = renderer.getPixelRatio(); stars.material.uniforms.uPx.value = pr; flies.material.uniforms.uPx.value = pr;
+      const pr = renderer.getPixelRatio(); stars.material.uniforms.uPx.value = pr; flies.material.uniforms.uPx.value = pr; trace.material.uniforms.uPx.value = pr;
       root.classList.toggle('bt-portrait', aspect < .9);
       readScroll(); dirty = true;
     }
@@ -371,6 +408,9 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
       view.yaw += (view.yawT - view.yaw) * (1 - Math.exp(-dt * 10));
       yaw = view.yaw + view.gyroYaw;
       pitch = -8 + (clamp(pitchBase + view.gyroPitch + view.pitchDrag, -5, 82) + 8) * intro;
+      // Lúc gom trời, mắt tự hạ về đúng tầm chữ (dù khách đang cuộn đêm tới đâu), xong thì trả lại
+      gather.w = gather.t < 0 ? 0 : ease(clamp(gather.t / 1.2)) * (1 - ease(clamp((gather.t - 6.6) / 1.6)));
+      pitch += (GATHER_ALT - pitch) * gather.w;
       camera.rotation.set(pitch * D2R, -yaw * D2R, 0);
       camera.updateMatrixWorld();
       camera.getWorldDirection(fwd);
@@ -389,7 +429,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
         if (gather.t >= 0 && it.gatherTo) g = ease(clamp((gather.t - k * .05) / 2.4)) * (1 - ease(clamp((gather.t - 6) / 2)));
         tmp.copy(it.home).lerp(it.gatherTo || it.home, g).setLength(R_PHOTO);
         it.mesh.position.copy(tmp); it.mesh.lookAt(0, 0, 0);
-        const s = (1 + .45 * it.bloom) * (1 - .6 * g); // ảnh đã nở to hơn sao
+        const s = (1 + .45 * it.bloom) * (1 - .72 * g); // ảnh đã nở to hơn sao
         it.mesh.scale.set((it.aspect >= 1 ? it.size : it.size * it.aspect) * s, (it.aspect >= 1 ? it.size / it.aspect : it.size) * s, 1);
         const hs = it.size * (.6 - .25 * it.bloom) * s;
         m4.compose(it.mesh.position, it.mesh.quaternion, sc.set(hs, hs, 1)); halos.setMatrixAt(k, m4);
@@ -400,6 +440,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
       if (gather.hold > 1.2) startGather();
       if (moonPl) moonPl.cel.style.setProperty('--hold', clamp(gather.hold / 1.2).toFixed(2));
       if (gather.t >= 0) { gather.t += Math.min(dt, .05) * (SNAP ? 4 : 1); if (gather.t > 8.2) { gather.t = -1; root.classList.remove('bt-gathering'); } }
+      uG.value = gather.t; trace.visible = gather.t >= 0;
 
       // Chòm sao: vẽ dần từng nét giữa các ảnh đã nở
       segs.forEach((s, k) => {
@@ -408,7 +449,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
         tmp.copy(s.a.mesh.position).lerp(s.b.mesh.position, q).toArray(lp, k * 6 + 3);
       });
       lineGeo.setDrawRange(0, segs.length * 2); lineGeo.attributes.position.needsUpdate = true;
-      lines.material.opacity = .35 + .45 * uNight.value;
+      lines.material.opacity = (.35 + .45 * uNight.value) * (1 - gather.w); // gom trời: tắt chòm sao để chữ rõ
 
       // Đom đóm của khách vừa giữ chỗ: bay lên, thành sao
       if (risers.length) {
