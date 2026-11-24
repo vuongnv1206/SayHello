@@ -84,6 +84,13 @@ export async function boot(theme) {
     scene: id => document.getElementById(id),
     open: () => openInvite(false),
     opened: false,
+    downgrade(reason = 'fallback') {
+      if (motion === 'lite') return;
+      motion = 'lite';
+      root.dataset.motion = 'lite';
+      root.dataset.motionWhy = reason;
+      ctx.emit('motion', { motion: 'lite', reason });
+    },
   };
   window.__sayhello = ctx; // để kiểm tra tự động và gỡ lỗi
 

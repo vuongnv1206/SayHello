@@ -34,7 +34,12 @@ export default defineTheme({
 - Chèn dữ liệu bằng `html\`\``, hàm này tự thoát ký tự. `raw()` chỉ dùng cho chuỗi do mình viết.
 - `provides` khai báo cảnh hiển thị gì. Nếu thiếu `when`, `where` hoặc `rsvp`, `defineTheme` ghi vào `fallback`. Ngăn kéo **Thông tin nhanh** luôn có trên trang thiệp.
 - Có `motion.cinematic` thì bắt buộc có `motion.lite`. Mức `lite` không được ghim cảnh và không được che nội dung.
-- GSAP chỉ nạp qua `ctx.lib()`, sau khi bìa đã mở. Nạp không được thì cảnh phải tự hiện ở dạng tĩnh.
+- Thư viện nặng (`scroll`, `gsap`, `three`, `three-post`, `lenis`) chỉ nạp sau khi bìa đã mở qua `ctx.lib()`:
+  - `await ctx.lib('three')` → `{ THREE }` (Three.js r170 từ import map)
+  - `await ctx.lib('three-post')` → `{ THREE, RoomEnvironment, EffectComposer, RenderPass, UnrealBloomPass, OutputPass }`
+  - `await ctx.lib('lenis')` → `{ Lenis }`
+  - Nạp không được thì cảnh phải tự hiện ở dạng tĩnh hoặc gọi `ctx.downgrade('error')`.
+- Với cảnh WebGL/Canvas, dùng `bindContextLoss(canvas, () => ctx.downgrade('webglcontextlost'))` (xuất từ `@sayhello/engine`) để chặn treo trang và hạ về mức `lite` khi WebView thu hồi ngữ cảnh đồ họa.
 - Form dùng sẵn `rsvpForm`, `wishForm`, hoặc tự vẽ markup riêng với `data-sh="rsvp"` / `"wish"` và đúng tên trường (xem `src/blocks.js`).
 - Tách chữ để làm hiệu ứng bằng `splitText`, không tách bằng `[...chuoi]`, nếu không dấu tiếng Việt sẽ bị rời khỏi chữ.
 

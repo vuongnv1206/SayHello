@@ -135,12 +135,16 @@ for (const tier of ['cinematic', 'lite']) {
   if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} trên tường thông tin`);
   await page.locator('#le-tan').scrollIntoViewIfNeeded();
   if ((await page.inputValue('#le-tan form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên giữ chỗ không tự điền');
+  // Chọn bức ảnh thích nhất (số 3) rồi dán chấm đỏ: chấm đỏ nằm trên đúng bức đó, ghi chú gửi kèm số ảnh
+  await page.click('#le-tan .ptl-thumb[data-fav="3"]');
   await page.click('#le-tan form[data-sh=rsvp] [type=submit]');
   await page.waitForTimeout(400);
   if (!/Cảm ơn/.test(await page.textContent('#le-tan form[data-sh=rsvp] .sh-msg'))) errors.push('gửi giữ chỗ không thành công');
-  if (!(await page.$eval('.ptl-dot-slot .ptl-dot', d => d.classList.contains('is-on')))) errors.push('không dán chấm đỏ sau khi giữ chỗ');
-  const wide = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth
-    ? [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 4).map(e => `${e.tagName.toLowerCase()}.${e.className}`).join(', ') || 'không rõ' : '');
+  if (!(await page.$('#le-tan .ptl-thumb[data-fav="3"] .ptl-dot.is-on'))) errors.push('không dán chấm đỏ lên bức ảnh đã chọn');
+  if (!/Thích ảnh số 3/.test(await page.inputValue('#le-tan form[data-sh=rsvp] input[name=note]'))) errors.push('ghi chú không kèm bức ảnh khách thích');
+  // Trên điện thoại, nội dung tràn làm trình duyệt nới rộng khung nhìn (innerWidth > 390) và thu nhỏ cả trang
+  const wide = await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth
+    ? [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > 391).slice(0, 4).map(e => `${e.tagName.toLowerCase()}.${e.className}`).join(', ') || 'không rõ' : '');
   if (wide) errors.push('trang tràn ngang ở khổ 390px: ' + wide);
   console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
   errors.forEach(e => console.log('   ' + e));

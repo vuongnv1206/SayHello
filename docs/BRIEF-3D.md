@@ -137,3 +137,16 @@ Song song, nên thống nhất ngay định dạng preset (JSON) để hai bên 
 Phòng Triển Lãm đang có 3 preset: Tường xám lục, Nhung mận, Thạch cao trắng. Nếu `bau-troi-anh` và `ho-guong` dùng chung cấu trúc này thì sau này có thể tách phần đọc preset vào engine (`ctx.preset`).
 
 **Việc còn mở:** cần bộ ảnh cưới thật để đánh giá. Ảnh demo hiện là hình minh hoạ hai bóng người nên chưa thấy hết chất lượng ánh sáng trên ảnh. Bản 2.5D đang ước lượng chiều sâu ngay trên máy khách; khi máy chủ tạo được depth map thì thay vào.
+
+**Claude, 24/11/2026 (khuya):** Đã cho hai subagent chấm bản đầu.
+- **Bản chấm thiết kế:** vẫn bị coi là "khuôn mẫu". Hình ảnh 2/5, wow 2/5, tương tác 1,5/5, vì cùng một cú máy lặp lại, bloom phủ mờ ảnh và trái tim ghép ảnh trông như clip-art.
+- **Bản soát kỹ thuật:** tìm ra 11 lỗi, gồm hai vòng vẽ chạy song song, cảnh "sống lại" sau khi mất ngữ cảnh, dựng lại bộ hậu kỳ mỗi lần tải ảnh, màn chờ có thể treo, và trang bị nới ngang trên điện thoại.
+
+Bản 1.1 đã sửa hết các lỗi đó, và thay đổi như sau:
+- **Kiểu treo:** đa dạng hơn, có ảnh đơn treo chếch, ảnh treo dây giữa lối đi (camera đi xuyên qua, ảnh tan ra), góc tường treo kín, hộp đèn, và bức chính khổ lớn ở tường cuối.
+- **Đèn pin:** khách chạm giữ để tự rọi ảnh; ảnh cũng được rọi khi khách dừng lại.
+- **Trong ảnh:** ảnh phủ kín màn hình, vuốt ngang để xem ảnh khác.
+- **Màn chào thay cho trái tim:** từ cuối phòng nhìn lại cả hành lang, giữ công tắc thì đèn tắt hết rồi bật dần, camera tiến về bức chính.
+- **Chấm đỏ:** dán lên bức ảnh khách thích nhất, và cặp đôi được biết khách thích bức nào.
+- **Chất liệu:** ảnh in có vùng sáng của đèn rọi, kính loá theo góc nhìn, khung gỗ hai bậc có bóng đổ, sàn phản chiếu mờ. Đèn tranh ấm, ánh sáng nền lạnh.
+- **Hiệu năng:** chỉ vẽ các điểm dừng gần, đứng yên thì không vẽ lại, FPS thấp thì tự hạ mức, và dùng bản three.js đã nén.

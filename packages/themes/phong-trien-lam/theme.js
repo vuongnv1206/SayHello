@@ -1,31 +1,62 @@
 // Mẫu "Phòng Triển Lãm Đêm": ảnh cưới là các tác phẩm treo trong phòng tranh riêng của hai người.
-//   Bìa: bức tường tối có tên triển lãm, khách bật công tắc đèn để vào.
-//   Phòng tranh (3D, three.js): đi dọc hành lang, đèn rọi bật dần trước mỗi bức ảnh; chạm ảnh để bước vào trong ảnh;
-//   tường thông tin ghi ngày khai mạc (ngày cưới); cuối phòng toàn bộ ảnh bay về ghép thành một trái tim.
-//   Quầy lễ tân: dán chấm đỏ (giữ chỗ dự tiệc), quà mừng, sổ cảm tưởng. Mỗi khách giữ chỗ thắp thêm một bóng đèn.
+//   Bìa: bức tường tối, thấp thoáng bức ảnh đầu tiên; khách bật công tắc.
+//   Phòng tranh (3D, three.js): tên triển lãm sáng lên trên tường; đi dọc hành lang qua nhiều kiểu treo
+//   (ảnh đơn treo chếch, một bức treo dây giữa lối đi, một góc tường treo kín, một hộp đèn); khách chạm giữ
+//   để tự "rọi" đèn pin lên ảnh; chạm ảnh để bước vào trong ảnh và vuốt sang ảnh khác.
+//   Cuối phòng: quay lại nhìn cả hành lang, giữ công tắc lớn: đèn tắt hết rồi bật lần lượt về phía bức ảnh chính
+//   treo khổ lớn ở tường cuối (chào màn).
+//   Quầy lễ tân: dán chấm đỏ lên bức ảnh mình thích nhất để giữ chỗ dự tiệc; quà mừng; sổ cảm tưởng.
 // Động từ chuyển động: RỌI (đèn bật có chớp nhẹ). Không dùng hiệu ứng mờ dần trượt lên.
-// Ảnh là nội dung chính: 6 đến 30 ảnh album, chú thích không bắt buộc, chuyện tình không bắt buộc.
-// Mức lite (máy yếu, giảm chuyển động, mất WebGL): cùng HTML này hiện thành sách triển lãm phẳng.
-// Chủ đề là bộ thông số: mỗi palette mang theo preset ánh sáng, chất liệu, sương cho cảnh 3D.
+// Ảnh là nội dung chính: 6 đến 30 ảnh album, chú thích và chuyện tình không bắt buộc.
+// Mức lite (máy yếu, giảm chuyển động, mất WebGL): cùng HTML này thành sách triển lãm phẳng, ảnh được rọi khi cuộn tới.
+// Chủ đề là bộ thông số: mỗi palette mang theo preset ánh sáng, chất liệu, sương cho cảnh 3D (gallery3d.js đọc).
 import { defineTheme, html, br, rsvpForm, wishForm, wishList, fmt } from '@sayhello/engine';
 
 const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w ]/g, '').trim();
 const qrUrl = (a, note) => a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note)}` : '');
 
-// Danh sách điểm dừng trong phòng tranh: tên triển lãm, các tác phẩm, tường thông tin (sau tác phẩm thứ 2),
-// chuyện tình nếu có (xen giữa các tác phẩm), trái tim ghép ảnh cuối phòng.
-function stops(ctx) {
-  const works = ctx.album.map((src, i) => ({ kind: 'work', src, i, cap: ctx.captions[i] || '' }));
+// Kịch bản treo tranh, tự co giãn theo số ảnh. Ảnh đầu tiên là bức chính, để dành cho tường cuối.
+//   single: một ảnh treo chếch; wire: treo dây giữa lối đi; salon: góc tường treo kín 3–5 ảnh; lightbox: hộp đèn.
+export function plan(ctx) {
+  const works = ctx.album.map((src, i) => ({ src, i, cap: ctx.captions[i] || '' }));
+  const hero = works[0], rest = works.slice(1);
+  const seq = [];
+  const salonN = rest.length >= 10 ? 5 : rest.length >= 7 ? 3 : 0;
+  const salonAt = salonN ? Math.floor(rest.length * .55) : -1;
+  const wireAt = rest.length >= 5 ? Math.floor(rest.length * .3) : -1;
+  for (let i = 0; i < rest.length; i++) {
+    if (i === salonAt) { seq.push({ kind: 'work', hang: 'salon', works: rest.slice(i, i + salonN) }); i += salonN - 1; continue; }
+    const hang = i === wireAt ? 'wire' : i === rest.length - 1 && rest.length >= 6 ? 'lightbox' : 'single';
+    seq.push({ kind: 'work', hang, works: [rest[i]] });
+  }
   const story = ctx.has('story') ? ctx.story.map(s => ({ kind: 'text', s })) : [];
   const out = [{ kind: 'title' }];
-  works.forEach((w, i) => {
-    out.push(w);
-    if (i === Math.min(1, works.length - 1)) out.push({ kind: 'info' });
-    if (story.length && i >= 2 && i % 2 === 0) out.push(story.shift());
+  seq.forEach((s, k) => {
+    out.push(s);
+    if (k === 0) out.push({ kind: 'info' });
+    if (story.length && k >= 1 && k % 2 === 1) out.push(story.shift());
   });
-  if (!works.length) out.push({ kind: 'info' });
-  out.push(...story, { kind: 'finale' });
+  if (!seq.length) out.push({ kind: 'info' });
+  out.push(...story, { kind: 'finale', hang: 'hero', works: hero ? [hero] : [] });
   return out;
+}
+
+const img = (w, eager) => html`<img src="${w.src}" alt="${w.cap || `Ảnh cưới số ${w.i + 1}`}" data-i="${w.i}" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;
+
+function label(st, ctx) {
+  const { names: n } = ctx, ws = st.works;
+  if (st.hang === 'salon') return html`
+    <div class="ptl-plate ptl-label">
+      <b>Góc tường của ${n.first} và ${n.second}</b>
+      ${ws.map(w => html`<span>Số ${w.i + 1}${w.cap ? html`, <i>${w.cap}</i>` : ''}</span>`)}
+    </div>`;
+  const w = ws[0];
+  return html`
+    <div class="ptl-plate ptl-label">
+      ${w.cap ? html`<b class="ptl-cap">${w.cap}</b>` : html`<b>${n.first} và ${n.second}</b>`}
+      ${st.hang === 'lightbox' ? html`<small>Hộp đèn</small>` : st.hang === 'wire' ? html`<small>Treo giữa lối đi</small>` : ''}
+      <small class="ptl-no">Số ${w.i + 1}</small>
+    </div>`;
 }
 
 function stopHtml(st, ctx) {
@@ -40,16 +71,9 @@ function stopHtml(st, ctx) {
       </div>
     </li>`;
   if (st.kind === 'work') return html`
-    <li class="ptl-stop ptl-s-work" data-stop="work" data-i="${st.i}" data-src="${st.src}">
-      <figure class="ptl-work">
-        <img src="${st.src}" alt="${st.cap || `Ảnh cưới số ${st.i + 1}`}" loading="${st.i < 2 ? 'eager' : 'lazy'}" decoding="async">
-        <figcaption class="ptl-plate ptl-label">
-          <b>${n.first} và ${n.second}</b>
-          <span class="ptl-cap">${st.cap || 'Không đề'}</span>
-          <small>Ảnh cưới, ${fmt.short(date).slice(-4)}</small>
-          <small class="ptl-no">Số ${st.i + 1}</small>
-        </figcaption>
-      </figure>
+    <li class="ptl-stop ptl-s-work ptl-h-${st.hang}" data-stop="work" data-hang="${st.hang}">
+      <div class="ptl-imgs">${st.works.map(w => img(w, w.i < 3))}</div>
+      ${label(st, ctx)}
     </li>`;
   if (st.kind === 'info') return html`
     <li class="ptl-stop ptl-s-info" data-stop="info">
@@ -78,11 +102,12 @@ function stopHtml(st, ctx) {
       </div>
     </li>`;
   return html`
-    <li class="ptl-stop ptl-s-finale" data-stop="finale">
+    <li class="ptl-stop ptl-s-finale" data-stop="finale" data-hang="hero">
+      ${st.works.length ? html`<div class="ptl-imgs">${st.works.map(w => img(w, false))}</div>` : ''}
       <div class="ptl-plate ptl-vinyl ptl-end">
-        <p class="ptl-kind">Tác phẩm cuối</p>
-        <h2>Một trái tim, ghép từ ${ctx.album.length || 'những'} khoảnh khắc</h2>
-        <p>Phần còn lại của triển lãm là ngày ${fmt.short(date)}. Mời bạn tới xem tận mắt.</p>
+        <p class="ptl-kind">Tác phẩm chính</p>
+        <h2>${n.first} và ${n.second}, ${fmt.short(date)}</h2>
+        <button type="button" class="ptl-allon" data-sh-allon><i aria-hidden="true"></i><span>Giữ để bật toàn bộ đèn</span></button>
         <a class="ptl-go" href="#le-tan">Dán chấm đỏ giữ chỗ</a>
       </div>
     </li>`;
@@ -91,7 +116,7 @@ function stopHtml(st, ctx) {
 export default defineTheme({
   id: 'phong-trien-lam',
   name: 'Phòng Triển Lãm Đêm',
-  version: '1.0.0',
+  version: '1.1.0',
   tier: 'cinematic',
   layout: 'stage',
   voice: 'than-mat',
@@ -101,37 +126,39 @@ export default defineTheme({
   gateMs: 1100,
   features: { when: 'required', where: 'required', rsvp: 'required', map: 'optional', album: 'optional', story: 'optional', gift: 'optional', guestbook: 'optional' },
   slots: {
-    images: { album: { min: 6, ideal: 14, max: 30, label: 'Ảnh treo trong phòng tranh, theo thứ tự đi xem' } },
+    images: { album: { min: 6, ideal: 14, max: 30, label: 'Ảnh treo trong phòng tranh. Ảnh đầu tiên là bức chính, treo khổ lớn ở tường cuối.' } },
     story: { optional: true, maxItems: 6 },
   },
-  // Mỗi bảng màu là một preset không khí: biến CSS cho phần chữ, preset cho cảnh 3D (gallery3d.js đọc)
+  // Mỗi bảng màu là một preset không khí: biến CSS cho phần chữ, preset cho cảnh 3D.
+  //   wash: ánh sáng chung (lạnh), light: đèn rọi tranh (ấm); tách hai nhiệt độ màu để tường không ngả vàng đục.
   palettes: [
     { id: 'xam-luc', name: 'Tường xám lục', swatch: ['#2e3b37', '#d23a2a'],
-      preset: { wall: '#34433e', floor: '#1b1c1b', void: '#0b0e0e', light: '#ffe2b8', frame: '#141414', mat: '#f2efe9', fog: .05, exposure: 1.05, bloom: .55, env: .22 } },
+      preset: { wall: '#3a4a45', floor: '#17191a', void: '#090c0d', wash: '#b8c7d1', light: '#ffe4c0', frame: '#121212', mat: '#e6e2da', fog: .045, exposure: 1.05, bloom: .5, env: .2 } },
     { id: 'nhung-man', name: 'Nhung mận', swatch: ['#3a2230', '#d23a2a'],
       vars: { '--wall': '#3a2230', '--void': '#0e0709' },
-      preset: { wall: '#4a2a3a', floor: '#191214', void: '#0e0709', light: '#ffd6a8', frame: '#2b1b12', mat: '#f4ece4', fog: .055, exposure: 1.1, bloom: .6, env: .2 } },
+      preset: { wall: '#4d2c3c', floor: '#171113', void: '#0d0709', wash: '#c3bfd4', light: '#ffdcb4', frame: '#2b1b12', mat: '#ece4dc', fog: .05, exposure: 1.1, bloom: .55, env: .18 } },
     { id: 'thach-cao', name: 'Thạch cao trắng', swatch: ['#e7e3dc', '#c7362a'],
       vars: { '--wall': '#e7e3dc', '--void': '#cfcac1', '--ink-on-wall': '#1c1f22', '--label': '#ffffff' },
-      preset: { wall: '#e9e5de', floor: '#8f8a80', void: '#d4cfc6', light: '#fff3e2', frame: '#f6f4ef', mat: '#ffffff', fog: .028, exposure: .82, bloom: .18, env: .55, light_ui: true } },
+      preset: { wall: '#e4e0d9', floor: '#8a857c', void: '#cdc8bf', wash: '#eef2f5', light: '#fff1de', frame: '#f4f2ed', mat: '#ffffff', fog: .025, exposure: .8, bloom: .2, env: .55 } },
   ],
   defaults: { texts: {} },
 
   scenes: [
-    /* ===== Bìa: bức tường tối, công tắc đèn ===== */
+    /* ===== Bìa: bức tường tối, thấp thoáng ảnh đầu tiên, công tắc đèn ===== */
     {
       id: 'sanh', kind: 'gate',
-      render: ({ names: n, date, city, guest }) => html`
-        <div class="ptl-gwall" aria-hidden="true"><i class="ptl-gglow"></i></div>
+      render: ({ names: n, img: im, album, guest }) => html`
+        <div class="ptl-gwall" aria-hidden="true">
+          ${album[0] ? html`<img class="ptl-ghost" src="${im('hero')}" alt="" decoding="async">` : ''}
+          <i class="ptl-gglow"></i>
+        </div>
         <div class="ptl-gtitle">
-          <p class="ptl-kind">Triển lãm ảnh cưới</p>
-          <h1 class="ptl-names"><span>${n.first}</span><span>${n.second}</span></h1>
-          <p class="ptl-dates">Khai mạc ${fmt.short(date)}${city ? html`<br>${city}` : ''}</p>
           <p class="ptl-to">Kính mời ${guest()}</p>
+          <h1 class="ptl-gname">tới phòng tranh của ${n.first} và ${n.second}</h1>
         </div>
         <div class="ptl-switch-wrap">
           <button class="ptl-switch" type="button" aria-label="Bật đèn phòng tranh để mở thiệp" aria-pressed="false"><i class="ptl-rocker"></i></button>
-          <p class="ptl-hint">Bật đèn để vào</p>
+          <p class="ptl-hint">Bật đèn</p>
         </div>`,
       mount(el, ctx) {
         const sw = el.querySelector('.ptl-switch');
@@ -140,15 +167,17 @@ export default defineTheme({
           if (done) return; done = true;
           sw.setAttribute('aria-pressed', 'true');
           el.classList.add('is-on');
-          // iOS chỉ cho đọc con quay khi xin quyền trong một thao tác của khách
-          try { const D = window.DeviceOrientationEvent; if (D && typeof D.requestPermission === 'function') D.requestPermission().catch(() => {}); } catch {}
           clickSound();
           setTimeout(() => ctx.open(), ctx.reduced ? 120 : 700);
         };
         sw.addEventListener('pointerdown', e => { y0 = e.clientY; });
         sw.addEventListener('pointermove', e => { if (y0 != null && e.clientY - y0 > 24) on(); });
         sw.addEventListener('pointerup', () => { y0 = null; });
-        sw.addEventListener('click', on);
+        // iOS chỉ cho đọc con quay khi xin quyền trong một cú chạm (click), không tính thao tác kéo
+        sw.addEventListener('click', () => {
+          try { const D = window.DeviceOrientationEvent; if (D && typeof D.requestPermission === 'function') D.requestPermission().catch(() => {}); } catch {}
+          on();
+        });
       },
     },
 
@@ -160,27 +189,42 @@ export default defineTheme({
           <canvas class="ptl-canvas"></canvas>
           <div class="ptl-css"></div>
           <div class="ptl-veil"><p>Đang bật đèn…</p></div>
-          <div class="ptl-inside-ui"><button type="button" class="ptl-out" tabindex="-1">Ra khỏi ảnh</button></div>
-          <p class="ptl-hint3d">Vuốt để đi dọc phòng tranh. Chạm vào một bức ảnh để bước vào trong.</p>
+          <div class="ptl-inside-ui"><button type="button" class="ptl-out" tabindex="-1">Ra khỏi ảnh</button><p>Vuốt ngang để xem ảnh khác</p></div>
+          <p class="ptl-hint3d">Vuốt để đi dọc phòng tranh. Chạm giữ để rọi đèn, chạm vào ảnh để bước vào trong.</p>
           <div class="ptl-rail"><i></i></div>
         </div>
-        <ol class="ptl-track">${stops(ctx).map(s => stopHtml(s, ctx))}</ol>`,
+        <ol class="ptl-track">${plan(ctx).map(s => stopHtml(s, ctx))}</ol>`,
+      mount(el, ctx) {
+        // Bản phẳng (lite, hoặc trước khi cảnh 3D sẵn sàng): ảnh tối, được "rọi" khi cuộn tới
+        const io = 'IntersectionObserver' in window && new IntersectionObserver(es => es.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('is-lit'); io.unobserve(e.target); }
+        }), { rootMargin: '0px 0px -25% 0px' });
+        el.querySelectorAll('.ptl-stop').forEach(s => io ? io.observe(s) : s.classList.add('is-lit'));
+        // Nút "Giữ để bật toàn bộ đèn" ở bản phẳng: bật sáng mọi ảnh cùng lúc
+        el.querySelector('.ptl-track [data-sh-allon]')?.addEventListener('click', () => {
+          el.querySelectorAll('.ptl-stop').forEach(s => s.classList.add('is-lit'));
+          ctx.emit('allon');
+        });
+      },
       motion: {
         async cinematic(el, ctx) { await start(el, ctx, 'cinematic'); },
         async standard(el, ctx) { await start(el, ctx, 'standard'); },
-        lite() {}, // sách triển lãm phẳng, chỉ CSS
+        lite() {},
       },
     },
 
-    /* ===== Quầy lễ tân: chấm đỏ, quà mừng, sổ cảm tưởng ===== */
+    /* ===== Quầy lễ tân: chấm đỏ lên bức ảnh thích nhất, quà mừng, sổ cảm tưởng ===== */
     {
       id: 'le-tan', label: 'Giữ chỗ và lời chúc', provides: ['rsvp', 'gift', 'guestbook'],
       render: ctx => html`
         <div class="ptl-desk">
           <div class="ptl-desk-rsvp">
             <h2>Giữ chỗ dự khai mạc</h2>
-            <p class="ptl-lead">Ở phòng tranh, chấm đỏ cạnh tác phẩm nghĩa là đã có người giữ. Dán một chấm đỏ để báo chúng mình bạn sẽ tới.</p>
-            <div class="ptl-dot-slot" aria-hidden="true"><i class="ptl-dot"></i></div>
+            <p class="ptl-lead">Ở phòng tranh, chấm đỏ cạnh một tác phẩm nghĩa là đã có người giữ. Chọn bức bạn thích nhất rồi dán chấm đỏ để báo chúng mình bạn sẽ tới.</p>
+            ${ctx.album.length ? html`
+            <div class="ptl-fav" role="radiogroup" aria-label="Bức ảnh bạn thích nhất">
+              ${ctx.album.map((src, i) => html`<button type="button" role="radio" aria-checked="false" class="ptl-thumb" data-fav="${i + 1}" aria-label="Ảnh số ${i + 1}"><img src="${src}" alt="" loading="lazy" decoding="async"><i class="ptl-dot" aria-hidden="true"></i></button>`)}
+            </div>` : html`<div class="ptl-dot-slot" aria-hidden="true"><i class="ptl-dot"></i></div>`}
             ${rsvpForm(ctx, { yes: 'Tôi sẽ tới', no: 'Tiếc quá, tôi bận', submit: 'Dán chấm đỏ' })}
           </div>
           ${ctx.has('gift') ? html`
@@ -203,7 +247,22 @@ export default defineTheme({
           </div>
         </div>`,
       mount(el, ctx) {
-        ctx.on('rsvp', x => { if (x?.attend !== 'Không') el.querySelector('.ptl-dot-slot .ptl-dot')?.classList.add('is-on'); });
+        // Chọn ảnh thích nhất (mặc định bức chính); khi gửi, ghi kèm vào ghi chú cho cặp đôi biết
+        const thumbs = [...el.querySelectorAll('.ptl-thumb')];
+        let fav = thumbs[0];
+        const pick = t => { fav = t; thumbs.forEach(x => x.setAttribute('aria-checked', String(x === t))); };
+        if (fav) pick(fav);
+        thumbs.forEach(t => t.addEventListener('click', () => pick(t)));
+        // Chạy ở pha capture trên phần tử cha: trước khi dịch vụ gửi form đọc dữ liệu
+        el.querySelector('.ptl-desk-rsvp')?.addEventListener('submit', e => {
+          const note = e.target.elements?.note;
+          if (fav && note && !/thích ảnh số/i.test(note.value)) note.value = `${note.value ? note.value + '. ' : ''}Thích ảnh số ${fav.dataset.fav}`.slice(0, 160);
+        }, true);
+        ctx.on('rsvp', x => {
+          if (x?.attend === 'Không') return;
+          (fav || el).querySelector('.ptl-dot')?.classList.add('is-on');
+          ctx.emit('reddot', { i: fav ? +fav.dataset.fav - 1 : 0 });
+        });
         el.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Đã chép'; } catch { b.textContent = b.dataset.copy; }
         }));
@@ -214,13 +273,13 @@ export default defineTheme({
 
 /* ---------- Tiếng công tắc tự tạo (Web Audio), bị chặn thì im lặng ---------- */
 let audio;
-function clickSound() {
+export function clickSound(vol = .6) {
   try {
     audio ||= new (window.AudioContext || window.webkitAudioContext)();
     const a = audio, buf = a.createBuffer(1, Math.ceil(a.sampleRate * .06), a.sampleRate), ch = buf.getChannelData(0);
     for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * Math.exp(-i / a.sampleRate * 90);
     const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
-    f.type = 'bandpass'; f.frequency.value = 2400; g.gain.value = .6;
+    f.type = 'bandpass'; f.frequency.value = 2400; g.gain.value = vol;
     src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start();
   } catch {}
 }
@@ -230,9 +289,9 @@ async function start(el, ctx, tier) {
   try {
     const url = new URL('./gallery3d.js', import.meta.url).href;
     const { runGallery } = await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ url);
-    await runGallery(el, ctx, { tier, palettes: ctx.theme.palettes });
+    await runGallery(el, ctx, { tier, palettes: ctx.theme.palettes, clickSound });
   } catch (e) {
     console.warn('[phòng tranh] dùng bản phẳng:', e?.message || e);
-    document.documentElement.classList.remove('ptl-3d');
+    document.documentElement.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-portrait');
   }
 }

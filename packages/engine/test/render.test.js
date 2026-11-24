@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defineTheme, renderDocument, buildContext, graphemes, html, toStr, pickMotion, fmt } from '../src/index.js';
+import { defineTheme, renderDocument, buildContext, graphemes, html, toStr, pickMotion, bindContextLoss, fmt } from '../src/index.js';
 
 const invite = {
   slug: 'thu', date: '2027-11-20T18:00:00+07:00', city: 'Hà Nội',
@@ -98,4 +98,35 @@ test('pickMotion: tôn trọng giảm chuyển động, hạ mức máy yếu, t
   assert.equal(pickMotion({ webgl2: true, deviceMemory: 8, cores: 4, inApp: true }), 'standard');
   assert.equal(pickMotion({ webgl2: true, deviceMemory: 8, cores: 8, fps: 38 }), 'standard');
   assert.equal(pickMotion({ override: 'lite', webgl2: true, deviceMemory: 8, cores: 8 }), 'lite');
+});
+
+test('renderDocument: import map khai báo three và three/addons/ cho nạp động sau khi mở bìa', () => {
+  const doc = renderDocument(theme, invite);
+  const mapJson = /<script type="importmap">(.*?)<\/script>/s.exec(doc)[1];
+  const { imports } = JSON.parse(mapJson);
+  assert.equal(imports['three'], 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js');
+  assert.equal(imports['three/addons/'], 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/');
+});
+
+test('bindContextLoss: gọi preventDefault + callback khi mất ngữ cảnh WebGL và gỡ bỏ sạch', () => {
+  assert.doesNotThrow(() => bindContextLoss(null, () => {})());
+  const listeners = new Map();
+  const canvas = {
+    addEventListener(type, fn) { listeners.set(type, fn); },
+    removeEventListener(type, fn) { if (listeners.get(type) === fn) listeners.delete(type); },
+  };
+  let lostCount = 0;
+  let prevented = false;
+  const unbind = bindContextLoss(canvas, () => { lostCount++; });
+  assert.ok(listeners.has('webglcontextlost'));
+  listeners.get('webglcontextlost')({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(lostCount, 1);
+  unbind();
+  assert.equal(listeners.has('webglcontextlost'), false);
+});
+
+test('lib: từ chối thư viện không khai báo', async () => {
+  const { lib } = await import('../src/client/lib.js');
+  await assert.rejects(() => lib('khong-ton-tai'), /Không có thư viện/);
 });

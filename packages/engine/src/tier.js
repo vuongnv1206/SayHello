@@ -43,3 +43,12 @@ export function measureFps(ms = 600, win = globalThis) {
     win.requestAnimationFrame(tick);
   });
 }
+
+// Lắng nghe mất ngữ cảnh WebGL trên canvas (hay gặp trên WebView Zalo/Messenger khi chuyển app).
+// Gọi preventDefault() và kích hoạt callback hạ cấp; trả về hàm hủy đăng ký (an toàn trên Node).
+export function bindContextLoss(canvas, onLost) {
+  if (!canvas?.addEventListener) return () => {};
+  const handler = e => { e.preventDefault?.(); onLost?.(e); };
+  canvas.addEventListener('webglcontextlost', handler);
+  return () => canvas.removeEventListener('webglcontextlost', handler);
+}

@@ -40,7 +40,13 @@ export function renderDocument(theme, invite, opts = {}) {
     // Nhóm khách (?n=): lọc buổi lễ và lời chào riêng phía trình duyệt, để trang vẫn cache chung được
     groups: (d.guestGroups || []).filter(g => g && g.id).map(g => ({ id: String(g.id).toLowerCase(), events: (g.events || []).filter(Number.isInteger), greeting: g.greeting || '', note: g.note || '' })),
   };
-  const imports = { '@sayhello/engine': engineUrl + 'index.js', '@sayhello/engine/': engineUrl };
+  const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.170.0/';
+  const imports = {
+    '@sayhello/engine': engineUrl + 'index.js',
+    '@sayhello/engine/': engineUrl,
+    'three': THREE_CDN + 'build/three.module.min.js',
+    'three/addons/': THREE_CDN + 'examples/jsm/',
+  };
   const hasGate = theme.scenes[0]?.kind === 'gate';
 
   return '<!doctype html>\n' + toStr(html`<html lang="${d.lang || 'vi'}" class="${hasGate ? 'sh-locked' : ''}" data-motion="pending" data-layout="${theme.layout}"${palStyle ? html` style="${palStyle}"` : ''}${pal ? html` data-palette="${pal.id}"` : ''}>
