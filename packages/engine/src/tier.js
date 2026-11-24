@@ -8,7 +8,8 @@ export const MOTION = ['cinematic', 'standard', 'lite'];
 export function pickMotion(s = {}) {
   if (MOTION.includes(s.override)) return s.override;
   if (s.reducedMotion || s.saveData) return 'lite';
-  if (s.fps != null && s.fps < 30) return 'lite';
+  // < 20fps mới coi là máy yếu: màn 30Hz (tiết kiệm pin, iPhone Low Power Mode) vẫn đủ cho standard
+  if (s.fps != null && s.fps < 20) return 'lite';
   const mem = s.deviceMemory ?? 4, cores = s.cores ?? 4;
   if (mem < 2 || cores < 4) return 'lite';
   if (s.fps != null && s.fps < 45) return 'standard';
@@ -20,7 +21,11 @@ export function pickMotion(s = {}) {
 export function detectSignals(win = globalThis) {
   const nav = win.navigator || {}, ua = nav.userAgent || '';
   let webgl2 = false;
-  try { webgl2 = !!win.document?.createElement('canvas').getContext('webgl2', { failIfMajorPerformanceCaveat: true }); } catch {}
+  try {
+    const gl = win.document?.createElement('canvas').getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+    webgl2 = !!gl;
+    gl?.getExtension('WEBGL_lose_context')?.loseContext(); // trả ngữ cảnh thử ngay, WebView giới hạn số ngữ cảnh
+  } catch {}
   let override = null;
   try { override = new URLSearchParams(win.location?.search || '').get('tier'); } catch {}
   return {
@@ -34,12 +39,19 @@ export function detectSignals(win = globalThis) {
   };
 }
 
-// Đếm khung hình trong một khoảng ngắn lúc khách đang nhìn bìa (bìa là HTML/CSS nhẹ nên số đo phản ánh sức máy)
+// Đo sức máy lúc khách đang nhìn bìa (bìa là HTML/CSS nhẹ). Dùng trung vị khoảng cách giữa các khung, bỏ vài
+// khung đầu: một lần khựng do font/ảnh bìa đang tải không được kéo số đo xuống như cách đếm khung.
 export function measureFps(ms = 600, win = globalThis) {
   return new Promise(res => {
     if (!win.requestAnimationFrame) return res(null);
-    let n = 0; const t0 = win.performance.now();
-    const tick = t => { n++; if (t - t0 < ms) win.requestAnimationFrame(tick); else res(Math.round(n * 1000 / (t - t0))); };
+    const gaps = []; let prev = null, skip = 3; const t0 = win.performance.now();
+    const tick = t => {
+      if (prev != null && skip-- <= 0) gaps.push(t - prev);
+      prev = t;
+      if (t - t0 < ms || gaps.length < 8) return void win.requestAnimationFrame(tick);
+      gaps.sort((a, b) => a - b);
+      res(Math.round(1000 / Math.max(1, gaps[gaps.length >> 1])));
+    };
     win.requestAnimationFrame(tick);
   });
 }

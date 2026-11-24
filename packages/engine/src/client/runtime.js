@@ -110,11 +110,13 @@ export async function boot(theme) {
 
   const gate = scenes.find(x => x.def.kind === 'gate');
   // Đo sức máy trong lúc khách nhìn bìa; chỉ được hạ mức, không nâng (tránh nhảy giao diện)
+  // Đợi trang tải xong (font, ảnh bìa) mới đo, để lúc trình duyệt đang bận tải không bị tính là máy yếu
   if (gate && motion !== 'lite' && !signals.override) {
-    measureFps(600, window).then(fps => {
+    const probe = () => !ctx.opened && measureFps(600, window).then(fps => {
       const m = pickMotion({ ...signals, fps });
       if (!ctx.opened && ['cinematic', 'standard', 'lite'].indexOf(m) > ['cinematic', 'standard', 'lite'].indexOf(motion)) { motion = m; root.dataset.motion = m; }
     });
+    document.readyState === 'complete' ? probe() : addEventListener('load', probe, { once: true });
   }
   if (motion !== 'lite') {
     const warm = () => theme.libs?.forEach(prefetch);

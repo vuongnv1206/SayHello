@@ -220,6 +220,12 @@ export function fpsGuard({ grace = 3, onSlow, onTooSlow, disabled }) {
   };
 }
 
+/**
+ * Thanh địa chỉ iOS/Android ẩn hiện khi cuộn chỉ đổi chiều cao vài chục px: trả về true nếu là trường hợp đó.
+ * Khi ấy chỉ cập nhật tỉ lệ camera (canvas CSS tự giãn), còn cấp lại bộ đệm GPU thì để sau khi khách ngừng cuộn.
+ */
+export function barOnly(w, h, W, H) { return w === W && h !== H && Math.abs(h - H) < 140; }
+
 /** Vòng vẽ một-luồng: dừng khi tab ẩn, tiếp tục khi hiện, gỡ sạch khi teardown. */
 export function startLoop(life, frame) {
   let raf = 0, last = performance.now(), started = false;

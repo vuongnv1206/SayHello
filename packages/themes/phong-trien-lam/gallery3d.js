@@ -9,7 +9,7 @@
 // Hậu kỳ (cinematic): bloom chỉ cho thứ phát sáng (ngưỡng 1,6), tone mapping Neutral (giữ màu ảnh), hạt phim.
 // Hiệu năng: chỉ vẽ các điểm dừng gần; đứng yên thì không vẽ lại; FPS thấp thì tự tắt hậu kỳ, rồi rơi về bản phẳng.
 
-import { fpsGuard } from '@sayhello/engine/client/stage3d.js';
+import { fpsGuard, barOnly } from '@sayhello/engine/client/stage3d.js';
 
 const PX = 1 / 400;            // 400px chữ DOM = 1 mét trong phòng
 const HALF = 3.4, H = 4.2;     // nửa chiều rộng hành lang, chiều cao trần
@@ -575,10 +575,16 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
       pl.cel.style.display = prev; return r;
     };
     const measure = () => { offsets = stops.map(s => s.li.getBoundingClientRect().top + scrollY); };
+    let barT = 0;
     function resize(force) {
       if (!alive) return;
       const w = innerWidth, h = innerHeight;
       if (!force && w === W && h === Hh) return;
+      if (!force && barOnly(w, h, W, Hh)) {
+        // thanh địa chỉ: chỉ đổi tỉ lệ, cấp lại bộ đệm sau khi ngừng cuộn
+        camera.aspect = w / h; camera.updateProjectionMatrix(); css.setSize(w, h);
+        clearTimeout(barT); barT = setTimeout(() => resize(true), 700); dirty = true; return;
+      }
       const widthChanged = w !== W;
       W = w; Hh = h; aspect = W / Hh;
       camera.fov = aspect < 1 ? 56 : 44; camera.aspect = aspect; camera.updateProjectionMatrix();

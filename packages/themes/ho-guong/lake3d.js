@@ -8,7 +8,7 @@
 // Ảnh dưới nước: shader riêng, méo theo cùng sóng, ngả sắc nước, có vân sáng đáy hồ. Vớt lên: nổi lên, dựng đứng,
 // ráo nước dần; ảnh đứng giữ nguyên màu.
 import {
-  clamp, ease, flicker, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader,
+  clamp, ease, flicker, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader, barOnly,
   clonePlate, scrollStops, fpsGuard, startLoop, disposeScene, SHADER_TAIL,
 } from '@sayhello/engine/client/stage3d.js';
 
@@ -320,10 +320,16 @@ export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} })
 
     /* ---------- Bố cục ---------- */
     const scrollMap = scrollStops(stops.map(s => s.li));
+    let barT = 0;
     function resize(force) {
       if (!life.alive) return;
       const w = innerWidth, h = innerHeight;
       if (!force && w === W && h === H) return;
+      if (!force && barOnly(w, h, W, H)) {
+        // thanh địa chỉ: chỉ đổi tỉ lệ, cấp lại bộ đệm (kể cả phản chiếu) sau khi ngừng cuộn
+        camera.aspect = w / h; camera.updateProjectionMatrix(); css.setSize(w, h);
+        clearTimeout(barT); barT = setTimeout(() => resize(true), 700); dirty = true; return;
+      }
       const wc = w !== W; W = w; H = h; aspect = W / H;
       camera.aspect = aspect; camera.updateProjectionMatrix();
       renderer.setSize(W, H, false); css.setSize(W, H); post?.setSize(W, H);

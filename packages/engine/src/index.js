@@ -5,6 +5,6 @@ export { html, raw, esc, br, toStr, graphemes, splitText } from './html.js';
 export { parts, fmt, gcalUrl } from './date.js';
 export { buildContext, merge, mapUrl } from './model.js';
 export { createVoice, VOICES } from './voice.js';
-export { pickMotion, MOTION, bindContextLoss } from './tier.js';
+export { pickMotion, MOTION, measureFps, bindContextLoss } from './tier.js';
 export { rsvpForm, wishForm, wishList, countdown, quickInfo } from './blocks.js';
 export { renderDocument } from './render.js';

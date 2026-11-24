@@ -4,7 +4,7 @@
 //   đường mắt khách đi qua các ảnh đã nở vẽ thành chòm sao. Ảnh giữ ≤1 (không loá), chỉ sao/trăng/đom đóm mới loá.
 // Hạ tầng dùng chung: @sayhello/engine/client/stage3d.js.
 import {
-  clamp, ease, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader,
+  clamp, ease, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader, barOnly,
   clonePlate, fpsGuard, startLoop, disposeScene, SHADER_TAIL,
 } from '@sayhello/engine/client/stage3d.js';
 
@@ -381,8 +381,14 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
     }
 
     /* ---------- Bố cục ---------- */
-    function resize() {
+    let barT = 0;
+    function resize(force) {
       if (!life.alive) return;
+      if (force !== true && barOnly(innerWidth, innerHeight, W, H)) {
+        // thanh địa chỉ: chỉ đổi tỉ lệ, cấp lại bộ đệm sau khi ngừng cuộn
+        camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); css.setSize(innerWidth, innerHeight);
+        clearTimeout(barT); barT = setTimeout(() => resize(true), 700); readScroll(); dirty = true; return;
+      }
       W = innerWidth; H = innerHeight; aspect = W / H;
       camera.fov = aspect < 1 ? 68 : 56; camera.aspect = aspect; camera.updateProjectionMatrix();
       renderer.setSize(W, H, false); css.setSize(W, H); post?.setSize(W, H);

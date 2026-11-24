@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defineTheme, renderDocument, buildContext, graphemes, html, toStr, pickMotion, bindContextLoss, fmt } from '../src/index.js';
+import { defineTheme, renderDocument, buildContext, graphemes, html, toStr, pickMotion, measureFps, bindContextLoss, fmt } from '../src/index.js';
 
 const invite = {
   slug: 'thu', date: '2027-11-20T18:00:00+07:00', city: 'Hà Nội',
@@ -98,6 +98,16 @@ test('pickMotion: tôn trọng giảm chuyển động, hạ mức máy yếu, t
   assert.equal(pickMotion({ webgl2: true, deviceMemory: 8, cores: 4, inApp: true }), 'standard');
   assert.equal(pickMotion({ webgl2: true, deviceMemory: 8, cores: 8, fps: 38 }), 'standard');
   assert.equal(pickMotion({ override: 'lite', webgl2: true, deviceMemory: 8, cores: 8 }), 'lite');
+  // màn 30Hz (tiết kiệm pin, iPhone Low Power) không phải máy yếu: giữ standard, chỉ < 20fps mới về lite
+  assert.equal(pickMotion({ webgl2: true, deviceMemory: 8, cores: 8, fps: 29 }), 'standard');
+  assert.equal(pickMotion({ webgl2: true, deviceMemory: 8, cores: 8, fps: 17 }), 'lite');
+});
+
+test('measureFps: dùng trung vị khoảng cách khung, một lần khựng lúc tải không kéo số đo xuống', async () => {
+  let t = 0, k = 0;
+  const win = { performance: { now: () => t }, requestAnimationFrame: cb => { k++; t += k === 6 ? 200 : 1000 / 60; queueMicrotask(() => cb(t)); return k; } };
+  const fps = await measureFps(600, win);
+  assert.ok(fps >= 58 && fps <= 62, 'fps=' + fps);
 });
 
 test('renderDocument: import map khai báo three và three/addons/ cho nạp động sau khi mở bìa', () => {
