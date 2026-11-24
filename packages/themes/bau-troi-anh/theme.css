@@ -1,0 +1,164 @@
+/* Bầu Trời Ảnh bản 2. Giờ xanh: đỉnh trời mực xanh, sương chân trời, dải ráng men ngọc, đồi sẫm,
+   một chấm vàng chanh cho đom đóm và nét chòm sao. Fraunces (đứng, không nghiêng) cho tên, Be Vietnam Pro cho nội dung.
+   Ba trạng thái: bìa (ngang tầm chân trời), bản phẳng (lite), chữ trên đường chân trời trong 3D (html.bt-3d). */
+:root {
+  --zenith: #142a3b;
+  --haze: #6f9aa6;
+  --band: #c9d4b8;
+  --ridge: #0b1512;
+  --accent: #d8f26b;
+  --ink: #eef2ec;
+  --paper: #10202c;
+  --sh-bg: var(--zenith); --sh-ink: var(--ink); --sh-accent: var(--accent); --sh-accent-ink: #0b1512;
+  --sh-panel: #10202c; --sh-soft: rgba(238, 242, 236, .22);
+}
+body.theme-bau-troi-anh { font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: var(--zenith); color: var(--ink); }
+.theme-bau-troi-anh h1, .theme-bau-troi-anh h2, .theme-bau-troi-anh p, .theme-bau-troi-anh ol { margin: 0; padding: 0; }
+.bt-ridge, .bt-gname, .bt-day, .bt-names, .bt-time, .bt-plate h2, .bt-desk h2 { font-family: Fraunces, 'Be Vietnam Pro', serif; }
+
+/* ============ Bìa: ngang tầm chân trời, tên là dãy đồi ============ */
+#dong { background: var(--zenith); }
+.bt-gsky { position: absolute; inset: 0; background: linear-gradient(var(--zenith) 0%, var(--haze) 62%, var(--band) 78%); transition: transform 1.1s cubic-bezier(.5, 0, .2, 1); }
+.bt-ridge { position: absolute; left: 50%; bottom: -.12em; transform: translateX(-50%); width: max-content; margin: 0; color: var(--ridge); font-weight: 900; font-size: min(13vw, 24vh, 300px); line-height: .82; letter-spacing: -.02em; white-space: nowrap;
+  text-shadow: 0 -2px 0 color-mix(in srgb, var(--band) 70%, transparent); transition: transform 1.1s cubic-bezier(.5, 0, .2, 1); }
+.bt-ridge::after { content: ''; position: fixed; left: -50vw; right: -50vw; top: 100%; height: 40vh; background: var(--ridge); }
+.bt-gtext { position: absolute; left: clamp(20px, 7vw, 120px); right: 20px; top: clamp(56px, 12vh, 140px); color: var(--ink); }
+.bt-to { font-size: 17px; font-weight: 500; }
+.bt-gname { margin-top: 10px; max-width: 18em; font-size: clamp(24px, 3.4vw, 40px); font-weight: 300; line-height: 1.18; }
+.bt-up { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); min-width: 160px; min-height: 52px; padding: 12px 26px; border: 1px solid rgba(238, 242, 236, .7); border-radius: 2px;
+  background: rgba(20, 42, 59, .3); color: var(--ink); font: 500 18px/1 'Be Vietnam Pro', sans-serif; cursor: pointer; }
+.bt-up:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+/* Ngước lên: đồi trôi xuống, trời mở ra */
+#dong.is-up .bt-ridge { transform: translate(-50%, 70vh); }
+#dong.is-up .bt-gsky { transform: translateY(25vh); }
+#dong.is-up .bt-up, #dong.is-up .bt-gtext { opacity: 0; transition: opacity .4s; }
+
+/* ============ Bản phẳng (lite) ============ */
+#troi { position: relative; background: linear-gradient(var(--zenith), color-mix(in srgb, var(--zenith) 60%, var(--haze)) 70%, var(--haze)); color: var(--ink); overflow-x: clip; }
+.bt-stage { display: none; }
+/* Ảnh là những đốm sáng trên vòm trời phẳng, chạm để xem */
+.bt-stars { position: relative; list-style: none; height: max(110svh, 760px); margin: 0; padding: 0; }
+.bt-star { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, 0); }
+.bt-photo { display: block; width: calc(64px * var(--m) + 12px); aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; overflow: hidden; background: none; cursor: zoom-in;
+  box-shadow: 0 0 0 2px rgba(238, 242, 236, .75), 0 0 28px 6px color-mix(in srgb, var(--accent) 30%, transparent); }
+.bt-photo img { width: 100%; height: 100%; object-fit: cover; }
+.bt-photo:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.bt-plates { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; padding: 20px clamp(20px, 7vw, 120px) 120px; }
+.bt-plate { max-width: 640px; }
+.bt-day { font-size: clamp(64px, 14vw, 150px); font-weight: 300; line-height: .95; font-variant-numeric: lining-nums; }
+.bt-names { margin-top: 10px; font-size: 22px; font-weight: 300; }
+.bt-plate h2 { font-size: clamp(30px, 5vw, 48px); font-weight: 300; margin-bottom: 14px; }
+.bt-plate p { font-size: 17px; line-height: 1.5; }
+.bt-dim { opacity: .72; }
+.bt-evs { list-style: none; display: grid; gap: 20px; }
+.bt-evs li { display: grid; gap: 2px; font-size: 17px; line-height: 1.45; }
+.bt-evs b { font-size: 19px; font-weight: 600; }
+.bt-time { font-size: 44px; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.bt-evs a, .bt-maps a { color: inherit; justify-self: start; padding: 6px 0; text-underline-offset: 4px; }
+.bt-maps { display: grid; gap: 4px; margin-top: 16px; }
+.bt-go { display: inline-flex; align-items: center; gap: 12px; min-height: 48px; margin-top: 12px; color: inherit; font-size: 18px; font-weight: 500; text-decoration: none; }
+.bt-go::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px 4px color-mix(in srgb, var(--accent) 60%, transparent); }
+.bt-gather { display: inline-flex; align-items: center; gap: 14px; min-height: 56px; padding: 10px 20px 10px 12px; border: 1px solid currentColor; border-radius: 2px; background: transparent; color: inherit;
+  font: 500 17px/1.2 'Be Vietnam Pro', sans-serif; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.bt-gather i { width: 30px; height: 30px; border-radius: 50%; background: conic-gradient(var(--accent) calc(var(--hold, 0) * 360deg), rgba(238, 242, 236, .25) 0); }
+#troi.is-gathered .bt-photo { box-shadow: 0 0 0 2px var(--accent), 0 0 40px 10px color-mix(in srgb, var(--accent) 50%, transparent); }
+/* La bàn chân trời: dải mảnh dưới đáy; mỗi vạch là một ảnh, chữ là hướng thông tin */
+.bt-compass { position: sticky; bottom: 0; z-index: 5; height: 56px; margin: 0; background: color-mix(in srgb, var(--ridge) 88%, transparent); border-top: 1px solid rgba(238, 242, 236, .18); overflow: hidden; }
+.bt-tick { position: absolute; left: var(--x); top: 0; width: 24px; height: 28px; margin-left: -12px; padding: 0; border: 0; background: none; cursor: pointer; }
+.bt-tick::after { content: ''; position: absolute; left: 11px; top: 6px; width: 2px; height: 14px; background: rgba(238, 242, 236, .7); }
+.bt-dir { position: absolute; left: var(--x); bottom: 0; min-width: 44px; height: 28px; margin-left: -22px; padding: 0; border: 0; background: none; color: var(--ink); font: 600 13px/28px 'Be Vietnam Pro', sans-serif; cursor: pointer; }
+.bt-needle { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); box-shadow: 0 0 10px var(--accent); display: none; }
+/* Xem ảnh toàn màn hình */
+.bt-view { width: 100vw; height: 100svh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: #070f18; color: var(--ink); overflow: hidden; }
+.bt-view::backdrop { background: #070f18; }
+.bt-view img { position: absolute; inset: 6svh 4vw 14svh; width: 92vw; height: 80svh; object-fit: contain; }
+.bt-view button { position: absolute; min-width: 48px; min-height: 48px; border: 0; background: rgba(238, 242, 236, .1); color: var(--ink); font: 500 16px/1 'Be Vietnam Pro', sans-serif; cursor: pointer; }
+.bt-v-prev { left: 8px; top: 46%; font-size: 30px !important; }
+.bt-v-next { right: 8px; top: 46%; font-size: 30px !important; }
+.bt-v-close { left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 0 20px; border: 1px solid rgba(238, 242, 236, .4) !important; }
+[data-ev][hidden] { display: none !important; }
+
+/* ============ Cảnh 3D: trang cao 3 màn để cuộn kéo đêm xuống ============ */
+html.bt-3d #troi { height: 320svh; background: transparent; }
+html.bt-3d .bt-stage { display: block; position: fixed; inset: 0; z-index: 1; }
+html.bt-3d .bt-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.bt-3d .bt-css { position: absolute; inset: 0; pointer-events: none; }
+html.bt-3d .bt-stars, html.bt-3d .bt-plates { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } /* còn cho trình đọc màn hình */
+html.bt-3d .bt-compass { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; }
+html.bt-3d .bt-needle { display: block; }
+.bt-veil { position: absolute; inset: 0; display: grid; place-items: center; background: var(--zenith); transition: opacity .8s; }
+.bt-veil p { font-size: 15px; opacity: .6; }
+html.bt-ready .bt-veil { opacity: 0; pointer-events: none; }
+.bt-hint3d { position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%); width: min(380px, calc(100% - 32px)); text-align: center; font-size: 14px; line-height: 1.45; padding: 10px 14px;
+  background: rgba(7, 15, 24, .6); opacity: 0; transition: opacity .4s; pointer-events: none; }
+#troi.show-hint .bt-hint3d { opacity: 1; }
+
+/* Chữ trên đường chân trời (bản sao HTML). 400px = 1 mét. */
+.bt-c { color: var(--ink); font-family: 'Be Vietnam Pro', system-ui, sans-serif; text-shadow: 0 2px 16px rgba(7, 15, 24, .6); }
+.bt-c a, .bt-c button { pointer-events: inherit; }
+.bt-c .bt-plate { width: 760px; max-width: none; }
+.bt-c .bt-plate p { font-size: 30px; }
+.bt-c .bt-plate h2 { font-size: 64px; }
+.bt-c-date .bt-plate { text-align: center; }
+.bt-c-date .bt-day { font-size: 170px; }
+.bt-c-date .bt-names { font-size: 40px; }
+.bt-c-venue .bt-evs { grid-template-columns: 1fr 1fr; gap: 34px; }
+.bt-c-venue .bt-evs li { font-size: 26px; }
+.bt-c-venue .bt-evs b { font-size: 30px; }
+.bt-c-venue .bt-time { font-size: 76px; }
+.bt-c-venue .bt-maps a { font-size: 26px; }
+.bt-c .bt-go { font-size: 34px; }
+.bt-c-moon .bt-plate { width: auto; }
+.bt-c .bt-gather { font-size: 30px; min-height: 76px; }
+.bt-c .bt-gather i { width: 40px; height: 40px; }
+html.bt-portrait .bt-c .bt-plate { width: 500px; }
+html.bt-portrait .bt-c .bt-plate p, html.bt-portrait .bt-c-venue .bt-evs li, html.bt-portrait .bt-c-venue .bt-maps a { font-size: 36px; }
+html.bt-portrait .bt-c .bt-plate h2 { font-size: 76px; }
+html.bt-portrait .bt-c-venue .bt-evs b { font-size: 40px; }
+html.bt-portrait .bt-c-venue .bt-time { font-size: 92px; }
+html.bt-portrait .bt-c .bt-go, html.bt-portrait .bt-c .bt-gather { font-size: 40px; }
+html.bt-portrait .bt-c-date .bt-day { font-size: 150px; }
+html.bt-portrait .bt-c-venue .bt-evs { grid-template-columns: 1fr; gap: 22px; }
+
+/* ============ Bãi cỏ: giữ chỗ, quà mừng, sổ sao ============ */
+#san { position: relative; z-index: 5; background: var(--ridge); color: var(--ink); }
+.bt-desk { display: grid; grid-template-columns: minmax(0, 1fr); gap: 64px; padding: 72px clamp(20px, 7vw, 120px) 140px; }
+.bt-desk h2 { font-size: clamp(36px, 6vw, 60px); font-weight: 300; line-height: 1.04; margin-bottom: 14px; }
+.bt-lead { font-size: 17px; line-height: 1.55; max-width: 32em; }
+.bt-desk-rsvp { position: relative; }
+.bt-fly { position: absolute; right: 6px; top: 10px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 16px 6px color-mix(in srgb, var(--accent) 55%, transparent); animation: bt-blink 2.4s ease-in-out infinite; }
+.bt-fly.is-up { animation: bt-rise 2.6s ease-in forwards; }
+@keyframes bt-blink { 50% { opacity: .35; } }
+@keyframes bt-rise { to { transform: translate(-40px, -260px) scale(.6); opacity: 0; } }
+.bt-desk .sh-form { margin-top: 24px; max-width: 560px; min-width: 0; }
+.bt-desk .sh-form select { max-width: 100%; min-width: 0; }
+.bt-desk .sh-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+.bt-desk .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) { border-radius: 2px; }
+.bt-desk :is(.sh-choice span, .sh-pick span) { border-radius: 2px; }
+.bt-desk .sh-btn { border-radius: 2px; justify-self: start; }
+.bt-accs { display: grid; gap: 22px; }
+.bt-acc { display: grid; grid-template-columns: 132px 1fr; gap: 16px; align-items: start; }
+.bt-acc img { width: 132px; height: 132px; background: #fff; }
+.bt-acc p { display: grid; gap: 2px; font-size: 16px; }
+.bt-num { font-size: 22px; font-variant-numeric: tabular-nums; }
+.bt-copy { grid-column: 2; justify-self: start; min-height: 44px; padding: 8px 16px; border: 1px solid var(--sh-soft); border-radius: 2px; background: transparent; color: inherit; font: inherit; font-size: 15px; cursor: pointer; }
+.bt-desk .sh-wishes { margin-top: 28px; }
+.bt-desk .sh-wish { padding: 14px 0; border-top: 1px solid var(--sh-soft); }
+.bt-desk .sh-wish p { font-size: 17px; line-height: 1.5; }
+.sh-wishes:empty::before { content: attr(data-empty); opacity: .6; }
+@media (min-width: 1000px) {
+  .bt-desk { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); column-gap: 8vw; }
+  .bt-desk-rsvp { grid-row: 1 / span 2; }
+}
+
+/* Thông tin nhanh: nút nhỏ góc trên phải */
+.theme-bau-troi-anh .sh-quick-btn { left: auto; right: 12px; top: max(12px, env(safe-area-inset-top)); bottom: auto; border-radius: 2px; background: rgba(7, 15, 24, .5); }
+.theme-bau-troi-anh .sh-quick-btn.is-away { transform: translateY(calc(-100% - 24px)); }
+.theme-bau-troi-anh .sh-quick { border-radius: 0; }
+.theme-bau-troi-anh .sh-quick .sh-btn { border-radius: 2px; }
+.theme-bau-troi-anh .sh-music { z-index: 40; bottom: 68px; }
+
+@media (prefers-reduced-motion: reduce) {
+  #dong.is-up .bt-ridge, #dong.is-up .bt-gsky { transform: none; transition: none; }
+  .bt-fly, .bt-fly.is-up { animation: none; }
+}

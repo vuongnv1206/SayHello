@@ -195,6 +195,53 @@ for (const tier of ['cinematic', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Bầu Trời Ảnh: ngước lên mở thiệp; cảnh 3D lên hoặc rơi về bản phẳng; ảnh là đốm sáng chạm để xem;
+// la bàn có vạch cho từng ảnh; thả đom đóm giữ chỗ; nhóm khách lọc nơi đón khách; không tràn ngang.
+for (const tier of ['cinematic', 'lite']) {
+  const id = 'bau-troi-anh';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource.*(vietqr|fonts)/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if ((await page.textContent('.sh-gate [data-guest]').catch(() => '')) !== GUEST) errors.push('tên khách trên bìa sai');
+  await page.click('.bt-up');
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout: 6000 }).catch(() => errors.push('ngước lên không mở thiệp'));
+  // Lời chào của nhóm nằm ở mép trên, đè lên ngôi sao đầu tiên: khách đọc xong thì đóng
+  if (!(await page.$eval('[data-sh=group-note]', n => n.hidden))) await page.click('[data-sh=group-note] .sh-x');
+  const photos = await page.$$eval('#troi .bt-photo', els => els.length);
+  if (photos < 6) errors.push(`chỉ có ${photos} ảnh trên trời`);
+  if ((await page.$$eval('#troi .bt-tick', els => els.length)) !== photos) errors.push('la bàn thiếu vạch cho ảnh');
+  if (tier !== 'lite') {
+    const state = await page.waitForFunction(() => {
+      const c = document.documentElement.classList;
+      return c.contains('bt-ready') ? '3d' : !c.contains('bt-3d') && document.querySelector('.sh-gate')?.hidden ? 'phang' : '';
+    }, null, { timeout: 45000 }).then(h => h.jsonValue()).catch(() => '');
+    if (!state) errors.push('kẹt ở màn chờ: cảnh 3D không lên mà cũng không rơi về bản phẳng');
+    else console.log(`   (cảnh ${state === '3d' ? '3D' : 'phẳng, máy không có WebGL'})`);
+  } else {
+    if (await page.evaluate(() => document.documentElement.classList.contains('bt-3d'))) errors.push('mức lite vẫn dựng cảnh 3D');
+    await page.click('#troi .bt-photo[data-i="0"]');
+    if (!(await page.isVisible('.bt-view'))) errors.push('chạm ảnh không mở chế độ xem ảnh');
+    await page.click('.bt-v-close');
+  }
+  const evs = await page.$$eval('#troi .bt-plates .bt-evs [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} ở nơi đón khách`);
+  await page.locator('#san').scrollIntoViewIfNeeded();
+  if ((await page.inputValue('#san form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên giữ chỗ không tự điền');
+  await page.click('#san form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#san form[data-sh=rsvp] .sh-msg'))) errors.push('thả đom đóm giữ chỗ không thành công');
+  if (!(await page.$('#san .bt-fly.is-up'))) errors.push('đom đóm không bay lên sau khi giữ chỗ');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');

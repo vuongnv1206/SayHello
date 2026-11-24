@@ -33,6 +33,9 @@ function applyGroup(data, ctx) {
     note.querySelector('p').textContent = text;
     note.hidden = false;
     note.querySelector('button')?.addEventListener('click', () => { note.hidden = true; });
+    // Ghi chú cố định ở mép trên: khách đã cuộn qua gần một màn hình thì tự ẩn, để không che nội dung (nút gửi, form)
+    const away = () => { if (scrollY > innerHeight * .8) { note.hidden = true; removeEventListener('scroll', away); } };
+    addEventListener('scroll', away, { passive: true });
   }
 }
 
