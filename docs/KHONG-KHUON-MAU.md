@@ -41,9 +41,21 @@ Có 19 thói quen khiến mọi mẫu nhìn ra cùng một nhà. Mẫu mới gi�
 - ★ **Bịt logo:** đặt 3 màn của mẫu mới cạnh màn của hai mẫu khác, chuyển sang đen trắng và làm mờ 8px. Người ngoài phải phân biệt được mẫu nào là mẫu nào chỉ nhờ bố cục.
 - ★ **Hai giây:** che chủ đề đi, mẫu vẫn phải khác biệt. Nếu mẫu chỉ khác nhờ đồ trang trí thì trượt.
 
+## Hiệu quả (cổng bắt buộc, xét trước mọi điểm sáng tạo)
+
+Chủ dự án, 24/11/2026: "Sáng tạo thì có nhưng khó nhìn quá… 3D cũng tốt, 2D cũng tốt, cuộn dọc cũng tốt, nó phải hiệu quả." Mẫu trượt bất kỳ mục nào dưới đây thì không được duyệt, dù sáng tạo đến đâu.
+
+- H1. **Ba giây:** mở ra, không cần thao tác gì, màn đầu đã có tên hai người, ngày dương (và âm nếu có) và nơi tổ chức. Giờ và địa điểm cụ thể chỉ cách một lần cuộn hoặc vuốt.
+- H2. **Ảnh được tôn trọng:** mỗi ảnh hiện ít nhất một lần rộng ≥ 85% màn hình, thẳng, không phủ màu, không làm mờ hay tối khi đứng yên. Xem được hết ảnh chỉ bằng cuộn, chạm hoặc vuốt.
+- H3. **Không phải học:** chỉ cần thao tác quen thuộc. Cử chỉ riêng chỉ là tuỳ chọn và luôn có cách làm tương đương hiện rõ.
+- H4. **Trả lời một chạm:** nút xác nhận dự tiệc tới được bằng một lần chạm từ bất cứ đâu; form ≤ 3 ô.
+- H5. **Chữ đọc được:** chữ thân ≥ 16px, nhãn ≥ 13px, tương phản ≥ 4,5:1 trên nền đặc hoặc có lớp lót. Không có thông tin bắt buộc chỉ nằm trong canvas.
+- H6. **Nhẹ:** trên Android tầm trung trong Zalo qua 4G, ảnh đầu tiên rõ nét trong < 3 giây. Mức lite giữ nguyên bố cục.
+- H7. **Khác về khung:** mỗi mẫu khác mọi mẫu khác ở ít nhất 3 trục sau: cách đi qua thiệp (cuộn, trang snap, chạm sang, vuốt xấp, lưới rồi phóng to), cách xếp ảnh, chỗ đặt thông tin, ẩn dụ trang, khoảnh khắc riêng.
+
 ## Bố cục
 
-1. ★ Cách đi qua thiệp không phải cuộn dọc dịch chuyển trang. Nếu có cuộn, cuộn phải điều khiển thứ khác: camera, thời gian, độ phóng hoặc lớp in.
+1. ★ Cách đi qua thiệp không lặp lại khung "bìa rồi một cột dọc với thứ tự mục cố định". Cuộn dọc bình thường được phép (sửa 24/11/2026), miễn bộ khung khác các mẫu khác theo H7.
 2. ★ Không quá 2 màn theo công thức "tiêu đề căn giữa, câu dẫn, khối nội dung".
 3. Ít nhất 50% số màn bất đối xứng.
 4. Có phần tử tràn qua mép màn hình.

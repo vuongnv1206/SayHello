@@ -242,6 +242,50 @@ for (const tier of ['cinematic', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Tạp Chí Cưới: không có màn chờ; màn đầu đã có tên, ngày, nơi (tiêu chí H1); dòng tít bìa dẫn tới đúng trang;
+// dòng số trang có nút Trả lời; chạm ảnh mở xem lớn; phiếu trả lời gửi được; nhóm khách lọc buổi lễ; không tràn ngang.
+for (const tier of ['standard', 'lite']) {
+  const id = 'tap-chi-cuoi';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource.*(vietqr|fonts)/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if (!(await page.$eval('[data-sh=group-note]', n => n.hidden))) await page.click('[data-sh=group-note] .sh-x');
+  // H1: không thao tác gì, màn đầu đã thấy tên hai người và ngày
+  const first = await page.evaluate(() => {
+    const vis = el => { const r = el?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= innerHeight && r.height > 0; };
+    return { names: vis(document.querySelector('.tc-names .n2')), date: vis(document.querySelector('.tc-lines li:first-child b')) };
+  });
+  if (!first.names || !first.date) errors.push(`màn đầu thiếu ${!first.names ? 'tên' : ''} ${!first.date ? 'ngày' : ''}`);
+  if (!(await page.textContent('#bia [data-guest]')).includes(GUEST)) errors.push('tên khách trên bìa sai');
+  const photos = await page.$$eval('.tc-open', els => els.length);
+  if (photos < 6) errors.push(`chỉ có ${photos} ảnh trong ruột`);
+  await page.locator('.tc-open').first().click();
+  if (!(await page.isVisible('.tc-view'))) errors.push('chạm ảnh không mở xem ảnh lớn');
+  await page.click('.tc-view [data-step="1"]');
+  if (!/^2 \//.test(await page.textContent('.tc-view-n'))) errors.push('nút ảnh sau không chuyển ảnh');
+  await page.click('.tc-view-x');
+  const evs = await page.$$eval('#lich [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} ở trang lịch`);
+  await page.evaluate(() => scrollTo(0, innerHeight * 2));
+  await page.waitForTimeout(500);
+  if (!(await page.isVisible('.tc-folio .tc-reply'))) errors.push('dòng số trang không có nút Trả lời');
+  await page.click('.tc-folio .tc-reply');
+  await page.waitForTimeout(600);
+  if ((await page.inputValue('#phieu form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên trong phiếu không tự điền');
+  await page.click('#phieu form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#phieu form[data-sh=rsvp] .sh-msg'))) errors.push('gửi phiếu trả lời không thành công');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');

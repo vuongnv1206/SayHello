@@ -8,6 +8,8 @@ import bauTroiAnh from "@sayhello/theme-bau-troi-anh";
 import bauTroiAnhDemo from "@sayhello/theme-bau-troi-anh/demo.json";
 import hoGuong from "@sayhello/theme-ho-guong";
 import hoGuongDemo from "@sayhello/theme-ho-guong/demo.json";
+import tapChiCuoi from "@sayhello/theme-tap-chi-cuoi";
+import tapChiCuoiDemo from "@sayhello/theme-tap-chi-cuoi/demo.json";
 
 type Theme = { id: string; name: string; version: string };
 
@@ -19,4 +21,6 @@ export const THEMES: Record<string, { theme: Theme; demo: Record<string, unknown
   // Ảnh mẫu nằm trong thư mục của mẫu, được chép sang public/_e/themes/<id>/ lúc sync
   "ho-guong": { theme: hoGuong as Theme, demo: hoGuongDemo, assetBase: "/_e/themes/ho-guong/" },
   "bau-troi-anh": { theme: bauTroiAnh as Theme, demo: bauTroiAnhDemo, assetBase: "/_e/themes/bau-troi-anh/" },
+  // Ảnh mẫu tạm mượn của Hồ Gương và Bầu Trời Ảnh (đường dẫn tuyệt đối trong demo.json)
+  "tap-chi-cuoi": { theme: tapChiCuoi as Theme, demo: tapChiCuoiDemo, assetBase: "/" },
 };

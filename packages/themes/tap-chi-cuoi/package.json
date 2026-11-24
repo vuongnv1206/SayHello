@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-tap-chi-cuoi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Tạp Chí Cưới: thiệp là một số tạp chí đặc biệt, cuộn dọc qua các trang ảnh dàn trang.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}
