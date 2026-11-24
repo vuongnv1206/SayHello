@@ -12,6 +12,8 @@ import tapChiCuoi from "@sayhello/theme-tap-chi-cuoi";
 import tapChiCuoiDemo from "@sayhello/theme-tap-chi-cuoi/demo.json";
 import toLich from "@sayhello/theme-to-lich";
 import toLichDemo from "@sayhello/theme-to-lich/demo.json";
+import lichTrinh from "@sayhello/theme-lich-trinh";
+import lichTrinhDemo from "@sayhello/theme-lich-trinh/demo.json";
 
 type Theme = { id: string; name: string; version: string };
 
@@ -26,4 +28,5 @@ export const THEMES: Record<string, { theme: Theme; demo: Record<string, unknown
   // Ảnh mẫu tạm mượn của Hồ Gương và Bầu Trời Ảnh (đường dẫn tuyệt đối trong demo.json)
   "tap-chi-cuoi": { theme: tapChiCuoi as Theme, demo: tapChiCuoiDemo, assetBase: "/" },
   "to-lich": { theme: toLich as Theme, demo: toLichDemo, assetBase: "/" },
+  "lich-trinh": { theme: lichTrinh as Theme, demo: lichTrinhDemo, assetBase: "/" },
 };

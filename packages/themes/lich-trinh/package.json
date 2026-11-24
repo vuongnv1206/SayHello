@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-lich-trinh",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Lịch Trình: ngày cưới là một dòng thời gian, đồng hồ chạy theo khi cuộn, màu trời đổi theo giờ.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

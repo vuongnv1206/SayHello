@@ -326,6 +326,44 @@ for (const tier of ['standard', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Lịch Trình: đầu trang có tên, ngày, các mốc giờ (H1); mỗi buổi là một mốc có chỉ đường; đồng hồ chạy theo cuộn;
+// nút Giữ chỗ một chạm; nhóm khách lọc buổi lễ; không tràn ngang.
+for (const tier of ['standard', 'lite']) {
+  const id = 'lich-trinh';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if (!(await page.$eval('[data-sh=group-note]', n => n.hidden))) await page.click('[data-sh=group-note] .sh-x');
+  const first = await page.evaluate(() => {
+    const vis = el => { const r = el?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= innerHeight && r.height > 0; };
+    return { names: vis(document.querySelector('.lt-names')), date: vis(document.querySelector('.lt-date b')), toc: vis(document.querySelector('.lt-toc li:not([hidden]) b')) };
+  });
+  if (!first.names || !first.date || !first.toc) errors.push('màn đầu thiếu tên, ngày hoặc mốc giờ');
+  if (!(await page.textContent('#hom-ay [data-guest]')).includes(GUEST)) errors.push('tên khách ở đầu trang sai');
+  const shown = await page.$$eval('#dong-gio .lt-ev', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (shown.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${shown.join()} trên dòng thời gian`);
+  if ((await page.$$eval('#dong-gio .lt-pic', els => els.length)) < 6) errors.push('thiếu ảnh trên dòng thời gian');
+  // mép trên của mốc 09:00 ở đúng giữa màn: đồng hồ phải chỉ 09:00
+  await page.evaluate(() => scrollBy({ top: document.querySelector('#dong-gio .lt-ev').getBoundingClientRect().top - innerHeight * .5 + 2, behavior: 'instant' }));
+  await page.waitForTimeout(400);
+  if (!/^09:0/.test(await page.textContent('.lt-clock-t'))) errors.push('đồng hồ không chạy theo mốc đang đọc: ' + await page.textContent('.lt-clock-t'));
+  await page.click('.lt-keep');
+  await page.waitForTimeout(700);
+  if ((await page.inputValue('#giu-cho form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên giữ chỗ không tự điền');
+  await page.click('#giu-cho form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#giu-cho form[data-sh=rsvp] .sh-msg'))) errors.push('giữ chỗ không thành công');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');
