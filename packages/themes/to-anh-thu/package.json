@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-to-anh-thu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Tờ Ảnh Thử: cả album bày như tờ in thử của tiệm ảnh, thông tin là ghi chú bút sáp ở lề, khoanh ảnh thích nhất khi trả lời.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

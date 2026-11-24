@@ -402,6 +402,47 @@ for (const tier of ['standard', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Tờ Ảnh Thử: đầu tờ có tên, ngày, giờ và nơi (H1); lưới khung có ghi chú giờ và nơi; kính lúp phóng và chuyển khung;
+// khoanh một khung thì vòng bút sáp hiện và phiếu mang số khung; gửi phiếu được; nhóm khách lọc buổi lễ; không tràn ngang.
+for (const tier of ['standard', 'lite']) {
+  const id = 'to-anh-thu';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if (!(await page.$eval('[data-sh=group-note]', n => n.hidden))) await page.click('[data-sh=group-note] .sh-x');
+  const first = await page.evaluate(() => {
+    const vis = el => { const r = el?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= innerHeight && r.height > 0; };
+    return { names: vis(document.querySelector('.ta-names')), date: vis(document.querySelector('.ta-date')), main: vis(document.querySelector('.ta-main')) };
+  });
+  if (!first.names || !first.date || !first.main) errors.push('màn đầu thiếu tên, ngày hoặc giờ và nơi');
+  const evs = await page.$$eval('.ta-note [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} ở ghi chú lề`);
+  await page.click('.ta-frame[data-k="2"] .ta-open');
+  if (!(await page.isVisible('.ta-loupe'))) errors.push('chạm khung không mở kính lúp');
+  await page.click('.ta-loupe [data-step="1"]');
+  if (!/Khung 4 \//.test(await page.textContent('.ta-l-n'))) errors.push('kính lúp không chuyển khung');
+  await page.click('.ta-pick');
+  await page.waitForTimeout(300);
+  if (!(await page.$('.ta-frame[data-k="3"].is-fav'))) errors.push('khoanh khung không hiện vòng bút sáp');
+  await page.click('.ta-reply');
+  await page.waitForTimeout(700);
+  if (!/khung số 4/.test(await page.textContent('.ta-picked-t'))) errors.push('phiếu không ghi khung đã khoanh');
+  if ((await page.inputValue('#tra-loi form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên trả lời không tự điền');
+  if ((await page.inputValue('#tra-loi form[data-sh=rsvp] input[name=note]')) !== 'Thích khung số 4') errors.push('phiếu không mang số khung đã khoanh');
+  await page.click('#tra-loi form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#tra-loi form[data-sh=rsvp] .sh-msg'))) errors.push('gửi trả lời không thành công');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');
