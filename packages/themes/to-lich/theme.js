@@ -5,6 +5,7 @@
 //   Sau xấp lịch là tấm bìa carton: phiếu giữ chỗ, mừng cưới, lời chúc. Nút "Giữ chỗ" cố định một chạm.
 // Mức lite / không JS: các tờ xếp dọc như trang thường, không xé.
 import { defineTheme, html, br, rsvpForm, wishForm, wishList, parts } from '@sayhello/engine';
+import { clipTop, stub, fibreTile, paperSound } from './paper.js';
 
 const WD = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
 const MONTH = ['Giêng', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy', 'Tám', 'Chín', 'Mười', 'Mười Một', 'Chạp'];
@@ -58,6 +59,7 @@ export default defineTheme({
         const total = album.length + 3;
         return html`
         <div class="tl-hold">
+          <div class="tl-bind" aria-hidden="true"><i class="tl-staple"></i><i class="tl-staple"></i><div class="tl-stubs"></div></div>
           <div class="tl-stack">
             <article class="tl-sheet tl-day ${tone(p)}" data-k="0">
               ${head(p, html`Gửi ${guest()}`)}
@@ -118,40 +120,102 @@ export default defineTheme({
         }
         if (ctx.reduced) return; // lite: các tờ xếp dọc, không xé
 
-        // Xé lịch theo cuộn: xấp lịch đứng yên (sticky), mỗi màn cuộn qua thì tờ trên cùng bay lên và lật đi
+        // Giấy thật: thớ giấy vẽ một lần, phủ lên mọi tờ
+        const fibre = fibreTile().then(u => { if (u) root.style.setProperty('--tl-fibre', `url(${u})`); return u; });
+        // Lớp xé WebGL (nạp sau, chỉ khi máy đủ sức): hook trả true nghĩa là tờ đó đang được vẽ cong bằng WebGL
+        let hook = null;
+
+        // Xé lịch theo cuộn: xấp lịch đứng yên (sticky). Mỗi màn cuộn là một tờ:
+        //   pha A (t 0–0,72): tờ rách dần theo hàng lỗ, góc phải nhấc lên, nếp gập tối dần;
+        //   pha B (t 0,72–1): tờ rời gáy, bay lên trái, xoay, lật nghiêng; dưới gáy còn lại một cuống giấy.
         const sheets = [...el.querySelectorAll('.tl-sheet')];
         const n = sheets.length;
+        const stubs = el.querySelector('.tl-stubs');
+        const sound = paperSound();
+        for (const ev of ['pointerdown', 'touchend', 'keydown']) addEventListener(ev, sound.init, { once: true, passive: true });
         root.classList.add('tl-tear');
         el.style.setProperty('--n', n);
         sheets.forEach((s, k) => { s.style.zIndex = String(n - k); });
-        let top = 0, raf = 0;
-        const measure = () => { top = el.getBoundingClientRect().top + scrollY; };
+        const E = x => 1 - Math.pow(1 - x, 3);
+        let top = 0, raf = 0, lastQ = 0, lastT = performance.now(), W = 0;
+        const measure = () => { top = el.getBoundingClientRect().top + scrollY; W = sheets[0].offsetWidth; sheets.forEach((s, k) => { s.dataset.clip = clipTop(W, 101 + k * 17); }); };
         const update = () => {
           raf = 0;
+          const now = performance.now();
           const q = Math.max(0, (scrollY - top) / innerHeight);
+          let tearing = 0;
           sheets.forEach((s, k) => {
             if (k === n - 1) return;
             const t = Math.min(1, Math.max(0, q - k));
-            if (t <= 0) { if (s.dataset.t !== '0') { s.style.transform = ''; s.style.visibility = ''; s.dataset.t = '0'; } return; }
-            s.dataset.t = String(t);
-            s.style.visibility = t >= 1 ? 'hidden' : '';
-            // tờ xé từ mép trên: bị giật lên, nghiêng, rời khỏi màn
-            s.style.transform = `translate3d(${t * -18}vw, ${t * -112}%, 0) rotate(${t * -14}deg)`;
+            const was = +(s.dataset.t || 0);
+            if (hook && hook(s, k, t)) {
+              // WebGL đang vẽ tờ này: ẩn bản HTML, bỏ biến đổi CSS
+              s.style.visibility = 'hidden'; s.style.transform = ''; s.style.clipPath = '';
+              if (t < .72) tearing = Math.max(tearing, Math.abs(t - was));
+              else if (was < .72) sound.release();
+              s.dataset.t = String(t);
+            } else if (t <= 0) {
+              if (was !== 0) { s.style.transform = ''; s.style.visibility = ''; s.style.clipPath = ''; s.style.setProperty('--fold', 0); s.dataset.t = '0'; }
+            } else if (t < .72) {
+              const e = E(t / .72);
+              s.style.visibility = '';
+              s.style.clipPath = s.dataset.clip;
+              s.style.transform = `perspective(1400px) translate3d(0, ${-e * 10}px, ${e * 40}px) rotateZ(${-e * 5}deg) rotateY(${-e * 16}deg) rotateX(${e * 10}deg)`;
+              s.style.setProperty('--fold', e.toFixed(3));
+              s.dataset.t = String(t);
+              tearing = Math.max(tearing, Math.abs(t - was));
+            } else {
+              const u = (t - .72) / .28, eu = 1 - Math.pow(1 - u, 2);
+              s.style.visibility = t >= 1 ? 'hidden' : '';
+              s.style.clipPath = s.dataset.clip;
+              s.style.transform = `perspective(1400px) translate3d(${-(25 * u + 8 * Math.sin(1.5 * Math.PI * u))}vw, ${-10 - eu * 118}%, ${40 + u * 60}px) rotateZ(${-5 - 14 * u + 6 * Math.sin(2.6 * Math.PI * u)}deg) rotateY(${-16 + 10 * u}deg) rotateX(${10 + 22 * u}deg)`;
+              s.style.setProperty('--fold', (1 - u * .4).toFixed(3));
+              if (was < .72) sound.release();
+              s.dataset.t = String(t);
+            }
+            // cuống giấy dưới gáy: có từ lúc tờ rời gáy, mất khi cuộn ngược lại
+            const has = stubs.querySelector(`[data-k="${k}"]`);
+            if (t >= .72 && !has) stubs.append(stub(W, 101 + k * 17, k));
+            else if (t < .72 && has) has.remove();
           });
+          // tiếng rít theo tốc độ rách (px/giây theo bề ngang tờ)
+          const dt = Math.max(1, now - lastT);
+          sound.scrub(tearing ? tearing * W / (dt / 1000) : 0);
+          clearTimeout(update.quiet); update.quiet = setTimeout(() => sound.scrub(0), 90);
+          lastQ = q; lastT = now;
           const left = Math.max(0, n - 1 - Math.floor(q + .5));
           el.style.setProperty('--left', left);
           el.classList.toggle('is-past', q > .15);
         };
         const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
         measure(); update();
+        // điểm dừng mỗi màn: thả tay thì tờ đứng yên ở trạng thái nguyên hoặc đã xé, chữ luôn sắc nét
+        const snaps = document.createElement('div'); snaps.className = 'tl-snaps'; snaps.setAttribute('aria-hidden', 'true');
+        snaps.innerHTML = Array.from({ length: n }, (_, k) => `<i style="top:${k * 100}svh"></i>`).join('');
+        el.append(snaps);
         addEventListener('scroll', onScroll, { passive: true });
         addEventListener('resize', () => { measure(); onScroll(); });
+        // Nạp lớp xé WebGL lúc rảnh; lỗi (máy không có WebGL, GPU phần mềm, mất mạng) thì giữ cách xé bằng CSS
+        if (ctx.motion !== 'lite') {
+          const go = async () => {
+            try {
+              const url = new URL('./tear3d.js', import.meta.url).href;
+              const { runTear } = await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ url);
+              const tear = await runTear(el, ctx, { tier: ctx.motion, fibreUrl: await fibre });
+              hook = (s, k, t) => tear.alive() && tear.hook(s, k, t);
+              root.classList.add('tl-gl-on');
+              onScroll();
+            } catch (e) { console.warn('[tờ lịch] xé bằng CSS:', e?.message || e); hook = null; }
+          };
+          'requestIdleCallback' in window ? requestIdleCallback(go, { timeout: 1500 }) : setTimeout(go, 600);
+        }
         // Tải xong font/ảnh có thể đổi vị trí: đo lại
         addEventListener('load', () => { measure(); onScroll(); });
         ctx.on('motion', m => {
           if (m?.motion !== 'lite') return;
           root.classList.remove('tl-tear');
-          sheets.forEach(s => { s.style.transform = ''; s.style.visibility = ''; });
+          sheets.forEach(s => { s.style.transform = ''; s.style.visibility = ''; s.style.clipPath = ''; });
+          stubs.replaceChildren(); snaps.remove();
           removeEventListener('scroll', onScroll);
         });
       },
