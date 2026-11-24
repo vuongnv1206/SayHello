@@ -16,13 +16,16 @@ const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').repla
 const qrUrl = (a, note) => a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note)}` : '');
 
 // Nhịp dàn trang: số ảnh mỗi kiểu trang. Lặp lại cho tới hết album.
+// Album dài (> 12 ảnh): chèn trang "tờ ảnh thử" 6 ảnh nhỏ để cuộn không quá dài; chạm vẫn mở cỡ lớn.
 const RHYTHM = [['full', 1], ['pair', 2], ['quote', 1], ['trio', 3]];
-function spreads(list) {
+const RHYTHM_LONG = [['full', 1], ['pair', 2], ['sheet', 6], ['quote', 1], ['trio', 3], ['sheet', 6]];
+function spreads(list, total = list.length) {
+  const R = total > 12 ? RHYTHM_LONG : RHYTHM;
   const out = []; let i = 0, k = 0;
   while (i < list.length) {
-    let [kind, n] = RHYTHM[k++ % RHYTHM.length];
+    let [kind, n] = R[k++ % R.length];
     const left = list.length - i;
-    if (n > left) [kind, n] = left === 2 ? ['pair', 2] : ['full', 1];
+    if (n > left) [kind, n] = kind === 'sheet' && left >= 3 ? ['sheet', left] : left === 2 ? ['pair', 2] : ['full', 1];
     out.push({ kind, items: list.slice(i, i + n) });
     i += n;
   }
@@ -34,7 +37,7 @@ function plan(ctx) {
   const items = ctx.album.map((src, i) => ({ src, i, cap: ctx.captions[i] || '' }));
   const rest = items.slice(1);
   const cut = Math.min(rest.length, Math.max(2, Math.ceil(rest.length * .45)));
-  return { a: spreads(rest.slice(0, cut)), b: spreads(rest.slice(cut)) };
+  return { a: spreads(rest.slice(0, cut), rest.length), b: spreads(rest.slice(cut), rest.length) };
 }
 
 // Số trang: bìa là trang 1, mỗi trang ảnh và mỗi mục cộng thêm 2 (như một tờ có hai mặt)
@@ -59,6 +62,7 @@ function spreadHtml(sp, page, ctx, k) {
     : sp.kind === 'pair' ? html`<div class="tc-pair">${fig(sp.items[0], 'is-a')}${fig(sp.items[1], 'is-b')}</div>`
     : sp.kind === 'quote' ? html`<div class="tc-quote">${fig(sp.items[0], 'is-q')}
         ${quote?.text ? html`<blockquote><p>${quote.text}</p>${quote.title ? html`<cite>${quote.title}${quote.year ? html`, ${quote.year}` : ''}</cite>` : ''}</blockquote>` : ''}</div>`
+    : sp.kind === 'sheet' ? html`<div class="tc-sheet">${sp.items.map(it => fig({ ...it, cap: '' }, 'is-s'))}</div>`
     : html`<div class="tc-trio">${fig(sp.items[0], 'is-t0')}${fig(sp.items[1], 'is-t1')}${fig(sp.items[2], 'is-t2')}</div>`;
   return html`<div class="tc-spread is-${sp.kind}" data-folio="${page}">${body}<p class="tc-pn" aria-hidden="true">${page}</p></div>`;
 }
@@ -109,20 +113,22 @@ export default defineTheme({
     {
       id: 'bia', label: 'Bìa tạp chí', provides: ['when', 'where'],
       render: ctx => {
-        const { names: n, texts: t, date, city, main, img, guest } = ctx;
+        const { names: n, texts: t, date, city, main, events, img, guest } = ctx;
         const f = folios(ctx);
         const p = parts(date);
+        const lunar = events.find(e => /tháng/i.test(e.lunar || '') && /^nhằm|âm/i.test(e.lunar))?.lunar || main?.lunar || '';
         return html`
         <header class="tc-mast">
           <p class="tc-issue">${t.issue}<span>${p ? `tháng ${p.mo}, ${p.y}` : ''}</span></p>
-          <p class="tc-to">Gửi ${guest()}</p>
         </header>
-        <figure class="tc-cover"><img src="${img('hero', 0)}" alt="${n.pair}" fetchpriority="high" decoding="async"></figure>
+        <figure class="tc-cover"><img src="${img('hero', 0)}" alt="${n.pair}" fetchpriority="high" decoding="async">
+          <p class="tc-sticker"><span>Gửi riêng</span><b>${guest()}</b></p>
+        </figure>
         <h1 class="tc-names"><span class="n1">${n.first}</span><span class="amp">và</span><span class="n2">${n.second}</span></h1>
         <ol class="tc-lines">
-          <li><a href="#lich"><b>${dayLine(date)}</b>${main?.lunar ? html`<span>${main.lunar}</span>` : ''}<i>trang ${f.lich}</i></a></li>
+          <li><a href="#lich"><b>${dayLine(date)}</b>${lunar ? html`<span>${lunar}</span>` : ''}<i>trang ${f.lich}</i></a></li>
           ${main ? html`<li><a href="#lich"><b>${main.title} lúc ${hm(main.date)}</b><span>${main.venue || city}</span><i>trang ${f.lich}</i></a></li>` : ''}
-          <li><a href="#phieu"><b>Bạn sẽ tới chứ?</b><span>Trả lời trong nửa phút</span><i>trang ${f.phieu}</i></a></li>
+          <li class="tc-rsvp-line"><a href="#phieu"><b>Bạn sẽ tới chứ?</b><span>Trả lời trong nửa phút</span><i>trang ${f.phieu}</i></a></li>
         </ol>
         <p class="tc-left" data-days="${date}"></p>`;
       },
@@ -208,7 +214,7 @@ export default defineTheme({
           <div class="tc-coupon">
             <h2 class="tc-h">${t.rsvpTitle}</h2>
             <p class="tc-lead">${t.rsvpLead}</p>
-            ${rsvpForm(ctx, { yes: 'Mình sẽ tới', no: 'Tiếc quá, không tới được', submit: 'Gửi phiếu' })}
+            ${rsvpForm(ctx, { yes: 'Mình sẽ tới', no: 'Tiếc quá, không tới được', submit: 'Gửi phiếu', note: false, wish: false })}
           </div>
           <div class="tc-wishes">
             <h2 class="tc-h">${t.wishesTitle}</h2>
@@ -283,6 +289,8 @@ export default defineTheme({
       },
       mount(el, ctx) {
         const root = document.documentElement;
+        // Gửi phiếu xong: bìa sau đóng dấu "Đã giữ chỗ" lên mã vạch, như bản in riêng của khách
+        ctx.on('rsvp', x => { if (x?.attend === 'Có') el.querySelector('.tc-code')?.classList.add('is-kept'); });
         const reduce = () => ctx.reduced;
 
         /* Dòng số trang: theo trang đang chiếm giữa màn hình */

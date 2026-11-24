@@ -59,22 +59,38 @@
   ],
   "images": {
     "album": [
-      "/_e/themes/phong-trien-lam/images/anh-01.jpg",
-      "/_e/themes/phong-trien-lam/images/anh-02.jpg",
-      "/_e/themes/phong-trien-lam/images/anh-03.jpg",
-      "/_e/themes/phong-trien-lam/images/anh-04.jpg",
-      "/_e/themes/phong-trien-lam/images/anh-05.jpg",
-      "/_e/themes/phong-trien-lam/images/anh-06.jpg"
+      "/_e/themes/ho-guong/images/anh1.jpg",
+      "/_e/themes/ho-guong/images/anh2.jpg",
+      "/_e/themes/ho-guong/images/anh3.jpg",
+      "/_e/themes/ho-guong/images/anh4.jpg",
+      "/_e/themes/ho-guong/images/anh5.jpg",
+      "/_e/themes/ho-guong/images/anh6.jpg",
+      "/_e/themes/ho-guong/images/anh7.jpg",
+      "/_e/themes/ho-guong/images/anh8.jpg",
+      "/_e/themes/bau-troi-anh/images/anh1.jpg",
+      "/_e/themes/bau-troi-anh/images/anh2.jpg",
+      "/_e/themes/bau-troi-anh/images/anh3.jpg",
+      "/_e/themes/bau-troi-anh/images/anh4.jpg",
+      "/_e/themes/bau-troi-anh/images/anh5.jpg",
+      "/_e/themes/bau-troi-anh/images/anh6.jpg"
     ],
     "captions": [
-      "Dưới vòm đá cổ",
-      "Cầu đá bến hồ lên đèn",
-      "Áo dài bên khung cửa sáng",
-      "Khoảnh khắc giữa hành lang",
-      "Thủy đình chiều chạng vạng",
-      "Bó hoa trắng trước giờ lễ"
+      "Bến gỗ lúc mặt trời chạm mặt nước",
+      "Rặng liễu rủ bên hồ hoàng hôn",
+      "Con thuyền nhỏ chờ sương",
+      "Ánh đèn hoa đăng giữa buổi chiều tà",
+      "Dải nắng cuối ngày trên mặt nước",
+      "Đêm hoa đăng",
+      "Mái thủy tạ soi bóng ven hồ",
+      "Hai bàn tay thả đèn ước nguyện",
+      "Đêm sao trên đồi",
+      "Hai người dưới trăng",
+      "Đường về",
+      "Chòm sao của chúng mình",
+      "Đom đóm mùa hạ",
+      "Ngắm trời"
     ],
-    "preview": "/_e/themes/phong-trien-lam/images/anh-01.jpg"
+    "preview": "/_e/themes/ho-guong/images/anh1.jpg"
   },
   "accounts": [
     {
