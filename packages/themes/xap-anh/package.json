@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-xap-anh",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Xấp Ảnh: cả thiệp gói trong một màn, một xấp ảnh in để vuốt và lật, thông tin ở các tab.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

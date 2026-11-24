@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   // Thiệp bản 1 dùng đường dẫn tương đối kiểu /ten-cap-doi/ + ../core/, phải giữ dấu / ở cuối
   trailingSlash: true,
-  transpilePackages: ["@sayhello/engine", "@sayhello/theme-cuon-phim", "@sayhello/theme-phong-trien-lam", "@sayhello/theme-ho-guong", "@sayhello/theme-bau-troi-anh", "@sayhello/theme-tap-chi-cuoi", "@sayhello/theme-to-lich", "@sayhello/theme-lich-trinh"],
+  transpilePackages: ["@sayhello/engine", "@sayhello/theme-cuon-phim", "@sayhello/theme-phong-trien-lam", "@sayhello/theme-ho-guong", "@sayhello/theme-bau-troi-anh", "@sayhello/theme-tap-chi-cuoi", "@sayhello/theme-to-lich", "@sayhello/theme-lich-trinh", "@sayhello/theme-xap-anh"],
   turbopack: {
     rules: {
       "*.css": {

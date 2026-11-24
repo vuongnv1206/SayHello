@@ -364,6 +364,44 @@ for (const tier of ['standard', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Xấp Ảnh: một màn không cuộn; đầu màn có tên, ngày, giờ và nơi (H1); nút sang ảnh và lật mặt sau;
+// tab Trả lời mở phiếu và gửi được; nhóm khách lọc buổi lễ; không tràn ngang.
+for (const tier of ['standard', 'lite']) {
+  const id = 'xap-anh';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if (!(await page.$eval('[data-sh=group-note]', n => n.hidden))) await page.click('[data-sh=group-note] .sh-x');
+  const first = await page.evaluate(() => {
+    const vis = el => { const r = el?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= innerHeight && r.height > 0; };
+    return { names: vis(document.querySelector('.xa-names')), when: vis(document.querySelector('.xa-when b')), tabs: document.querySelector('.xa-tab.t2')?.getBoundingClientRect().top < innerHeight - 30 }; // tab lấp ló ở mép dưới
+  });
+  if (!first.names || !first.when || !first.tabs) errors.push('màn đầu thiếu tên, ngày hoặc tab Trả lời');
+  if (await page.evaluate(() => document.documentElement.scrollHeight > innerHeight + 2)) errors.push('thiệp dài hơn một màn (phải gói trong một màn)');
+  await page.click('.xa-next');
+  if (!/^2 \//.test(await page.textContent('.xa-count'))) errors.push('nút ảnh sau không đổi ảnh');
+  await page.click('.xa-print.is-top .xa-face');
+  if (!(await page.$('.xa-print.is-top.is-flip'))) errors.push('chạm ảnh không lật mặt sau');
+  await page.click('.xa-tab.t1');
+  const evs = await page.$$eval('#xa-gio [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} ở tấm Giờ và nơi`);
+  await page.click('#xa-gio .xa-close');
+  await page.click('.xa-tab.t2');
+  if ((await page.inputValue('#xa-tl form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên trả lời không tự điền');
+  await page.click('#xa-tl form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#xa-tl form[data-sh=rsvp] .sh-msg'))) errors.push('gửi trả lời không thành công');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');

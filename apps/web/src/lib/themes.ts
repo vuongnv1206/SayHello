@@ -14,6 +14,8 @@ import toLich from "@sayhello/theme-to-lich";
 import toLichDemo from "@sayhello/theme-to-lich/demo.json";
 import lichTrinh from "@sayhello/theme-lich-trinh";
 import lichTrinhDemo from "@sayhello/theme-lich-trinh/demo.json";
+import xapAnh from "@sayhello/theme-xap-anh";
+import xapAnhDemo from "@sayhello/theme-xap-anh/demo.json";
 
 type Theme = { id: string; name: string; version: string };
 
@@ -29,4 +31,5 @@ export const THEMES: Record<string, { theme: Theme; demo: Record<string, unknown
   "tap-chi-cuoi": { theme: tapChiCuoi as Theme, demo: tapChiCuoiDemo, assetBase: "/" },
   "to-lich": { theme: toLich as Theme, demo: toLichDemo, assetBase: "/" },
   "lich-trinh": { theme: lichTrinh as Theme, demo: lichTrinhDemo, assetBase: "/" },
+  "xap-anh": { theme: xapAnh as Theme, demo: xapAnhDemo, assetBase: "/" },
 };
