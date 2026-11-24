@@ -151,6 +151,50 @@ for (const tier of ['cinematic', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Hồ Gương: chạm mặt nước mở thiệp; cảnh 3D lên hoặc rơi về bản phẳng (không kẹt màn sương); xem ảnh toàn màn hình;
+// cọc đo nước có số ngày; thả hoa đăng giữ chỗ; nhóm khách lọc bến đón khách; không tràn ngang.
+for (const tier of ['cinematic', 'lite']) {
+  const id = 'ho-guong';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource.*(vietqr|fonts)/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if ((await page.textContent('.sh-gate [data-guest]').catch(() => '')) !== GUEST) errors.push('tên khách trên bìa sai');
+  await page.click('.hg-touch');
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout: 6000 }).catch(() => errors.push('chạm mặt nước không mở thiệp'));
+  if ((await page.$$eval('#ho .hg-track img[data-i]', els => els.length)) < 6) errors.push('ít hơn 6 ảnh trên mặt hồ');
+  if (tier !== 'lite') {
+    const state = await page.waitForFunction(() => {
+      const c = document.documentElement.classList;
+      return c.contains('hg-ready') ? '3d' : !c.contains('hg-3d') && document.querySelector('.sh-gate')?.hidden ? 'phang' : '';
+    }, null, { timeout: 45000 }).then(h => h.jsonValue()).catch(() => '');
+    if (!state) errors.push('kẹt ở màn sương: cảnh 3D không lên mà cũng không rơi về bản phẳng');
+    else console.log(`   (cảnh ${state === '3d' ? '3D' : 'phẳng, máy không có WebGL'})`);
+  } else {
+    if (await page.evaluate(() => document.documentElement.classList.contains('hg-3d'))) errors.push('mức lite vẫn dựng cảnh 3D');
+    await page.click('#ho .hg-track img[data-i="0"]');
+    if (!(await page.isVisible('.hg-view'))) errors.push('chạm ảnh không mở chế độ xem ảnh');
+    await page.click('.hg-v-close');
+  }
+  if (!/ngày|vạch/.test(await page.textContent('#ho .hg-track [data-days]'))) errors.push('cọc đo nước không ghi số ngày');
+  const evs = await page.$$eval('#ho .hg-track .hg-evs [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} ở bến đón khách`);
+  await page.locator('#ben').scrollIntoViewIfNeeded();
+  if ((await page.inputValue('#ben form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên giữ chỗ không tự điền');
+  await page.click('#ben form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#ben form[data-sh=rsvp] .sh-msg'))) errors.push('thả hoa đăng giữ chỗ không thành công');
+  if (!(await page.$('#ben .hg-lantern.is-off'))) errors.push('đèn hoa đăng không trôi đi sau khi giữ chỗ');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');
