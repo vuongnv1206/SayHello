@@ -1,0 +1,57 @@
+{
+  "slug": "demo-phong-trien-lam",
+  "groom": { "short": "Gia Huy", "full": "Trần Gia Huy" },
+  "bride": { "short": "Khánh Linh", "full": "Phạm Khánh Linh" },
+  "order": "groom-first",
+  "city": "Hà Nội",
+  "date": "2027-11-20T18:00:00+07:00",
+  "themeColor": "#0b0e0e",
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-11-20T08:30:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 12 phố Ví Dụ, Phường Mẫu, Hà Nội",
+      "lunar": "Nhằm ngày 22 tháng 10 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-11-20T18:00:00+07:00",
+      "venue": "Trung tâm tiệc cưới Ví Dụ",
+      "address": "Số 88 đường Ví Dụ, Phường Ví Dụ, Hà Nội",
+      "main": true
+    }
+  ],
+  "places": [
+    { "label": "Tiệc cưới", "address": "Số 88 đường Ví Dụ, Phường Ví Dụ, Hà Nội", "coords": "21.0285,105.8542" },
+    { "label": "Lễ vu quy", "address": "Số 12 phố Ví Dụ, Phường Mẫu, Hà Nội", "coords": "21.0245,105.8412" }
+  ],
+  "images": {
+    "album": [
+      "demo-cuon-phim/images/anh3.jpg",
+      "demo-den-long/images/anh1.jpg",
+      "demo-tin-nhan/images/anh2.jpg",
+      "demo-cuon-phim/images/anh5.jpg",
+      "demo-den-long/images/anh4.jpg",
+      "demo-tin-nhan/images/anh1.jpg",
+      "demo-cuon-phim/images/anh2.jpg",
+      "demo-den-long/images/anh3.jpg",
+      "demo-tin-nhan/images/anh6.jpg",
+      "demo-cuon-phim/images/anh4.jpg",
+      "demo-den-long/images/anh5.jpg",
+      "demo-tin-nhan/images/anh3.jpg",
+      "demo-ve-may-bay/images/anh1.jpg",
+      "demo-khoa-tinh/images/anh2.jpg"
+    ],
+    "captions": ["Trăng tháng Mười", "Chiều Hồ Tây", "Phố lên đèn", "Biển Quy Nhơn", "", "Hoàng hôn đầu tiên", "", "Mùa hoa sữa", "", "Dây đèn ban công", "", "", "", "Sáng hôm sau"],
+    "preview": "demo-cuon-phim/images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/dao-buoc.mp3",
+  "accounts": [
+    { "who": "Chú rể", "bank": "Vietcombank", "bankCode": "VCB", "number": "0000000000", "name": "TRAN GIA HUY" },
+    { "who": "Cô dâu", "bank": "Techcombank", "bankCode": "TCB", "number": "0000000000", "name": "PHAM KHANH LINH" }
+  ],
+  "guestGroups": [
+    { "id": "nha-gai", "label": "Họ nhà gái", "greeting": "Trân trọng kính mời họ nhà gái", "events": [0], "note": "Xe đón họ nhà gái xuất phát lúc 7:00" }
+  ]
+}

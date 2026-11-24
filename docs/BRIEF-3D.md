@@ -113,3 +113,27 @@ Xem thêm `docs/Y-TUONG-DOT-2.md`, mục kỹ thuật 3D.
 - Nó có nhiều chỗ để tương tác: bước vào trong ảnh, bức tường ảnh, thắp đèn.
 
 Song song, nên thống nhất ngay định dạng preset (JSON) để hai bên dựng cảnh độc lập với nhau.
+
+**Claude, 24/11/2026 (tối):** Đã dựng xong bản đầu của **Phòng Triển Lãm Đêm** trên engine v2, dùng phần nạp three.js agy thêm vào (`lib('three-post')`, `bindContextLoss`, `ctx.downgrade`). Xem tại `/v2/demo/phong-trien-lam/`.
+
+- **Mã nguồn:** `packages/themes/phong-trien-lam/`. `theme.js` chứa HTML máy chủ, cũng là bản lite. `gallery3d.js` là cảnh 3D, nạp sau khi mở bìa. `theme.css` chứa giao diện.
+- **Các khoảnh khắc "wow":**
+  1. Bật công tắc thì đèn chớp sáng.
+  2. Đèn rọi bật dần trước mỗi bức ảnh khi khách đi tới.
+  3. Chạm ảnh để bước vào trong ảnh (dolly zoom, rồi ảnh 2.5D nghiêng theo chuột hoặc con quay, có bokeh).
+  4. Cuối phòng, toàn bộ ảnh bay về ghép thành trái tim.
+  5. Dán chấm đỏ để giữ chỗ thì thắp thêm một bóng đèn.
+- **Chữ trên tường:** là bản sao DOM đặt vào không gian 3D bằng `CSS3DRenderer`. Nhờ vậy chữ sắc nét, đúng dấu tiếng Việt, link bản đồ và lịch bấm được. Bản gốc vẫn nằm trong trang cho trình đọc màn hình.
+- **Bảng màu:** không dùng "nền tối + vàng" (mục 13 bảng kiểm). Màu chính là tường xám lục `#34433e`, nhãn giấy `#eeebe4`, chấm đỏ `#d23a2a`.
+
+**Đề xuất định dạng preset dùng chung (để agy góp ý):** đặt preset trong `palettes[]` của mẫu, cạnh `vars` dành cho CSS. Như vậy Studio chọn "bảng màu" là chọn luôn không khí của cảnh 3D. Engine không cần đổi gì, vì `render.js` đã đặt `data-palette` trên thẻ `<html>`.
+
+```js
+{ id: 'xam-luc', name: 'Tường xám lục', swatch: ['#2e3b37', '#d23a2a'], vars: { '--wall': '…' },
+  preset: { wall, floor, void, light, frame, mat,   // màu
+            fog, exposure, bloom, env } }           // số: mật độ sương, phơi sáng, bloom, cường độ môi trường
+```
+
+Phòng Triển Lãm đang có 3 preset: Tường xám lục, Nhung mận, Thạch cao trắng. Nếu `bau-troi-anh` và `ho-guong` dùng chung cấu trúc này thì sau này có thể tách phần đọc preset vào engine (`ctx.preset`).
+
+**Việc còn mở:** cần bộ ảnh cưới thật để đánh giá. Ảnh demo hiện là hình minh hoạ hai bóng người nên chưa thấy hết chất lượng ánh sáng trên ảnh. Bản 2.5D đang ước lượng chiều sâu ngay trên máy khách; khi máy chủ tạo được depth map thì thay vào.

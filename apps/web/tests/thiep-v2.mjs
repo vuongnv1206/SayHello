@@ -106,6 +106,47 @@ for (const id of THEMES) {
   failures.push(...errors.map(e => `${id}/nhóm: ${e}`));
   await ctx.close();
 }
+// Phòng Triển Lãm Đêm: bật công tắc mở thiệp; mức cao dựng cảnh 3D (hoặc rơi về sách phẳng nếu máy không có
+// WebGL, nhưng không bao giờ kẹt ở màn "đang bật đèn"); dán chấm đỏ giữ chỗ; nhóm khách lọc tường thông tin.
+for (const tier of ['cinematic', 'lite']) {
+  const id = 'phong-trien-lam';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource.*(vietqr|fonts)/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if ((await page.textContent('.sh-gate [data-guest]').catch(() => '')) !== GUEST) errors.push('tên khách trên bìa sai');
+  await page.click('.ptl-switch');
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout: 6000 }).catch(() => errors.push('bật công tắc không mở thiệp'));
+  const works = await page.$$eval('#phong .ptl-s-work', els => els.length);
+  if (works < 6) errors.push(`chỉ có ${works} ảnh trong phòng tranh`);
+  if (tier !== 'lite') {
+    const state = await page.waitForFunction(() => {
+      const c = document.documentElement.classList;
+      return c.contains('ptl-ready') ? '3d' : !c.contains('ptl-3d') && document.querySelector('.sh-gate')?.hidden ? 'phang' : '';
+    }, null, { timeout: 45000 }).then(h => h.jsonValue()).catch(() => '');
+    if (!state) errors.push('kẹt ở màn "đang bật đèn": cảnh 3D không lên mà cũng không rơi về bản phẳng');
+    else console.log(`   (cảnh ${state === '3d' ? '3D' : 'phẳng, máy không có WebGL'})`);
+  } else if (await page.evaluate(() => document.documentElement.classList.contains('ptl-3d'))) errors.push('mức lite vẫn dựng cảnh 3D');
+  const evs = await page.$$eval('#phong .ptl-track .ptl-evs [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} trên tường thông tin`);
+  await page.locator('#le-tan').scrollIntoViewIfNeeded();
+  if ((await page.inputValue('#le-tan form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên giữ chỗ không tự điền');
+  await page.click('#le-tan form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#le-tan form[data-sh=rsvp] .sh-msg'))) errors.push('gửi giữ chỗ không thành công');
+  if (!(await page.$eval('.ptl-dot-slot .ptl-dot', d => d.classList.contains('is-on')))) errors.push('không dán chấm đỏ sau khi giữ chỗ');
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth
+    ? [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 4).map(e => `${e.tagName.toLowerCase()}.${e.className}`).join(', ') || 'không rõ' : '');
+  if (wide) errors.push('trang tràn ngang ở khổ 390px: ' + wide);
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');
