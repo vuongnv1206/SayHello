@@ -1,0 +1,119 @@
+{
+  "slug": "demo-chieu-sau",
+  "groom": {
+    "short": "Minh Khôi",
+    "full": "Nguyễn Minh Khôi",
+    "bio": "Kiến trúc sư thích ngồi vẽ ký họa ven hồ mỗi chiều nắng muộn."
+  },
+  "bride": {
+    "short": "Thảo Vy",
+    "full": "Lê Thảo Vy",
+    "bio": "Người giữ lại những cuộn phim chụp vội lúc hoàng hôn vừa chạm mặt nước."
+  },
+  "order": "groom-first",
+  "city": "Hà Nội",
+  "date": "2027-11-28T17:30:00+07:00",
+  "themeColor": "#1d1a17",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Nguyễn Quang Hưng",
+      "mother": "Trần Thu Hà",
+      "address": "Phường Trúc Bạch,\nQuận Ba Đình, Hà Nội"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Lê Văn Đức",
+      "mother": "Phạm Ngọc Mai",
+      "address": "Phường Quảng An,\nQuận Tây Hồ, Hà Nội"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-11-28T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 18 phố Quảng An, Tây Hồ, Hà Nội",
+      "lunar": "Nhằm ngày 01 tháng 11 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Cưới Hoàng Hôn",
+      "date": "2027-11-28T17:30:00+07:00",
+      "venue": "Thủy Tạ Ven Hồ",
+      "address": "Số 06 đường Thanh Niên, Tây Hồ, Hà Nội",
+      "lunar": "Đón khách lúc 17 giờ 30 bên mặt hồ",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Thủy Tạ Ven Hồ",
+      "address": "Số 06 đường Thanh Niên, Tây Hồ, Hà Nội",
+      "coords": "21.0456,105.8371"
+    },
+    {
+      "label": "Tư gia nhà gái",
+      "address": "Số 18 phố Quảng An, Tây Hồ, Hà Nội",
+      "coords": "21.0642,105.8265"
+    }
+  ],
+  "images": {
+    "album": [
+      "/_e/themes/chieu-sau/images/anh-04.jpg",
+      "/_e/themes/chieu-sau/images/anh-03.jpg",
+      "/_e/themes/chieu-sau/images/anh-01.jpg",
+      "/_e/themes/chieu-sau/images/anh-06.jpg"
+    ],
+    "captions": [
+      "Khoảnh khắc giữa hành lang",
+      "Áo dài bên khung cửa sáng",
+      "Dưới vòm đá cổ",
+      "Bó hoa trắng trước giờ lễ"
+    ],
+    "preview": "/_e/themes/chieu-sau/images/anh-04.jpg"
+  },
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "0000000000",
+      "name": "NGUYEN MINH KHOI"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "0000000000",
+      "name": "LE THAO VY"
+    }
+  ],
+  "story": [
+    {
+      "year": "2021",
+      "title": "Buổi chiều mưa tạnh ven hồ",
+      "text": "Hai chiếc xe dừng chung dưới một tán liễu đường Thanh Niên. Trời vừa hửng nắng, mặt hồ phản chiếu nguyên một dải mây vàng."
+    },
+    {
+      "year": "2024",
+      "title": "Cuộn phim đầu tiên",
+      "text": "Tấm ảnh đầu hai đứa chụp chung không nhìn vào ống kính, chỉ thấy hai cái bóng dài đổ xuống bến nước lúc năm giờ chiều."
+    },
+    {
+      "year": "2027",
+      "title": "Hẹn nhau bên mặt gương",
+      "text": "Chúng mình chọn đúng giờ hoàng hôn để mở tiệc cưới, nơi ánh nắng tắt dần và những ngọn hoa đăng bắt đầu sáng."
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời họ nhà gái",
+      "events": [
+        0
+      ],
+      "note": "Xe đón họ nhà gái xuất phát lúc 8 giờ sáng tại phố Quảng An"
+    }
+  ]
+}

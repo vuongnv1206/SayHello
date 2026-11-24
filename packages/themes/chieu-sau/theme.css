@@ -1,0 +1,94 @@
+/* Chiều Sâu — chữ khổng lồ sau lưng cặp đôi, nắng qua cửa lá sách. Chữ: Noto Serif Display (hẹp, tương phản cao), Inter (thông tin). */
+:root {
+  --cs-ink: #1d1a17; --cs-cream: #f3ebdd; --cs-sun: #ffd9a6; --cs-mute: #c9bfb0; --cs-shade: #2a1d12;
+  --cs-d: 'Noto Serif Display', 'Times New Roman', serif; --cs-t: 'Inter', 'Noto Sans', Arial, sans-serif;
+  --sh-bg: var(--cs-ink); --sh-ink: var(--cs-cream); --sh-accent: var(--cs-cream); --sh-accent-ink: var(--cs-ink); --sh-soft: rgba(243, 235, 221, .28); --sh-panel: #26221e; --sh-radius: 2px;
+}
+body.sh { background: var(--cs-ink); color: var(--cs-cream); font: 400 16px/1.55 var(--cs-t); }
+.sh-quick-btn { display: none; }
+
+/* ---------- Trang bìa ba lớp ---------- */
+.cs-page { position: relative; height: 100svh; }
+.cs-frame { position: relative; height: 100svh; overflow: hidden; background: #2a2520; cursor: pointer; }
+.cs-bg, .cs-fg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.cs-fg { z-index: 3; pointer-events: none; }
+.cs-big { position: absolute; z-index: 2; left: 0; right: 0; top: var(--head, 34%); margin: 0; text-align: center; color: var(--cs-cream);
+  font: 600 var(--fs, 24vw)/.8 var(--cs-d); font-stretch: 62.5%; letter-spacing: -.01em; white-space: nowrap;
+  transform: translateY(calc(-100% + .24em)); text-shadow: 0 .02em .08em rgba(0, 0, 0, .18); }
+.cs-big span { display: block; width: max-content; margin: 0 auto; }
+/* không có lớp người (ảnh không tách được): chữ đặt cao, không bị che */
+.cs-page.no-fg .cs-fg { display: none; }
+.cs-page.no-fg .cs-big { top: 22%; transform: none; }
+
+/* Thông tin ở mép dưới: chữ thật, nền tối dần cho dễ đọc */
+.cs-foot { position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; padding: 96px 18px max(22px, env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(20, 15, 11, .88), rgba(20, 15, 11, .55) 55%, transparent); cursor: auto; }
+.cs-names { margin: 0 0 4px; font: 500 30px/1.05 var(--cs-d); font-stretch: 75%; }
+.cs-to { margin: 0 0 6px; font: italic 400 17px/1.3 var(--cs-d); color: var(--cs-mute); }
+.cs-when { margin: 0; }
+.cs-when b { display: block; font: 600 18px/1.35 var(--cs-t); }
+.cs-when span { display: block; font-size: 15px; color: var(--cs-mute); }
+.cs-where { margin: 10px 0 0; font: 500 16px/1.4 var(--cs-t); }
+.cs-ev { margin: 0 0 10px; }
+.cs-ev b { display: block; font: 600 17px/1.3 var(--cs-t); }
+.cs-ev span { display: block; font-size: 15px; color: var(--cs-mute); }
+.cs-acts { display: flex; gap: 10px; margin: 14px 0 0; }
+.cs-btn, .sh-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 0; border-radius: 2px; background: var(--cs-cream); color: var(--cs-ink); font: 600 16px/1 var(--cs-t); text-decoration: none; cursor: pointer; }
+.cs-btn.cs-ghost { background: transparent; color: var(--cs-cream); box-shadow: inset 0 0 0 1.5px var(--cs-cream); }
+.cs-btn:focus-visible, .sh-btn:focus-visible { outline: 3px solid var(--cs-sun); outline-offset: 3px; }
+
+/* ---------- Nắng Hiên: dải nắng qua cửa lá sách ---------- */
+.cs-sun { display: none; }
+html.cs-move .cs-sun { display: block; position: absolute; z-index: 4; inset: -30%; pointer-events: none; transition: opacity 1.2s ease;
+  --ang: calc(104deg + var(--day, 0) * 22deg);
+  background: repeating-linear-gradient(var(--ang), rgba(42, 29, 18, .3) 0 22px, rgba(42, 29, 18, .3) 22px 30px, transparent 30px 34px, rgba(255, 217, 166, .3) 34px 64px, transparent 64px 68px);
+  background-size: 100% 100%; mix-blend-mode: soft-light;
+  transform: translate3d(calc(var(--p, 0) * -18px), calc(var(--p, 0) * 30px), 0); }
+/* lớp nắng thứ hai chỉ rơi trên người, lệch một khoảng: người đứng gần cửa hơn tường nên dải nắng trên người lệch đi */
+html.cs-move .cs-frame::after { content: ''; position: absolute; z-index: 5; inset: 0; pointer-events: none; transition: opacity 1.2s ease;
+  -webkit-mask: var(--cut) center / cover no-repeat; mask: var(--cut) center / cover no-repeat;
+  background: repeating-linear-gradient(calc(104deg + var(--day, 0) * 22deg), transparent 0 14px, rgba(255, 222, 176, .34) 14px 44px, transparent 44px 52px);
+  background-position: calc(var(--p, 0) * -40px + 18px) 0; mix-blend-mode: soft-light; }
+/* sắc chiều: cuộn càng xa ánh càng vàng */
+html.cs-move .cs-frame::before { content: ''; position: absolute; z-index: 4; inset: 0; pointer-events: none; background: linear-gradient(160deg, rgba(255, 196, 120, calc(.04 + var(--day, 0) * .16)), transparent 60%); mix-blend-mode: soft-light; transition: opacity 1.2s; }
+/* chạm: cửa mở, nắng tràn đều */
+.cs-page.is-open .cs-sun, .cs-page.is-open .cs-frame::after { opacity: 0; }
+.cs-page.is-open .cs-frame::before { background: linear-gradient(160deg, rgba(255, 210, 150, .32), rgba(255, 210, 150, .08) 70%); }
+
+/* ---------- Chiều sâu theo cuộn ---------- */
+html.cs-move .cs-page { height: 190svh; }
+html.cs-move .cs-frame { position: sticky; top: 0; }
+html.cs-move .cs-bg { transform: scale(calc(1.07 - var(--p, 0) * .03)) translateY(calc(var(--p, 0) * -1.2vh)); will-change: transform; }
+html.cs-move .cs-big { transform: translateY(calc(-100% + .24em + var(--p, 0) * -5vh)); will-change: transform; }
+html.cs-move .cs-fg { transform: scale(calc(1.07 + var(--p, 0) * .02)) translateY(calc(var(--p, 0) * -2.4vh)); will-change: transform; }
+html.cs-move .cs-page.no-fg .cs-big { transform: translateY(calc(var(--p, 0) * -5vh)); }
+
+/* ---------- Trả lời ---------- */
+#tra-loi { padding: 56px 18px 80px; background: var(--cs-ink); }
+.cs-after { max-width: 560px; }
+.cs-h { margin: 0 0 8px; font: 500 clamp(44px, 13vw, 84px)/.95 var(--cs-d); font-stretch: 62.5%; }
+.cs-h2 { margin-top: 56px; }
+.cs-lead { margin: 0 0 18px; color: var(--cs-mute); }
+.sh-form :is(input, select, textarea) { border-radius: 2px; border: 0; border-bottom: 1.5px solid var(--cs-mute); background: transparent; color: var(--cs-cream); font: 400 17px/1.4 var(--cs-t); }
+.sh-field > span, .sh-pick legend { font-size: 14px; color: var(--cs-mute); }
+.sh-choice span, .sh-pick span { border-radius: 2px; border: 1.5px solid var(--cs-mute); }
+.sh-choice input:checked + span, .sh-pick input:checked + span { background: var(--cs-cream); color: var(--cs-ink); border-color: var(--cs-cream); }
+#tra-loi :is(ul, ol) { list-style: none; padding: 0; margin: 18px 0 0; }
+#tra-loi li { padding: 10px 0; border-top: 1px solid var(--sh-soft); font-size: 15px; }
+.cs-acc { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; padding: 14px 0; }
+.sh-scene .cs-qr { width: 120px; height: 120px; background: #fff; }
+.cs-acc h3 { margin: 0 0 4px; font: 600 17px/1.2 var(--cs-t); }
+.cs-acc p { margin: 0; font-size: 15px; }
+.cs-num { font: 600 20px/1.3 var(--cs-t) !important; letter-spacing: .03em; }
+.cs-end { margin: 56px 0 0; font: italic 400 26px/1.2 var(--cs-d); color: var(--cs-mute); }
+
+@media (min-width: 900px) {
+  /* ảnh dọc thành cột giữa màn; chữ khổng lồ vẫn trải ra hai bên nền tối như bìa tạp chí */
+  .cs-frame { background: #15120f; }
+  .cs-bg, .cs-fg { left: calc(50% - min(50%, 38svh)); width: min(100%, 76svh); }
+  .cs-big { font-size: var(--fs, 20vw); }
+  html.cs-move .cs-sun { inset: -10% auto; left: calc(50% - min(50%, 38svh) - 40px); width: calc(min(100%, 76svh) + 80px); clip-path: inset(0 40px); transform: translate3d(0, calc(var(--p, 0) * 30px), 0); }
+  html.cs-move .cs-frame::before { left: calc(50% - min(50%, 38svh)); width: min(100%, 76svh); right: auto; }
+  .cs-foot { padding: 120px 6vw 32px; display: grid; grid-template-columns: repeat(3, minmax(0, auto)); justify-content: start; column-gap: 48px; align-items: end; }
+  #tra-loi { padding: 96px 6vw 120px; }
+}
+@media (prefers-reduced-motion: reduce) { .cs-sun, .cs-frame::after, .cs-frame::before { transition: none; } }

@@ -18,6 +18,8 @@ import xapAnh from "@sayhello/theme-xap-anh";
 import xapAnhDemo from "@sayhello/theme-xap-anh/demo.json";
 import toAnhThu from "@sayhello/theme-to-anh-thu";
 import toAnhThuDemo from "@sayhello/theme-to-anh-thu/demo.json";
+import chieuSau from "@sayhello/theme-chieu-sau";
+import chieuSauDemo from "@sayhello/theme-chieu-sau/demo.json";
 
 type Theme = { id: string; name: string; version: string };
 
@@ -35,4 +37,6 @@ export const THEMES: Record<string, { theme: Theme; demo: Record<string, unknown
   "lich-trinh": { theme: lichTrinh as Theme, demo: lichTrinhDemo, assetBase: "/" },
   "xap-anh": { theme: xapAnh as Theme, demo: xapAnhDemo, assetBase: "/" },
   "to-anh-thu": { theme: toAnhThu as Theme, demo: toAnhThuDemo, assetBase: "/" },
+  // Bản thử: ảnh mẫu do AI tạo (không phải cặp đôi thật), lớp người tách sẵn *-nguoi.webp
+  "chieu-sau": { theme: chieuSau as Theme, demo: chieuSauDemo, assetBase: "/" },
 };
