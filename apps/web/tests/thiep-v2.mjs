@@ -286,6 +286,46 @@ for (const tier of ['standard', 'lite']) {
   failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
   await ctx.close();
 }
+// Tờ Lịch: tờ đầu có ngày, tên, âm lịch (H1); cuộn thì tờ trên bị xé (lite: không xé); nút Giữ chỗ một chạm;
+// phiếu gửi được; nhóm khách lọc buổi lễ; không tràn ngang.
+for (const tier of ['standard', 'lite']) {
+  const id = 'to-lich';
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: tier === 'lite' ? 'reduce' : 'no-preference' });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push('Lỗi JS: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
+  page.on('response', r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errors.push(`${r.status()} ${r.url()}`); });
+  await page.goto(`${BASE}/v2/demo/${id}/?k=${encodeURIComponent(GUEST)}&tier=${tier}&n=nha-gai`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 }).catch(() => errors.push('runtime không khởi động'));
+  if (!(await page.$eval('[data-sh=group-note]', n => n.hidden))) await page.click('[data-sh=group-note] .sh-x');
+  const first = await page.evaluate(() => {
+    const vis = el => { const r = el?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= innerHeight && r.height > 0; };
+    return { num: vis(document.querySelector('.tl-day .tl-num')), names: vis(document.querySelector('.tl-day .tl-names')), top: document.querySelector('.tl-day .tl-top')?.textContent || '' };
+  });
+  if (!first.num || !first.names) errors.push('tờ đầu thiếu ngày hoặc tên trong màn đầu');
+  if (!first.top.includes(GUEST)) errors.push('đầu tờ lịch không có tên khách: ' + first.top.trim());
+  const tear = await page.evaluate(() => document.documentElement.classList.contains('tl-tear'));
+  if (tier === 'lite' ? tear : !tear) errors.push(tier === 'lite' ? 'mức lite vẫn xé lịch' : 'không bật chế độ xé lịch');
+  if (tier !== 'lite') {
+    await page.evaluate(() => scrollTo(0, document.getElementById('xap').offsetTop + innerHeight * 1.2));
+    await page.waitForTimeout(400);
+    if (!(await page.$eval('.tl-day', s => s.style.visibility === 'hidden'))) errors.push('cuộn qua mà tờ đầu không bị xé');
+  }
+  const evs = await page.$$eval('#xap .tl-events [data-ev]', els => els.filter(e => !e.hidden).map(e => e.dataset.ev));
+  if (evs.join() !== '0') errors.push(`nhóm nhà gái thấy buổi ${evs.join()} ở tờ giờ giấc`);
+  await page.click('.tl-keep');
+  await page.waitForTimeout(700);
+  if ((await page.inputValue('#giu-cho form[data-sh=rsvp] input[name=name]')) !== GUEST) errors.push('ô tên giữ chỗ không tự điền');
+  await page.click('#giu-cho form[data-sh=rsvp] [type=submit]');
+  await page.waitForTimeout(400);
+  if (!/Cảm ơn/.test(await page.textContent('#giu-cho form[data-sh=rsvp] .sh-msg'))) errors.push('giữ chỗ không thành công');
+  if (await page.evaluate(() => innerWidth > 390 || document.documentElement.scrollWidth > innerWidth)) errors.push('trang tràn ngang ở khổ 390px');
+  console.log(`${errors.length ? '✗' : '✓'} ${id} · ${tier}`);
+  errors.forEach(e => console.log('   ' + e));
+  failures.push(...errors.map(e => `${id}/${tier}: ${e}`));
+  await ctx.close();
+}
 await browser.close();
 if (failures.length) { console.log(`\n${failures.length} lỗi`); process.exit(1); }
 console.log('\nThiệp bản 2 đều ổn');
