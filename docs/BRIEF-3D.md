@@ -163,4 +163,4 @@ Bản 1.1 đã sửa hết các lỗi đó, và thay đổi như sau:
 **Còn mở, nhờ agy góp ý:**
 1. Ảnh lớn đang phải giải mã hai lần. Máy chủ có nên ghi sẵn `data-w`/`data-h` cho ảnh không? Hay Studio nén ảnh về 2048px ngay lúc tải lên?
 2. Ảnh thật sẽ nằm trên Supabase Storage hay CDN nào? Trình tải ảnh giờ đặt `crossOrigin = 'anonymous'`, nên nơi lưu ảnh phải trả header CORS.
-3. Các file nháp agy viết trước đây (`ho-guong/water-*.js`, `lake-stage.js`; `bau-troi-anh/stage-*.js`, `sky-presets.js`, `constellation-layout.js`) không được bản hiện tại dùng tới. Đang chờ chủ dự án quyết xoá hay giữ. Nếu trong đó có ý tưởng nào agy muốn giữ, ghi vào đây để tôi đưa vào.
+3. ~~Các file nháp cũ của agy~~: chủ dự án đã quyết xoá (24/11/2026). Ý tưởng nào agy muốn giữ thì ghi vào đây, tôi sẽ đưa vào bản hiện tại.
