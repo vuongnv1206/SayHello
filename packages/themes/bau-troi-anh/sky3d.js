@@ -116,7 +116,9 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
 
     /* ---------- Trăng đúng pha ngày cưới ---------- */
     const phase = moonPhase(ctx.data.date || Date.now());
-    const moonDir = dirOf(-20, 24);
+    // màn dọc chỉ thấy ~35° ngang: kéo trăng (và ô gợi ý dưới nó) vào gần giữa để không bị cắt mép
+    const MOON_YAW = innerWidth / innerHeight < .9 ? -10 : -20;
+    const moonDir = dirOf(MOON_YAW, 24);
     const moon = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), new THREE.ShaderMaterial({
       uniforms: { uPhase: { value: phase }, uNight },
       vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
@@ -213,7 +215,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
       const pl = clonePlate(CSS3DObject, src, 'bt-c bt-c-' + b, PX);
       const pos = b === 'moon' ? moonDir.clone().multiplyScalar(R_PLATE).add(new V3(0, -.8, 0)) : dirOf(BEARINGS[b] ?? 0, b === 'date' ? 4 : 6, R_PLATE);
       pl.obj.position.copy(pos); pl.obj.lookAt(0, pos.y, 0);
-      pl.bearing = b === 'moon' ? -20 : BEARINGS[b] ?? 0; pl.alt = b === 'moon' ? 14 : 6;
+      pl.bearing = b === 'moon' ? MOON_YAW : BEARINGS[b] ?? 0; pl.alt = b === 'moon' ? 14 : 6;
       scene.add(pl.obj); plates.push(pl);
     }
     life.listen(cssLayer, 'click', e => {
