@@ -226,6 +226,22 @@ export function fpsGuard({ grace = 3, onSlow, onTooSlow, disabled }) {
  */
 export function barOnly(w, h, W, H) { return w === W && h !== H && Math.abs(h - H) < 140; }
 
+/**
+ * Mất ngữ cảnh WebGL (Zalo/Messenger hay làm vậy khi khách chuyển app): lần đầu thì dọn cảnh, thay canvas mới
+ * (canvas cũ giữ ngữ cảnh đã mất), đợi khách quay lại trang rồi dựng lại cảnh; lần thứ hai mới về bản phẳng.
+ */
+export function recoverContext(canvas, { teardown, retry, downgrade }) {
+  teardown();
+  if (!retry) return downgrade();
+  const fresh = canvas.cloneNode(false); canvas.replaceWith(fresh);
+  const go = () => {
+    if (document.hidden) return;
+    document.removeEventListener('visibilitychange', go);
+    setTimeout(() => Promise.resolve().then(retry).catch(e => { console.warn('[thiệp 3D] dựng lại không được:', e?.message || e); downgrade(); }), 600);
+  };
+  document.hidden ? document.addEventListener('visibilitychange', go) : go();
+}
+
 /** Vòng vẽ một-luồng: dừng khi tab ẩn, tiếp tục khi hiện, gỡ sạch khi teardown. */
 export function startLoop(life, frame) {
   let raf = 0, last = performance.now(), started = false;

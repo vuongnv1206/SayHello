@@ -8,7 +8,7 @@
 // Ảnh dưới nước: shader riêng, méo theo cùng sóng, ngả sắc nước, có vân sáng đáy hồ. Vớt lên: nổi lên, dựng đứng,
 // ráo nước dần; ảnh đứng giữ nguyên màu.
 import {
-  clamp, ease, flicker, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader, barOnly,
+  clamp, ease, flicker, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader, barOnly, recoverContext,
   clonePlate, scrollStops, fpsGuard, startLoop, disposeScene, SHADER_TAIL,
 } from '@sayhello/engine/client/stage3d.js';
 
@@ -17,7 +17,8 @@ const STEP = 8.5;            // khoảng cách giữa hai điểm dừng dọc �
 const RINGS = 16;
 const SUBMERGE = -.32;       // độ sâu ảnh nằm dưới nước
 
-export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} }) {
+export async function runLake(el, ctx, opts) {
+  const { tier, palettes, dropSound = () => {} } = opts;
   const root = document.documentElement;
   const SNAP = new URLSearchParams(location.search).has('snap');
   root.classList.add('hg-3d');
@@ -558,7 +559,7 @@ export async function runLake(el, ctx, { tier, palettes, dropSound = () => {} })
     }
 
     const loop = startLoop(life, frame);
-    bindContextLoss(canvas, () => { life.teardown(); ctx.downgrade('webglcontextlost'); });
+    bindContextLoss(canvas, () => recoverContext(canvas, { teardown: life.teardown, downgrade: () => ctx.downgrade('webglcontextlost'), retry: opts.retried ? null : () => runLake(el, ctx, { ...opts, retried: true }) }));
 
     /* ---------- Khởi động ---------- */
     css.render(scene, camera);

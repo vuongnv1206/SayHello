@@ -4,7 +4,7 @@
 //   đường mắt khách đi qua các ảnh đã nở vẽ thành chòm sao. Ảnh giữ ≤1 (không loá), chỉ sao/trăng/đom đóm mới loá.
 // Hạ tầng dùng chung: @sayhello/engine/client/stage3d.js.
 import {
-  clamp, ease, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader, barOnly,
+  clamp, ease, withTimeout, loadThree, createLife, makeRenderer, createPost, createPhotoLoader, barOnly, recoverContext,
   clonePlate, fpsGuard, startLoop, disposeScene, SHADER_TAIL,
 } from '@sayhello/engine/client/stage3d.js';
 
@@ -12,7 +12,8 @@ const PX = 1 / 400;
 const R_PHOTO = 14, R_PLATE = 3.8, R_RIDGE = 30;
 const D2R = Math.PI / 180;
 
-export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moonPhase }) {
+export async function runSky(el, ctx, opts) {
+  const { tier, palettes, skyLayout, BEARINGS, moonPhase } = opts;
   const root = document.documentElement;
   const SNAP = new URLSearchParams(location.search).has('snap');
   root.classList.add('bt-3d');
@@ -498,7 +499,7 @@ export async function runSky(el, ctx, { tier, palettes, skyLayout, BEARINGS, moo
     }
 
     const loop = startLoop(life, frame);
-    bindContextLoss(canvas, () => { life.teardown(); ctx.downgrade('webglcontextlost'); });
+    bindContextLoss(canvas, () => recoverContext(canvas, { teardown: life.teardown, downgrade: () => ctx.downgrade('webglcontextlost'), retry: opts.retried ? null : () => runSky(el, ctx, { ...opts, retried: true }) }));
     ctx.on('motion', m => { if (m?.motion === 'lite') life.teardown(); });
 
     /* ---------- Khởi động ---------- */

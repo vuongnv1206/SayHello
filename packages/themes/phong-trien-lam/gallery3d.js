@@ -9,7 +9,7 @@
 // Hậu kỳ (cinematic): bloom chỉ cho thứ phát sáng (ngưỡng 1,6), tone mapping Neutral (giữ màu ảnh), hạt phim.
 // Hiệu năng: chỉ vẽ các điểm dừng gần; đứng yên thì không vẽ lại; FPS thấp thì tự tắt hậu kỳ, rồi rơi về bản phẳng.
 
-import { fpsGuard, barOnly } from '@sayhello/engine/client/stage3d.js';
+import { fpsGuard, barOnly, recoverContext } from '@sayhello/engine/client/stage3d.js';
 
 const PX = 1 / 400;            // 400px chữ DOM = 1 mét trong phòng
 const HALF = 3.4, H = 4.2;     // nửa chiều rộng hành lang, chiều cao trần
@@ -23,7 +23,8 @@ const ease = t => t * t * t * (t * (t * 6 - 15) + 10); // smootherstep
 const flicker = t => t <= 0 ? 0 : t < .05 ? .9 : t < .11 ? .08 : t < .16 ? .7 : t < .22 ? .2 : clamp(.6 + (t - .22) * 3);
 const withTimeout = (p, ms, msg) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(msg)), ms))]);
 
-export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {} }) {
+export async function runGallery(el, ctx, opts) {
+  const { tier, palettes, clickSound = () => {} } = opts;
   const root = document.documentElement;
   const SNAP = new URLSearchParams(location.search).has('snap'); // chỉ để chụp màn hình kiểm tra: camera tới ngay
   root.classList.add('ptl-3d');
@@ -928,7 +929,7 @@ export async function runGallery(el, ctx, { tier, palettes, clickSound = () => {
       composer?.dispose?.(); renderer.dispose();
       root.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-cc', 'ptl-portrait');
     }
-    bindContextLoss(canvas, () => { teardown(); ctx.downgrade('webglcontextlost'); });
+    bindContextLoss(canvas, () => recoverContext(canvas, { teardown, downgrade: () => ctx.downgrade('webglcontextlost'), retry: opts.retried ? null : () => runGallery(el, ctx, { ...opts, retried: true }) }));
 
     /* ---------- Khởi động: đo bố cục, chờ ảnh đầu, biên dịch shader sau màn che, rồi bật đèn ---------- */
     css.render(scene, camera); // cho bản sao chữ vào trang để đo

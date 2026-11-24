@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createLife, fpsGuard, flicker, clamp, withTimeout } from '../src/client/stage3d.js';
+import { createLife, fpsGuard, flicker, clamp, withTimeout, recoverContext, barOnly } from '../src/client/stage3d.js';
 
 test('createLife: gỡ listener, chạy hàm dọn theo thứ tự ngược, gỡ class, chỉ một lần', () => {
   const removed = [], order = [];
@@ -49,4 +49,26 @@ test('flicker: tắt trước khi bật, sáng hẳn sau ~0,35s, kẹp trong [0,
 test('withTimeout: báo lỗi khi quá hạn', async () => {
   await assert.rejects(() => withTimeout(new Promise(() => {}), 10, 'quá lâu'), /quá lâu/);
   assert.equal(await withTimeout(Promise.resolve(3), 50, 'x'), 3);
+});
+
+test('recoverContext: lần đầu thay canvas và dựng lại khi trang hiện; không có retry thì về bản phẳng', async () => {
+  const listeners = {};
+  globalThis.document = { hidden: true, addEventListener: (t, f) => { listeners[t] = f; }, removeEventListener: (t) => { delete listeners[t]; } };
+  let replaced = 0, torn = 0, retried = 0, flat = 0;
+  const canvas = { cloneNode: () => ({}), replaceWith: () => { replaced++; } };
+  recoverContext(canvas, { teardown: () => torn++, retry: () => { retried++; }, downgrade: () => flat++ });
+  assert.equal(torn, 1); assert.equal(replaced, 1); assert.equal(retried, 0);
+  document.hidden = false; listeners.visibilitychange();
+  await new Promise(r => setTimeout(r, 700));
+  assert.equal(retried, 1); assert.equal(flat, 0);
+  recoverContext(canvas, { teardown: () => torn++, retry: null, downgrade: () => flat++ });
+  assert.equal(flat, 1); assert.equal(replaced, 1);
+  delete globalThis.document;
+});
+
+test('barOnly: chỉ chiều cao đổi ít (thanh địa chỉ) mới bỏ qua cấp lại bộ đệm', () => {
+  assert.equal(barOnly(390, 760, 390, 844), true);
+  assert.equal(barOnly(844, 390, 390, 844), false);
+  assert.equal(barOnly(390, 500, 390, 844), false);
+  assert.equal(barOnly(390, 844, 390, 844), false);
 });

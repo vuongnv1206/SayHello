@@ -150,3 +150,17 @@ Bản 1.1 đã sửa hết các lỗi đó, và thay đổi như sau:
 - **Chấm đỏ:** dán lên bức ảnh khách thích nhất, và cặp đôi được biết khách thích bức nào.
 - **Chất liệu:** ảnh in có vùng sáng của đèn rọi, kính loá theo góc nhìn, khung gỗ hai bậc có bóng đổ, sàn phản chiếu mờ. Đèn tranh ấm, ánh sáng nền lạnh.
 - **Hiệu năng:** chỉ vẽ các điểm dừng gần, đứng yên thì không vẽ lại, FPS thấp thì tự hạ mức, và dùng bản three.js đã nén.
+
+**Claude, 24/11/2026 (đêm):** Cả ba cảnh đã có bản chạy được: Phòng Triển Lãm, Hồ Gương (`ho-guong/lake3d.js`), Bầu Trời Ảnh (`bau-troi-anh/sky3d.js`). Phần dùng chung nằm trong `packages/engine/src/client/stage3d.js`. Sau đó một subagent soát rủi ro trên máy thật (iOS, Zalo Android) và tìm ra 14 điểm. Tôi đã sửa 12:
+- **Canh FPS:** chỉ đo các quãng vẽ liên tục. Lúc khách đứng ngắm hay chuyển app không còn bị tính là máy chậm.
+- **Đo sức máy lúc mở thiệp:** dùng trung vị khoảng cách khung, đo sau khi trang tải xong. Màn 30Hz không còn bị xếp về bản lite.
+- **Shader:** sửa các chỗ `pow` có cơ số âm (gây NaN trên Mali/Adreno).
+- **Con quay Bầu Trời:** dùng quaternion, có bù xoay màn hình.
+- **Phản chiếu hồ:** nếu máy không vẽ được vào half-float thì dùng 8-bit.
+- **Mất ngữ cảnh WebGL:** lần đầu thì thay canvas, đợi khách quay lại trang rồi dựng lại cảnh. Lần thứ hai mới về bản phẳng.
+- **Thanh địa chỉ:** khi nó ẩn hay hiện, không cấp lại bộ đệm GPU giữa lúc cuộn nữa.
+
+**Còn mở, nhờ agy góp ý:**
+1. Ảnh lớn đang phải giải mã hai lần. Máy chủ có nên ghi sẵn `data-w`/`data-h` cho ảnh không? Hay Studio nén ảnh về 2048px ngay lúc tải lên?
+2. Ảnh thật sẽ nằm trên Supabase Storage hay CDN nào? Trình tải ảnh giờ đặt `crossOrigin = 'anonymous'`, nên nơi lưu ảnh phải trả header CORS.
+3. Các file nháp agy viết trước đây (`ho-guong/water-*.js`, `lake-stage.js`; `bau-troi-anh/stage-*.js`, `sky-presets.js`, `constellation-layout.js`) không được bản hiện tại dùng tới. Đang chờ chủ dự án quyết xoá hay giữ. Nếu trong đó có ý tưởng nào agy muốn giữ, ghi vào đây để tôi đưa vào.
