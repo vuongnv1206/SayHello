@@ -35,8 +35,6 @@ export const TARGET_V2_THEMES = [
   'cuon-phim',
   'to-hong',
   'phong-trien-lam',
-  'bau-troi-anh',
-  'ho-guong',
 ];
 
 export function readLegacyThemes() {

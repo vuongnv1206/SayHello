@@ -11,7 +11,7 @@ Monorepo nền tảng thiệp cưới tự phục vụ (nhánh `redesign`), ch�
 ## Cấu trúc chính
 - `apps/web/` — Next.js `16.4.6` + React `19.3.0` + Tailwind `4.3.3` (trang chủ `/v2`, `/v2/demo/[theme]`, Studio). `predev`/`prebuild` tự đồng bộ engine sang `public/_e/`.
 - `packages/engine/` — Bộ máy thiệp v2 thuần JS (**không React**): `defineTheme`, `renderDocument`, `tier.js` (`cinematic`/`standard`/`lite`, `bindContextLoss`), `lib.js` (`scroll`, `three`, `three-post`, `lenis`), `#sh-quick`.
-- `packages/themes/*` — Các mẫu thiệp v2 (`cuon-phim`, `to-hong`, `phong-trien-lam`, `bau-troi-anh`, `ho-guong`).
+- `packages/themes/*` — Các mẫu thiệp v2 (`cuon-phim`, `to-hong`, `phong-trien-lam`; các mẫu v2 cũ khác cất ở tag `archive/v2-themes-2026-11`). Kế hoạch tái cấu trúc: `docs/KE-HOACH-TAI-CAU-TRUC.md`.
 - `legacy/` — Site & 10 mẫu thiệp v1 (`song-hy`, `thu-tay`, `ve-may-bay`, `khoa-tinh`, `den-long`, `cuon-phim`, `tin-nhan`, `thiep-gap`, `khung-theu`, `ca-phe-phin`).
 
 ## Lệnh làm việc chính
