@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-photobooth",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Photobooth: góc chụp ảnh ở tiệc cưới; dải ảnh in ra là tấm thiệp mời.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

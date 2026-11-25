@@ -1,0 +1,178 @@
+/* Photobooth: góc chụp tiệc cưới; dải ảnh in ra là tấm thiệp. Bảng màu đổi --dem, --dem-2, --kim. */
+.theme-photobooth {
+  --dem: #141b2d; --dem-2: #1c2540;
+  --voan: #f4f2ef; --muc: #1e2740; --mo: #6b7183; --kim: #b79c6b;
+  --sh-accent: var(--kim);
+  --f-ten: "Noto Serif Display", "Times New Roman", serif;
+  --f-tay: "Pinyon Script", "Noto Serif Display", serif;
+  --f: "Be Vietnam Pro", system-ui, sans-serif;
+  margin: 0; color: var(--voan); font: 300 16px/1.6 var(--f); -webkit-font-smoothing: antialiased;
+  background: radial-gradient(120% 70% at 50% 0%, var(--dem-2), var(--dem) 60%) fixed, var(--dem);
+}
+.theme-photobooth img { display: block; max-width: 100%; }
+.theme-photobooth a { color: inherit; }
+.theme-photobooth :focus-visible { outline: 2px solid var(--kim); outline-offset: 3px; }
+.theme-photobooth h2 { margin: 0 0 24px; font: 300 clamp(34px, 9vw, 52px)/1.12 var(--f-ten); text-align: center; }
+.theme-photobooth .sh-scene { position: relative; z-index: 1; }
+
+/* Đèn dây lấp lánh */
+.theme-photobooth .lap-lanh, .theme-photobooth::before {
+  position: fixed; inset: 0; pointer-events: none; opacity: .5;
+  background:
+    radial-gradient(3px 3px at 8% 12%, #ffe3ad, transparent 70%), radial-gradient(4px 4px at 22% 6%, #ffd896, transparent 70%),
+    radial-gradient(3px 3px at 37% 14%, #ffe9c2, transparent 70%), radial-gradient(5px 5px at 54% 5%, #ffdca0, transparent 70%),
+    radial-gradient(3px 3px at 68% 13%, #ffe3ad, transparent 70%), radial-gradient(4px 4px at 83% 7%, #ffd896, transparent 70%),
+    radial-gradient(3px 3px at 95% 15%, #ffe9c2, transparent 70%),
+    radial-gradient(40px 40px at 15% 30%, rgba(255,210,150,.10), transparent 70%), radial-gradient(60px 60px at 85% 40%, rgba(255,210,150,.08), transparent 70%),
+    radial-gradient(50px 50px at 30% 75%, rgba(255,210,150,.07), transparent 70%), radial-gradient(70px 70px at 75% 85%, rgba(255,210,150,.06), transparent 70%);
+}
+.theme-photobooth::before { content: ""; z-index: 0; }
+[data-motion="standard"] .theme-photobooth .lap-lanh, [data-motion="cinematic"] .theme-photobooth .lap-lanh { animation: pb-lap-lanh 5s ease-in-out infinite alternate; }
+@keyframes pb-lap-lanh { from { opacity: .35; } to { opacity: .65; } }
+
+/* ---------- 1. Góc chụp (bìa) ---------- */
+#goc-chup { background: radial-gradient(120% 70% at 50% 0%, var(--dem-2), var(--dem) 60%); transition: opacity .7s ease; overflow-y: auto; }
+#goc-chup.is-open { opacity: 0; }
+.goc { position: relative; min-height: 100%; display: grid; justify-items: center; align-content: center; gap: 16px; padding: 24px 18px; }
+.bang-ten { margin: 0; display: grid; justify-items: center; text-align: center; }
+.kich { font: 400 30px/1.2 var(--f-tay); color: var(--kim); }
+.ten-cap { font: 300 clamp(26px, 7.4vw, 44px)/1.18 var(--f-ten); }
+.may {
+  position: relative; width: min(80vw, 46svh, 400px); padding: 14px 14px 0;
+  background: linear-gradient(180deg, #fff, #eeeae4); border-radius: 18px 18px 6px 6px;
+  box-shadow: 0 0 0 1px var(--kim), 0 30px 60px -20px rgba(0,0,0,.6), inset 0 -10px 20px rgba(0,0,0,.05);
+}
+.rem {
+  position: absolute; top: -10px; bottom: 34%; width: 24%; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.85) 0 6px, rgba(232,228,222,.75) 6px 12px, rgba(255,255,255,.9) 12px 20px);
+  filter: blur(.6px); transition: transform 1.1s cubic-bezier(.6, 0, .2, 1);
+}
+.rem.l { left: -6px; border-radius: 0 0 60% 0; transform-origin: 0 0; }
+.rem.r { right: -6px; border-radius: 0 0 0 60%; transform-origin: 100% 0; }
+.may.mo-rem .rem { transform: scaleX(.18); }
+.man-hinh { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 8px; background: #000; }
+.man-hinh .xem { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.loi-man {
+  position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; margin: 0; padding: 50px 18px 18px; text-align: center;
+  font: 300 clamp(19px, 5vw, 24px)/1.3 var(--f-ten); color: #fff; background: linear-gradient(transparent, rgba(10,14,25,.75));
+}
+.dem {
+  position: absolute; inset: 0; margin: 0; display: grid; place-items: center; pointer-events: none;
+  font: 200 clamp(120px, 36vw, 220px)/1 var(--f-ten); color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,.35);
+}
+.dem:empty { display: none; }
+.dem.nhay { animation: pb-nhay .8s ease-out; }
+@keyframes pb-nhay { from { transform: scale(1.35); opacity: 0; } 35% { opacity: 1; } to { transform: scale(.95); } }
+.bang { display: grid; justify-items: center; gap: 10px; padding: 14px 0 12px; }
+.cham { display: flex; gap: 8px; margin: 0; }
+.cham i { width: 8px; height: 8px; border-radius: 50%; background: #d9d3c9; transition: background .2s; }
+.cham i.da { background: var(--kim); }
+.nut-chup { width: 76px; height: 76px; border-radius: 50%; cursor: pointer; padding: 6px; border: 1px solid var(--kim); background: #fff; }
+.nut-chup span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--muc); color: #fff; font: 500 14px/1 var(--f); }
+.nut-chup:disabled { opacity: .6; cursor: default; }
+.khe { display: block; height: 12px; margin: 0 16%; background: #2a2a2e; border-radius: 6px 6px 0 0; box-shadow: inset 0 3px 5px rgba(0,0,0,.7); }
+.bo-qua { background: none; border: 0; color: var(--voan); opacity: .8; font: 400 14px var(--f); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: 8px; }
+.flash { position: fixed; inset: 0; z-index: 10; background: #fff; opacity: 0; pointer-events: none; }
+.flash.no { animation: pb-no .7s cubic-bezier(.1, .7, .3, 1); }
+@keyframes pb-no { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ---------- 2. Thiệp (dải ảnh) ---------- */
+#thiep { display: grid; justify-items: center; gap: 12px; padding: 0 18px 64px; }
+.khe-in { display: block; width: min(76vw, 360px); height: 12px; background: #2a2a2e; border-radius: 0 0 6px 6px; box-shadow: inset 0 -3px 5px rgba(0,0,0,.7); }
+.khung-in { overflow: hidden; padding: 0 24px 40px; margin-top: -12px; }
+.dai {
+  width: min(70vw, 340px); background: #fff; color: var(--muc); padding: 18px 16px 0;
+  display: grid; gap: 12px; box-shadow: 0 24px 50px -20px rgba(0,0,0,.7);
+  transform: translateY(-104%);
+}
+#thiep.in .dai { transform: translateY(0) rotate(-1.2deg); transition: transform 3s cubic-bezier(.3, .1, .3, 1); }
+#thiep.xong .dai { transition: transform .4s ease; }
+.dai-dau { margin: 0; text-align: center; font: 300 22px/1 var(--f-ten); letter-spacing: .12em; color: var(--kim); }
+.dai-dau span { font: 400 20px/1 var(--f-tay); letter-spacing: 0; margin: 0 .35em; color: var(--mo); }
+.o { margin: 0; aspect-ratio: 4 / 3; overflow: hidden; background: #e9e6e1; }
+.o img { width: 100%; height: 100%; object-fit: cover; transition: filter 3.2s ease, opacity 3.2s ease; }
+#thiep:not(.hien) .o img { filter: grayscale(1) brightness(1.6) contrast(.5) blur(1px); opacity: .35; }
+#thiep.hien .o:nth-of-type(2) img { transition-delay: .5s; }
+#thiep.hien .o:nth-of-type(3) img { transition-delay: 1s; }
+.o-moi { text-align: center; padding: 18px 6px 26px; border-top: 1px solid #ece8e1; display: grid; justify-items: center; }
+.o-moi p { margin: 0; }
+.kinh-moi { font: 400 26px/1.2 var(--f-tay); color: var(--kim); }
+.moi-ten { font: 400 20px/1.3 var(--f-ten); margin-top: 2px !important; }
+.moi-chu { font-size: 13px; color: var(--mo); margin-top: 6px !important; }
+.moi-doi { margin: 8px 0 12px; display: grid; justify-items: center; font-weight: 400; }
+.moi-doi span { font: 300 clamp(26px, 8vw, 36px)/1.14 var(--f-ten); }
+.moi-doi .va { font: 400 22px/1.2 var(--f-tay); color: var(--kim); }
+.moi-ngay { font-size: 14px; font-weight: 500; }
+.moi-noi { font-size: 13px; color: var(--mo); }
+.goi-y { margin: 0; font-size: 14px; opacity: .7; min-height: 1.6em; text-align: center; }
+
+/* ---------- 3. Lễ và tiệc ---------- */
+#le-tiec, #hoi-am, #mung-cuoi, #loi-chuc { max-width: 680px; margin: 0 auto; padding: 56px 22px; }
+.buoi { display: grid; grid-template-columns: 92px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid rgba(183,156,107,.35); }
+.buoi p, .buoi h3 { margin: 0; }
+.buoi h3 { font: 500 18px/1.3 var(--f); }
+.gio { font: 200 34px/1 var(--f-ten); color: var(--kim); }
+.buoi .ngay { font-weight: 400; }
+.buoi .am, .buoi .dc { font-size: 14px; opacity: .8; }
+.lien-ket { display: flex; gap: 16px; margin-top: 8px !important; font-size: 15px; }
+.lien-ket a { text-underline-offset: 4px; }
+.hai-nha { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 20px; border-top: 1px solid rgba(183,156,107,.35); font-size: 15px; }
+.hai-nha p { margin: 0; }
+.nha { font: 400 24px/1.2 var(--f-tay); color: var(--kim); }
+.con-lai { margin-top: 32px; text-align: center; }
+.con-lai > p { margin: 0 0 8px; font-size: 14px; opacity: .8; }
+.theme-photobooth .sh-cd { display: flex; justify-content: center; gap: 18px; }
+.theme-photobooth .sh-cd .u { display: grid; justify-items: center; }
+.theme-photobooth .sh-cd b { font: 200 34px/1 var(--f-ten); color: var(--voan); }
+.theme-photobooth .sh-cd span { font-size: 13px; opacity: .7; }
+.them-anh { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 40px; }
+.them-anh img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border: 8px solid #fff; }
+.them-anh img:first-child { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
+
+/* ---------- 4. Hồi âm ---------- */
+.dan { text-align: center; margin: -8px 0 28px; opacity: .85; }
+.ha-luoi { display: grid; gap: 28px; }
+.theme-photobooth .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) {
+  color: #fff; background: transparent; border: 0; border-bottom: 1px solid rgba(244,242,239,.4); border-radius: 0; padding: 8px 0; font: 400 17px var(--f);
+}
+.theme-photobooth .sh-form select option { color: #111; }
+.theme-photobooth .sh-choice label, .theme-photobooth .sh-pick label { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid rgba(244,242,239,.25); border-radius: 4px; cursor: pointer; flex: 1 1 200px; }
+.theme-photobooth .sh-choice label:has(input:checked) { border-color: var(--kim); background: rgba(183,156,107,.08); }
+.theme-photobooth .sh-choice input, .theme-photobooth .sh-pick input { accent-color: var(--kim); margin: 0; }
+.theme-photobooth .sh-btn { background: var(--voan); color: var(--muc); border: 0; border-radius: 4px; padding: 16px 22px; font: 500 16px/1 var(--f); cursor: pointer; text-decoration: none; text-align: center; }
+.theme-photobooth .sh-btn.vien { background: none; color: var(--voan); border: 1px solid var(--kim); }
+.ket-qua { display: grid; justify-items: center; gap: 16px; }
+.ket-qua[hidden] { display: none; }
+.ket-qua canvas { width: min(56vw, 240px); height: auto; box-shadow: 0 20px 40px -14px rgba(0,0,0,.7); }
+[data-motion="standard"] .ket-qua canvas, [data-motion="cinematic"] .ket-qua canvas { animation: pb-ra 1.4s cubic-bezier(.3,.1,.3,1); }
+@keyframes pb-ra { from { clip-path: inset(0 0 100% 0); transform: translateY(-40px); } to { clip-path: inset(0 0 0 0); } }
+
+/* ---------- 5. Mừng cưới ---------- */
+.tai-khoan { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.tk { background: #fff; color: var(--muc); padding: 20px; text-align: center; border-radius: 4px; }
+.tk p { margin: 4px 0; }
+.tk .ai { font: 400 24px/1.2 var(--f-tay); color: var(--kim); }
+.tk .qr { margin: 8px auto; width: 180px; height: 180px; }
+.tk .so { display: flex; justify-content: center; align-items: center; gap: 10px; font-weight: 500; }
+.chep { border: 1px solid var(--kim); background: none; color: var(--muc); padding: 6px 10px; border-radius: 4px; font: 400 14px var(--f); cursor: pointer; }
+
+/* ---------- 6. Lời chúc ---------- */
+.theme-photobooth .sh-wishes { margin-top: 24px; display: grid; gap: 12px; }
+.theme-photobooth .sh-wish { background: #fff; color: var(--muc); padding: 14px 16px; border-radius: 4px; }
+
+/* ---------- 7. Cảm ơn ---------- */
+#cam-on { text-align: center; padding: 48px 22px 96px; }
+#cam-on p { margin: 0; }
+.ten-cuoi { font: 300 clamp(30px, 8vw, 46px)/1.2 var(--f-ten); }
+.ngay-cuoi { margin-top: 6px !important; color: var(--kim); letter-spacing: .08em; }
+.cam-on { margin-top: 18px !important; opacity: .85; }
+
+@media (min-width: 960px) {
+  .goc { grid-template-columns: auto; }
+  .may { width: min(30vw, 50vh, 420px); }
+  .dai { width: 380px; }
+  .khe-in { width: 420px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rem, .dai, .o img, #goc-chup { transition: none !important; }
+}
