@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thiệp Thật · bản duyệt hướng thị giác</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@200;300;400&family=Be+Vietnam+Pro:wght@300;400;500&family=Prata&family=Josefin+Sans:wght@300;400;600&family=Spectral:ital,wght@0,200;0,300;0,400;1,300&family=Fraunces:opsz,wght,SOFT@9..144,300..500,100&family=Hanken+Grotesk:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="thiep-that.css">
+<link rel="stylesheet" href="chu-de.css">
+</head>
+<body data-chu-de="lua-nga">
+
+<!-- Thanh duyệt (chỉ dùng khi chọn hướng, không thuộc thiệp) -->
+<nav class="duyet" aria-label="Chọn chủ đề để so sánh">
+  <a href="?chu-de=lua-nga" data-cd="lua-nga">Lụa Ngà</a>
+  <a href="?chu-de=dong-duong" data-cd="dong-duong">Đông Dương</a>
+  <a href="?chu-de=muc-tau" data-cd="muc-tau">Mực Tàu</a>
+  <a href="?chu-de=da-lat" data-cd="da-lat">Nắng Đà Lạt</a>
+  <button type="button" id="mo-lai">Xem lại phong bì</button>
+</nav>
+
+<!-- Màn phong bì -->
+<div class="phong-bi-man" id="phong-bi-man" aria-live="polite">
+  <div class="mat-ban" aria-hidden="true"></div>
+  <div class="phong-bi" id="phong-bi">
+    <div class="pb-sau" aria-hidden="true"></div>
+    <div class="the the-bay" id="the-bay" aria-hidden="true"></div>
+    <div class="pb-truoc" aria-hidden="true">
+      <p class="pb-gui">Gửi <span class="ten-khach">bạn</span></p>
+    </div>
+    <div class="pb-nap" aria-hidden="true"></div>
+    <button type="button" class="dau-niem" id="dau-niem" aria-label="Mở thiệp">
+      <span class="dn-nua dn-trai" aria-hidden="true"></span>
+      <span class="dn-nua dn-phai" aria-hidden="true"></span>
+      <span class="dn-chu" aria-hidden="true">M<i>T</i></span>
+    </button>
+  </div>
+  <p class="goi-y">Chạm vào dấu niêm để mở thiệp</p>
+</div>
+
+<main class="trang" id="trang">
+  <!-- Cột thiệp chính: trên máy tính đứng yên bên trái -->
+  <section class="cot-thiep" aria-label="Thiệp mời">
+    <div class="mat-ban" aria-hidden="true"></div>
+    <article class="the the-chinh" id="the-chinh">
+      <div class="the-nang" aria-hidden="true"></div>
+      <p class="ky-hieu">M<i>T</i></p>
+      <p class="loi-moi">Trân trọng báo tin lễ thành hôn của</p>
+      <h1 class="ten-doi">
+        <span class="ten">Nhật Minh</span>
+        <span class="va">và</span>
+        <span class="ten">Thanh Trúc</span>
+      </h1>
+      <p class="ngay" id="ngay-duong">Chủ nhật, 24 tháng 10 năm 2027</p>
+      <p class="am-lich" id="ngay-am"></p>
+      <p class="noi">Tiệc cưới lúc 17 giờ 30<br>Nhà hàng Bên Sông, Huế</p>
+      <a class="nut-tra-loi" href="#hoi-am">Trả lời thiệp</a>
+    </article>
+  </section>
+
+  <!-- Cột ảnh và thiệp kèm -->
+  <div class="cot-anh">
+    <figure class="anh anh-lon" data-sau>
+      <img class="nen" src="anh/anh-01.jpg" alt="Cô dâu chú rể dưới hành lang vòm đá" width="768" height="1024">
+      <img class="nguoi" src="anh/nguoi-01.webp" alt="" width="768" height="1024">
+    </figure>
+
+    <article class="the the-kem" id="chi-tiet">
+      <h2>Lễ và tiệc</h2>
+      <div class="buoi">
+        <p class="gio">9 giờ sáng</p>
+        <p class="ten-buoi">Lễ thành hôn</p>
+        <p>Tư gia nhà gái, phường Kim Long, Huế</p>
+        <a href="https://maps.google.com/?q=Kim+Long+Hue" target="_blank" rel="noopener">Chỉ đường</a>
+      </div>
+      <div class="buoi">
+        <p class="gio">17 giờ 30</p>
+        <p class="ten-buoi">Tiệc cưới</p>
+        <p>Nhà hàng Bên Sông, 12 Lê Lợi, Huế</p>
+        <a href="https://maps.google.com/?q=Le+Loi+Hue" target="_blank" rel="noopener">Chỉ đường</a>
+      </div>
+      <div class="hai-nha">
+        <div><p class="nha">Nhà trai</p><p>Ông Đoàn Quang Hải<br>Bà Tôn Nữ Minh Tâm</p></div>
+        <div><p class="nha">Nhà gái</p><p>Ông Huỳnh Văn Phước<br>Bà Lê Thị Ngọc Lan</p></div>
+      </div>
+    </article>
+
+    <div class="cap-anh">
+      <figure class="anh anh-doc" data-sau>
+        <img class="nen" src="anh/anh-03.jpg" alt="Cô dâu ngồi bên khung cửa sổ" width="768" height="1024" loading="lazy">
+        <img class="nguoi" src="anh/nguoi-03.webp" alt="" width="768" height="1024" loading="lazy">
+      </figure>
+      <figure class="anh anh-nho" data-sau>
+        <img class="nen" src="anh/anh-06.jpg" alt="Cô dâu cầm bó hoa" width="880" height="660" loading="lazy">
+        <img class="nguoi" src="anh/nguoi-06.webp" alt="" width="880" height="660" loading="lazy">
+      </figure>
+    </div>
+
+    <figure class="anh anh-ngang" data-sau>
+      <img class="nen" src="anh/anh-02.jpg" alt="Nhà thủy tạ trên hồ lúc chạng vạng" width="1024" height="768" loading="lazy">
+    </figure>
+
+    <figure class="anh anh-lon" data-sau>
+      <img class="nen" src="anh/anh-04.jpg" alt="Hai người cười bên hàng cột" width="768" height="960" loading="lazy">
+      <img class="nguoi" src="anh/nguoi-04.webp" alt="" width="768" height="960" loading="lazy">
+    </figure>
+
+    <article class="the the-kem the-hoi-am" id="hoi-am">
+      <h2>Hồi âm</h2>
+      <p class="hoi">Mong <span class="ten-khach">bạn</span> báo giúp trước ngày 10 tháng 10.</p>
+      <form id="form-hoi-am">
+        <fieldset>
+          <legend class="an">Bạn có đến được không?</legend>
+          <label class="chon"><input type="radio" name="den" value="co" checked> <span>Sẽ đến chung vui</span></label>
+          <label class="chon"><input type="radio" name="den" value="khong"> <span>Tiếc là không đến được</span></label>
+        </fieldset>
+        <label class="dong">Số người đi cùng bạn
+          <select name="so"><option>Chỉ mình tôi</option><option>2 người</option><option>3 người</option><option>4 người</option></select>
+        </label>
+        <label class="dong">Lời chúc (không bắt buộc)
+          <textarea name="chuc" rows="3"></textarea>
+        </label>
+        <button type="submit" class="nut-gui">Gửi hồi âm</button>
+        <p class="da-gui" id="da-gui" hidden>Đã gửi. Cảm ơn bạn, hẹn gặp ở Huế.</p>
+      </form>
+    </article>
+
+    <figure class="anh anh-ngang" data-sau>
+      <img class="nen" src="anh/anh-05.jpg" alt="Hồ đêm thả đèn" width="1024" height="640" loading="lazy">
+    </figure>
+
+    <footer class="the the-mat-sau">
+      <p class="ky-hieu">M<i>T</i></p>
+      <p>Hẹn gặp <span class="ten-khach">bạn</span> ở Huế</p>
+    </footer>
+  </div>
+</main>
+
+<a class="tra-loi-nhanh" href="#hoi-am" id="tra-loi-nhanh">Trả lời thiệp</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="loang"><feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="60"/></filter>
+</svg>
+
+<script src="thiep-that.js"></script>
+</body>
+</html>

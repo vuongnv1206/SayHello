@@ -137,7 +137,7 @@ Tài liệu cũ chuyển vào `docs/archive/`, không xoá. `CLAUDE.md` cập nh
 | Pha | Việc | Xong khi |
 |---|---|---|
 | P0 Dọn | Xử lý thay đổi chưa commit, lưu trữ mẫu, gộp tài liệu | Cây thư mục gọn, test xanh |
-| P1 Hướng nhìn | 3–4 bảng hướng thị giác cho B1 (Thiệp Thật) | Chủ dự án chọn được hướng |
+| P1 Hướng nhìn | 3–4 bảng hướng thị giác cho B1 (Thiệp Thật). **Đang chờ chọn (25/11):** `legacy/proto/thiep-that/?chu-de=lua-nga\|dong-duong\|muc-tau\|da-lat` | Chủ dự án chọn được hướng |
 | P2 Mẫu đầu tiên | B1 + 2 chủ đề + khoảnh khắc phong bì | Đạt thước đo mục 3 |
 | P3 Mở rộng | B2 Lookbook, B3 Tạp chí lớn, thêm chủ đề | Mỗi bố cục có ≥ 2 chủ đề đạt |
 | P4 Sản phẩm | Trang chủ trưng mẫu, Studio chọn bố cục × chủ đề, thanh toán | Cặp đôi tự làm được thiệp |
