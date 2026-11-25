@@ -75,11 +75,55 @@ export async function boot(theme) {
   let motion = pickMotion(signals);
   root.dataset.motion = motion;
 
+  const topicMap = new Map();
+  for (const t of data.topics || []) {
+    if (t?.id) topicMap.set(t.id, t);
+  }
+  for (const list of [theme.topics, theme.palettes]) {
+    for (const t of list || []) {
+      if (t?.id && !topicMap.has(t.id)) topicMap.set(t.id, t);
+    }
+  }
+  const appliedVarKeys = new Set();
+  let activeTopic = root.dataset.topic || root.dataset.palette || data.defaultTopic || '';
+
+  const applyTopic = (topicId, emitEvent = true) => {
+    const entry = topicId && topicMap.get(topicId);
+    if (!entry) return false;
+    for (const k of appliedVarKeys) root.style.removeProperty(k);
+    appliedVarKeys.clear();
+    const vars = entry.vars || {};
+    for (const [k, v] of Object.entries(vars)) {
+      if (/^--[\w-]+$/.test(k) && typeof v === 'string') {
+        const ok = /^--sh-font-/i.test(k) ? /^[a-zA-Z0-9\s,'-]+$/.test(v) : /^[#\w(),.% -]+$/.test(v);
+        if (ok) { root.style.setProperty(k, v); appliedVarKeys.add(k); }
+      }
+    }
+    activeTopic = entry.id;
+    root.dataset.topic = entry.id;
+    root.dataset.palette = entry.id;
+    if (entry.themeColor && /^#[0-9a-fA-F]{3,8}$/.test(entry.themeColor)) {
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', entry.themeColor);
+    }
+    if (entry.fonts && /^https:\/\/fonts\.googleapis\.com\/css2\?[^\s"<>]+$/.test(entry.fonts)) {
+      if (!document.querySelector(`link[href="${entry.fonts}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = entry.fonts;
+        document.head.appendChild(link);
+      }
+    }
+    if (emitEvent) ctx.emit('topic', entry);
+    return true;
+  };
+
   const listeners = {};
   const ctx = {
     theme, data, say, guest, lib, root,
     get motion() { return motion; },
     get reduced() { return motion === 'lite'; },
+    get topic() { return activeTopic; },
+    setTopic: id => applyTopic(id, true),
     wishes: [],
     backend: createBackend({ sheetUrl: data.sheetUrl, slug: data.slug }),
     on(ev, fn) { (listeners[ev] ||= []).push(fn); },
@@ -96,6 +140,10 @@ export async function boot(theme) {
     },
   };
   window.__sayhello = ctx; // để kiểm tra tự động và gỡ lỗi
+
+  const reqTopic = params.get('topic') || params.get('p') || '';
+  if (reqTopic) applyTopic(reqTopic, false);
+  else if (activeTopic && topicMap.has(activeTopic)) applyTopic(activeTopic, false);
 
   applyGroup(data, ctx);
   bindMusic(ctx);

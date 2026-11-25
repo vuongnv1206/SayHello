@@ -1,0 +1,323 @@
+/* Hộp Ký Ức (Jewel-Box Deck) — thẻ ngà nằm trong hộp nhung sâu, chia thẻ đàn hồi và lật mặt sau */
+.theme-hop-ky-uc {
+  background: var(--sh-bg);
+  color: var(--sh-ink);
+  font-family: var(--sh-font-body);
+}
+
+.theme-hop-ky-uc h1,
+.theme-hop-ky-uc h2,
+.theme-hop-ky-uc h3 {
+  font-family: var(--sh-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.theme-hop-ky-uc .jb-kicker,
+.theme-hop-ky-uc .jb-lid-kicker {
+  margin: 0 0 8px;
+  font-size: max(13px, 0.85rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sh-accent);
+  font-weight: 600;
+}
+
+/* ===== 1. Nắp hộp bìa ===== */
+.theme-hop-ky-uc .sh-gate {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: var(--sh-bg);
+}
+
+.theme-hop-ky-uc .jb-box-lid {
+  width: min(500px, 100%);
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--sh-foil) 45%, transparent);
+  background: color-mix(in srgb, var(--sh-bg) 88%, #000);
+  transition: transform 250ms var(--sh-ease-tactile), opacity 250ms var(--sh-ease-tactile);
+}
+.theme-hop-ky-uc .sh-gate.is-opening .jb-box-lid {
+  transform: translateY(-16px);
+  opacity: 0;
+}
+
+.theme-hop-ky-uc .jb-lid-frame {
+  padding: clamp(28px, 5vw, 44px) 24px;
+  border-radius: 12px;
+  background: var(--sh-surface);
+  color: var(--sh-ink);
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  border: 1px solid var(--sh-soft);
+}
+
+.theme-hop-ky-uc .jb-medallion {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid var(--sh-foil);
+  display: grid;
+  place-items: center;
+  font-family: var(--sh-font-display);
+  font-size: 24px;
+  color: var(--sh-accent);
+}
+.theme-hop-ky-uc .jb-lid-guest { margin: 0; font-size: 16px; }
+.theme-hop-ky-uc .jb-lid-frame h1 {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.1;
+}
+.theme-hop-ky-uc .jb-lid-frame em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+.theme-hop-ky-uc .jb-lid-meta { margin: 0; font-size: 15px; opacity: 0.85; }
+.theme-hop-ky-uc .jb-lid-hint { margin: 4px 0 0; font-size: max(13px, 0.875rem); opacity: 0.78; }
+
+/* ===== 2. Bộ thẻ trong hộp ===== */
+.theme-hop-ky-uc .jb-shell {
+  width: min(1220px, 100%);
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 32px);
+  display: grid;
+  gap: 20px;
+}
+
+.theme-hop-ky-uc .jb-tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--sh-bg) 76%, #000);
+  border: 1px solid color-mix(in srgb, var(--sh-foil) 35%, transparent);
+}
+.theme-hop-ky-uc .jb-tab {
+  flex: 1 1 130px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: max(13px, 0.9rem);
+  font-weight: 600;
+  color: var(--jb-box-ink, #FBF8F2);
+  transition: background-color 220ms var(--sh-ease-tactile), color 220ms var(--sh-ease-tactile);
+}
+.theme-hop-ky-uc .jb-tab.is-active,
+.theme-hop-ky-uc .jb-tab:hover {
+  background: var(--sh-surface);
+  color: var(--sh-ink);
+}
+
+.theme-hop-ky-uc .jb-stage,
+.theme-hop-ky-uc .jb-ev-grid,
+.theme-hop-ky-uc .jb-story-grid,
+.theme-hop-ky-uc .jb-finale-grid,
+.theme-hop-ky-uc .accounts {
+  display: grid;
+  gap: 20px;
+}
+
+.theme-hop-ky-uc .jb-card {
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: 14px;
+  background: var(--sh-surface);
+  color: var(--sh-ink);
+  border: 1px solid color-mix(in srgb, var(--sh-foil) 40%, var(--sh-soft));
+  display: grid;
+  gap: 16px;
+}
+
+.theme-hop-ky-uc .jb-stamp {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid var(--sh-foil);
+  display: grid;
+  place-items: center;
+  font-family: var(--sh-font-display);
+  font-size: 20px;
+  color: var(--sh-accent);
+}
+.theme-hop-ky-uc .jb-names {
+  margin: 0;
+  font-size: clamp(32px, 3.6vw, 48px);
+  line-height: 1.1;
+}
+.theme-hop-ky-uc .jb-names em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+
+.theme-hop-ky-uc .jb-meta-grid,
+.theme-hop-ky-uc .jb-fams {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sh-soft);
+}
+.theme-hop-ky-uc .jb-meta-grid > div,
+.theme-hop-ky-uc .jb-fam { display: grid; gap: 4px; font-size: 15px; }
+.theme-hop-ky-uc .jb-meta-grid small,
+.theme-hop-ky-uc .jb-fam small {
+  font-size: max(13px, 0.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sh-accent);
+  font-weight: 600;
+}
+.theme-hop-ky-uc .jb-invite-cta { display: flex; }
+
+/* Bộ thẻ ảnh lật mặt sau */
+.theme-hop-ky-uc .jb-deck-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.theme-hop-ky-uc .jb-deck-count { font-size: max(13px, 0.875rem); font-weight: 600; opacity: 0.78; }
+.theme-hop-ky-uc .jb-deck-viewport { perspective: 1200px; }
+.theme-hop-ky-uc .jb-flipper {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 280ms var(--sh-ease-tactile);
+}
+.theme-hop-ky-uc .jb-flipper.is-flipped { transform: rotateY(180deg); }
+.theme-hop-ky-uc .jb-flipper.is-dealing { animation: jb-deal 260ms var(--sh-ease-tactile) 1; }
+@keyframes jb-deal {
+  from { opacity: 0.7; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.theme-hop-ky-uc .jb-face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--sh-soft);
+  background: var(--sh-surface);
+}
+.theme-hop-ky-uc .jb-front img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 460px;
+  object-fit: cover;
+}
+.theme-hop-ky-uc .jb-deck-cap {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  border-top: 1px solid var(--sh-soft);
+}
+.theme-hop-ky-uc .jb-back {
+  transform: rotateY(180deg);
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  padding: 28px;
+  text-align: center;
+}
+.theme-hop-ky-uc .jb-flipper:not(.is-flipped) .jb-back,
+.theme-hop-ky-uc .jb-flipper.is-flipped .jb-front {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.theme-hop-ky-uc .jb-back h3 { margin: 0; font-size: 28px; }
+.theme-hop-ky-uc .jb-back-note { margin: 0; font-size: 16px; font-weight: 600; }
+.theme-hop-ky-uc .jb-back-sub { margin: 0; font-size: 15px; opacity: 0.8; }
+
+.theme-hop-ky-uc .jb-deck-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.theme-hop-ky-uc .jb-deck-controls .sh-btn { flex: 1 1 120px; min-height: 44px; padding: 10px 14px; font-size: 14px; }
+.theme-hop-ky-uc .jb-ghost {
+  background: transparent;
+  color: var(--sh-ink);
+  border: 1px solid var(--sh-soft);
+}
+
+.theme-hop-ky-uc .jb-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-top: 4px;
+}
+.theme-hop-ky-uc .jb-thumbs img {
+  width: 56px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--sh-soft);
+  flex: 0 0 auto;
+}
+
+/* Lịch lễ */
+.theme-hop-ky-uc .jb-ev-item,
+.theme-hop-ky-uc .jb-story-card,
+.theme-hop-ky-uc .jb-acc {
+  padding: 18px;
+  border-radius: 10px;
+  border: 1px solid var(--sh-soft);
+  background: color-mix(in srgb, var(--sh-surface) 92%, var(--sh-foil));
+}
+.theme-hop-ky-uc .jb-ev-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+.theme-hop-ky-uc .jb-ev-top h3 { margin: 0; font-size: 22px; }
+.theme-hop-ky-uc .jb-ev-top span { font-size: max(13px, 0.9rem); color: var(--sh-accent); font-weight: 600; }
+.theme-hop-ky-uc .jb-lunar { margin: 6px 0 0; font-size: max(13px, 0.875rem); opacity: 0.82; }
+.theme-hop-ky-uc .jb-ev-venue { margin: 8px 0 0; font-size: 16px; font-weight: 600; }
+.theme-hop-ky-uc .jb-ev-addr { margin: 4px 0 0; font-size: 15px; opacity: 0.86; }
+.theme-hop-ky-uc .jb-ev-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.theme-hop-ky-uc .jb-ev-links .sh-btn { min-height: 44px; padding: 10px 16px; font-size: 14px; }
+
+.theme-hop-ky-uc .sh-scene[data-scene="ky-niem"] { min-height: auto; }
+.theme-hop-ky-uc .jb-story-card span { font-size: max(13px, 0.875rem); color: var(--sh-accent); font-weight: 600; }
+.theme-hop-ky-uc .jb-story-card h3 { margin: 6px 0; font-size: 22px; }
+.theme-hop-ky-uc .jb-story-card p { margin: 0; font-size: 16px; opacity: 0.86; }
+
+/* Finale & pocket tuck */
+.theme-hop-ky-uc .jb-finale-shell { padding-bottom: 96px; }
+.theme-hop-ky-uc .jb-lead { margin: 0; font-size: 16px; opacity: 0.86; }
+.theme-hop-ky-uc .jb-tuck-badge {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sh-accent) 14%, transparent);
+  border: 1px solid var(--sh-accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+.theme-hop-ky-uc .jb-pocket.is-tucked {
+  box-shadow: inset 0 -6px 0 var(--sh-foil);
+  transition: box-shadow 260ms var(--sh-ease-tactile);
+}
+
+.theme-hop-ky-uc .jb-acc { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+.theme-hop-ky-uc .jb-acc img.qr { border-radius: 6px; background: #fff; padding: 4px; }
+.theme-hop-ky-uc .jb-acc-meta { display: grid; gap: 4px; justify-items: start; font-size: 15px; }
+.theme-hop-ky-uc .jb-acc-num { font-size: 16px; font-weight: 600; }
+.theme-hop-ky-uc .jb-acc-meta .sh-btn { min-height: 44px; padding: 10px 14px; font-size: 14px; }
+
+/* Form fields inside light card */
+.theme-hop-ky-uc .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+@media (min-width: 900px) {
+  .theme-hop-ky-uc .jb-stage,
+  .theme-hop-ky-uc .jb-ev-grid,
+  .theme-hop-ky-uc .jb-story-grid,
+  .theme-hop-ky-uc .jb-finale-grid,
+  .theme-hop-ky-uc .accounts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .theme-hop-ky-uc .jb-meta-grid,
+  .theme-hop-ky-uc .jb-fams,
+  .theme-hop-ky-uc .jb-acc { grid-template-columns: 1fr; }
+}

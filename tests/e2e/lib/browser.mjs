@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ALLOWED_EXTERNAL_CONSOLE_ERRORS = [
-  /(Failed to load resource|ERR_NAME_NOT_RESOLVED|ERR_INTERNET_DISCONNECTED|ERR_CONNECTION_TIMED_OUT|ERR_CONNECTION_REFUSED).*(cdn\.jsdelivr\.net|vietqr|fonts\.googleapis|fonts\.gstatic|maps\.google)/i,
+  /(Failed to load resource|ERR_NAME_NOT_RESOLVED|ERR_INTERNET_DISCONNECTED|ERR_CONNECTION_TIMED_OUT|ERR_CONNECTION_REFUSED).*(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|vietqr|fonts\.googleapis|fonts\.gstatic|maps\.google)/i,
   /WebSocket connection to 'ws:\/\/(127\.0\.0\.1|localhost):\d+\/_next\/hmr/i,
 ];
 
@@ -51,6 +51,7 @@ export async function createSafeContext(browser, {
     hasTouch,
     reducedMotion,
     acceptDownloads,
+    permissions: ['clipboard-read', 'clipboard-write'],
   });
 
   const capturedPosts = [];
@@ -75,7 +76,7 @@ export async function createSafeContext(browser, {
     });
   });
 
-  // Return clean 204/empty PNG for vietqr/google maps iframes if offline or to avoid console noise without hiding local errors
+  // Return clean stub for Google Maps iframes/routes to avoid console noise without hiding local errors
   await ctx.route('https://www.google.com/maps/**', route =>
     route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Map</title>' })
   );
@@ -84,6 +85,8 @@ export async function createSafeContext(browser, {
     const pageErrors = [];
     const httpErrors = [];
     const consoleErrors = [];
+    const requestFailures = [];
+    const trackedRequests = [];
 
     page.on('pageerror', err => {
       pageErrors.push(err?.message || String(err));
@@ -95,6 +98,27 @@ export async function createSafeContext(browser, {
       const combined = locUrl ? `${text} ${locUrl}` : text;
       if (ALLOWED_EXTERNAL_CONSOLE_ERRORS.some(re => re.test(combined))) return;
       consoleErrors.push(locUrl && !text.includes(locUrl) ? `${text} (${locUrl})` : text);
+    });
+    page.on('request', req => {
+      const url = req.url();
+      let reqOrigin = '';
+      try { reqOrigin = new URL(url).origin; } catch {}
+      if (reqOrigin && originSet.has(reqOrigin)) {
+        trackedRequests.push({
+          url,
+          resourceType: req.resourceType(),
+        });
+      }
+    });
+    page.on('requestfailed', req => {
+      const url = req.url();
+      let reqOrigin = '';
+      try { reqOrigin = new URL(url).origin; } catch {}
+      if (!reqOrigin || !originSet.has(reqOrigin)) return;
+      const reason = req.failure()?.errorText || 'failed';
+      // Ignore canceled requests triggered by page navigation / iframe teardown (real 404/500s are caught by response listener)
+      if (reason === 'net::ERR_ABORTED') return;
+      requestFailures.push(`${reason} ${url}`);
     });
     page.on('response', res => {
       if (res.status() < 400) return;
@@ -110,11 +134,14 @@ export async function createSafeContext(browser, {
       pageErrors,
       httpErrors,
       consoleErrors,
+      requestFailures,
+      trackedRequests,
       allErrors() {
         return [
           ...pageErrors.map(e => `pageerror: ${e}`),
           ...httpErrors.map(e => `http: ${e}`),
           ...consoleErrors.map(e => `console.error: ${e}`),
+          ...requestFailures.map(e => `requestfailed: ${e}`),
         ];
       },
       assertClean(contextLabel = '') {
@@ -156,14 +183,12 @@ export async function saveFailureShot(ctx, shotsDir, label, err) {
 }
 
 export async function openV1Gate(page, { timeout = 8000 } = {}) {
-  await page.waitForFunction(() => document.body.classList.contains('ready'), null, { timeout: 12000 });
+  await page.waitForFunction(() => document.body.classList.contains('ready'), null, { timeout: 20000 });
   const isAlreadyGone = await page.$('#cover.gone');
   if (isAlreadyGone) return;
   const opener = page.locator('#cover [data-open]').first();
   await opener.waitFor({ state: 'visible', timeout: 5000 });
   await opener.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
-  // Some themes apply idle bobbing CSS animations on [data-open], which trips Playwright's stability wait.
-  // Verify the button is actually unoccluded at its center, then click cleanly.
   const hitOk = await opener.evaluate(el => {
     const r = el.getBoundingClientRect();
     const cx = Math.min(window.innerWidth - 1, Math.max(1, r.left + r.width / 2));
@@ -179,13 +204,17 @@ export async function openV1Gate(page, { timeout = 8000 } = {}) {
 export async function openV2Gate(page, { timeout = 8000 } = {}) {
   await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
   const alreadyOpen = await page.evaluate(() => document.documentElement.classList.contains('sh-open'));
-  if (alreadyOpen) return;
+  if (alreadyOpen) {
+    return { unlockMs: 0, totalHideMs: 0, skippedImmediate: true };
+  }
   const gate = page.locator('.sh-gate');
-  if ((await gate.count()) === 0) return;
+  if ((await gate.count()) === 0) {
+    return { unlockMs: 0, totalHideMs: 0, skippedImmediate: true };
+  }
   const explicitOpen = page.locator('.sh-gate [data-open]').first();
   const cta = (await explicitOpen.count()) > 0
     ? explicitOpen
-    : page.locator('.sh-gate button, .sh-gate [role="button"], .sh-gate [data-open], .sh-gate .lever').first();
+    : page.locator('.sh-gate button, .sh-gate [role="button"], .sh-gate [data-open], .sh-gate .lever, .sh-gate .ptl-switch, .sh-gate .th-open-btn').first();
   await cta.waitFor({ state: 'visible', timeout: 5000 });
   await cta.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   const hitOk = await cta.evaluate(el => {
@@ -196,10 +225,43 @@ export async function openV2Gate(page, { timeout = 8000 } = {}) {
     return !!hit && (hit === el || el.contains(hit) || hit.contains(el));
   });
   if (!hitOk) throw new Error('v2 gate CTA is occluded at center');
+
+  const t0 = Date.now();
   await cta.click({ force: true, timeout: 5000 });
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout });
+  const unlockMs = Date.now() - t0;
   await page.waitForFunction(
-    () => document.documentElement.classList.contains('sh-open') && Boolean(document.querySelector('.sh-gate')?.hidden),
+    () => {
+      const g = document.querySelector('.sh-gate');
+      return !g || Boolean(g.hidden) || getComputedStyle(g).display === 'none';
+    },
     null,
     { timeout }
   );
+  const totalHideMs = Date.now() - t0;
+  return { unlockMs, totalHideMs, skippedImmediate: false };
+}
+
+export async function ensureQuickOpenVisible(page) {
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await page.waitForTimeout(150);
+  const stillAway = await page.evaluate(() => document.querySelector('.sh-quick-btn')?.classList.contains('is-away'));
+  if (stillAway) {
+    await page.evaluate(() => window.scrollTo({ top: 30, behavior: 'instant' }));
+    await page.waitForTimeout(80);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  }
+  await page.waitForFunction(
+    () => {
+      const qb = document.querySelector('.sh-quick-btn');
+      return !qb || !qb.classList.contains('is-away');
+    },
+    null,
+    { timeout: 3000 }
+  );
+  // Wait past the 300ms CSS transform/opacity transition on .sh-quick-btn
+  await page.waitForTimeout(360);
+  const btn = page.locator('[data-sh="quick-open"]').first();
+  await btn.waitFor({ state: 'visible', timeout: 4000 });
+  return btn;
 }

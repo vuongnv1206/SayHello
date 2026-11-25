@@ -10,10 +10,7 @@
 // Ảnh là nội dung chính: 6 đến 30 ảnh album, chú thích và chuyện tình không bắt buộc.
 // Mức lite (máy yếu, giảm chuyển động, mất WebGL): cùng HTML này thành sách triển lãm phẳng, ảnh được rọi khi cuộn tới.
 // Chủ đề là bộ thông số: mỗi palette mang theo preset ánh sáng, chất liệu, sương cho cảnh 3D (gallery3d.js đọc).
-import { defineTheme, html, br, rsvpForm, wishForm, wishList, fmt } from '@sayhello/engine';
-
-const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w ]/g, '').trim();
-const qrUrl = (a, note) => a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note)}` : '');
+import { defineTheme, html, br, plain, qrUrl, rsvpForm, wishForm, wishList, fmt } from '@sayhello/engine';
 
 // Kịch bản treo tranh, tự co giãn theo số ảnh. Ảnh đầu tiên là bức chính, để dành cho tường cuối.
 //   single: một ảnh treo chếch; wire: treo dây giữa lối đi; salon: góc tường treo kín 3–5 ảnh; lightbox: hộp đèn.
@@ -30,13 +27,11 @@ export function plan(ctx) {
     seq.push({ kind: 'work', hang, works: [rest[i]] });
   }
   const story = ctx.has('story') ? ctx.story.map(s => ({ kind: 'text', s })) : [];
-  const out = [{ kind: 'title' }];
+  const out = [{ kind: 'title' }, { kind: 'info' }];
   seq.forEach((s, k) => {
     out.push(s);
-    if (k === 0) out.push({ kind: 'info' });
     if (story.length && k >= 1 && k % 2 === 1) out.push(story.shift());
   });
-  if (!seq.length) out.push({ kind: 'info' });
   out.push(...story, { kind: 'finale', hang: 'hero', works: hero ? [hero] : [] });
   return out;
 }
@@ -60,14 +55,15 @@ function label(st, ctx) {
 }
 
 function stopHtml(st, ctx) {
-  const { names: n, date, city, events, places, say } = ctx;
+  const { names: n, date, city, main, events, places, say } = ctx;
   if (st.kind === 'title') return html`
     <li class="ptl-stop ptl-s-title" data-stop="title">
       <div class="ptl-plate ptl-vinyl">
         <p class="ptl-kind">Triển lãm ảnh cưới</p>
         <h2 class="ptl-names"><span>${n.first}</span><span>${n.second}</span></h2>
-        <p class="ptl-dates">${fmt.short(date)}${city ? html`<br>${city}` : ''}</p>
+        <p class="ptl-dates">${fmt.short(date)}${main?.date ? html` · ${fmt.time(main.date)}` : ''}${city ? html`<br>${city}` : ''}${main?.venue ? html` · ${main.venue}` : ''}</p>
         <p class="ptl-welcome">Kính mời ${ctx.guest()} vào xem.</p>
+        <a class="ptl-go" href="#le-tan">Xác nhận tham dự</a>
       </div>
     </li>`;
   if (st.kind === 'work') return html`
@@ -91,6 +87,7 @@ function stopHtml(st, ctx) {
           </li>`)}
         </ol>
         ${places.length ? html`<p class="ptl-maps">${places.map(p => html`<a href="${p.url}" target="_blank" rel="noopener">Chỉ đường tới ${p.label.toLowerCase()}</a>`)}</p>` : ''}
+        <a class="ptl-go" href="#le-tan">Dán chấm đỏ giữ chỗ</a>
       </div>
     </li>`;
   if (st.kind === 'text') return html`
@@ -123,7 +120,7 @@ export default defineTheme({
   themeColor: '#0b0e0e',
   fonts: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200;300;400;600&display=swap',
   libs: ['three-post'],
-  gateMs: 1100,
+  gateMs: 450,
   features: { when: 'required', where: 'required', rsvp: 'required', map: 'optional', album: 'optional', story: 'optional', gift: 'optional', guestbook: 'optional' },
   slots: {
     images: { album: { min: 6, ideal: 14, max: 30, label: 'Ảnh treo trong phòng tranh. Ảnh đầu tiên là bức chính, treo khổ lớn ở tường cuối.' } },
@@ -151,7 +148,7 @@ export default defineTheme({
     /* ===== Bìa: bức tường tối, thấp thoáng ảnh đầu tiên, công tắc đèn ===== */
     {
       id: 'sanh', kind: 'gate',
-      render: ({ names: n, img: im, album, guest }) => html`
+      render: ({ names: n, date, city, img: im, album, guest }) => html`
         <div class="ptl-gwall" aria-hidden="true">
           ${album[0] ? html`<img class="ptl-ghost" src="${im('hero')}" alt="" decoding="async">` : ''}
           <i class="ptl-gglow"></i>
@@ -159,6 +156,7 @@ export default defineTheme({
         <div class="ptl-gtitle">
           <p class="ptl-to">Kính mời ${guest()}</p>
           <h1 class="ptl-gname">tới phòng tranh của ${n.first} và ${n.second}</h1>
+          <p class="ptl-gmeta">${fmt.short(date)}${city ? html` · ${city}` : ''}</p>
         </div>
         <div class="ptl-switch-wrap">
           <button class="ptl-switch" type="button" aria-label="Bật đèn phòng tranh để mở thiệp" aria-pressed="false"><i class="ptl-rocker"></i></button>
@@ -172,7 +170,7 @@ export default defineTheme({
           sw.setAttribute('aria-pressed', 'true');
           el.classList.add('is-on');
           clickSound();
-          setTimeout(() => ctx.open(), ctx.reduced ? 120 : 700);
+          setTimeout(() => ctx.open(), ctx.reduced ? 80 : 280);
         };
         sw.addEventListener('pointerdown', e => { y0 = e.clientY; });
         sw.addEventListener('pointermove', e => { if (y0 != null && e.clientY - y0 > 24) on(); });

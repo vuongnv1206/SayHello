@@ -32,3 +32,6 @@ export function graphemes(text) {
 
 // Chữ tách thành <span> cho hiệu ứng, có aria-label để trình đọc màn hình vẫn đọc nguyên chữ
 export const splitText = (text, cls = 'ch') => html`<span class="split" aria-label="${text}">${graphemes(text).map((g, i) => g === ' ' ? raw(' ') : html`<span class="${cls}" aria-hidden="true" style="--i:${i}">${g}</span>`)}</span>`;
+
+// Bỏ dấu tiếng Việt cho nội dung chuyển khoản / chuỗi ASCII an toàn
+export const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w ]/g, '').trim();

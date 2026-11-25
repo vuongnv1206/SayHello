@@ -5,7 +5,7 @@
 //   Giữ ghế (sơ đồ ghế + xác nhận, lời chúc chạy như phụ đề), Album 35mm, Quầy bắp nước, Danh đề.
 // Mức chuyển động: standard/cinematic dùng GSAP ScrollTrigger (nạp sau khi mở bìa); lite chỉ CSS, không ghim.
 // Ảnh dùng: images.hero, groom, bride, thanks, album[]
-import { defineTheme, html, br, splitText, rsvpForm, wishForm, wishList, countdown, fmt } from '@sayhello/engine';
+import { defineTheme, html, br, splitText, plain, qrUrl, rsvpForm, wishForm, wishList, countdown, fmt } from '@sayhello/engine';
 
 const pad = n => String(n).padStart(2, '0');
 const holes = html`<i class="holes" aria-hidden="true"></i>`;
@@ -35,9 +35,6 @@ async function scroll(el, ctx) {
   try { return await ctx.lib('scroll'); }
   catch (e) { el.classList.add('is-static'); throw e; }
 }
-// Bỏ dấu cho nội dung chuyển khoản (ngân hàng không nhận dấu)
-const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w ]/g, '').trim();
-const qrUrl = (a, note) => a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note)}` : '');
 
 export default defineTheme({
   id: 'cuon-phim',
@@ -49,7 +46,7 @@ export default defineTheme({
   themeColor: '#15120f',
   fonts: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800&family=Playfair+Display:ital,wght@0,500;1,400;1,700&family=Space+Mono:wght@400;700&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',
   libs: ['scroll'],
-  gateMs: 700,
+  gateMs: 450,
   features: { when: 'required', where: 'required', rsvp: 'required', map: 'optional', story: 'optional', album: 'optional', gift: 'optional', guestbook: 'optional', countdown: 'optional' },
   slots: {
     images: { hero: { required: true, aspect: '4:5', label: 'Ảnh trên màn ảnh mở màn' }, groom: { aspect: '3:4' }, bride: { aspect: '3:4' }, thanks: { aspect: '4:5' }, album: { min: 0, ideal: 6, max: 24 } },
@@ -96,22 +93,44 @@ export default defineTheme({
         <i class="beam" aria-hidden="true"></i>
         <div class="projector" aria-hidden="true"><i class="reel r1"></i><i class="reel r2"></i><i class="body"><i class="lens"></i></i></div>
         <button class="lever" type="button" aria-label="Kéo cần máy chiếu để mở thiệp"><i class="arm"><i class="knob"></i></i></button>
-        <p class="cover-hint">${t.coverHint}</p>`,
+        <p class="cover-hint">${t.coverHint}</p>
+        <button class="cover-skip" type="button" data-skip>Bỏ qua &amp; mở ngay</button>`,
       mount(el, ctx) {
         const lever = el.querySelector('.lever');
-        let pulled = false, y0 = null;
+        let pulled = false, dragged = false, y0 = null, openTimer = 0;
+        const openNow = () => {
+          if (ctx.opened) return;
+          clearTimeout(openTimer);
+          openTimer = 0;
+          ctx.open();
+        };
         const pull = () => {
-          if (pulled) return; pulled = true;
+          if (pulled) { openNow(); return; }
+          pulled = true;
           el.style.setProperty('--pull', 1);
           el.classList.add('rolling');
           if (!ctx.reduced) sound('reel');
-          setTimeout(() => ctx.open(), ctx.reduced ? 150 : 2300);
+          openTimer = setTimeout(openNow, ctx.reduced ? 80 : 280);
         };
-        // Kéo cần bằng ngón tay (kéo xuống quá nửa là chạy); chạm hoặc Enter cũng chạy
+        // Kéo cần bằng ngón tay (kéo xuống quá nửa là chạy); chạm hoặc Enter cũng chạy; chạm lần nữa hoặc chạm bìa bỏ qua ngay
         lever.addEventListener('pointerdown', e => { y0 = e.clientY; lever.setPointerCapture?.(e.pointerId); });
-        lever.addEventListener('pointermove', e => { if (y0 == null || pulled) return; el.style.setProperty('--pull', Math.max(0, Math.min(1, (e.clientY - y0) / 90))); });
+        lever.addEventListener('pointermove', e => {
+          if (y0 == null || pulled) return;
+          const p = Math.max(0, Math.min(1, (e.clientY - y0) / 90));
+          el.style.setProperty('--pull', p);
+          if (p >= 0.55) { dragged = true; y0 = null; pull(); }
+        });
         lever.addEventListener('pointerup', () => { y0 = null; });
-        lever.addEventListener('click', pull);
+        lever.addEventListener('pointercancel', () => { y0 = null; });
+        lever.addEventListener('click', () => {
+          if (dragged) { dragged = false; return; }
+          pull();
+        });
+        el.addEventListener('click', e => {
+          if (e.target.closest('.lever')) return;
+          if (pulled && !ctx.opened) { openNow(); return; }
+          if (e.target.closest('.screen, [data-skip]')) openNow();
+        });
       },
     },
 
@@ -300,7 +319,7 @@ export default defineTheme({
         <h2 class="title">${t.albumTitle}</h2>
         <div class="strip" tabindex="0" aria-label="Dải ảnh, vuốt ngang để xem">
           <div class="strip-track">${album.map((src, i) => html`
-            <figure class="shot"><button type="button" class="shot-btn" aria-label="Xem ảnh ${i + 1} lớn hơn"><img src="${src}" alt="${captions[i] || 'Ảnh cưới ' + (i + 1)}" loading="lazy"></button>
+            <figure class="shot"><button type="button" class="shot-btn" aria-label="Xem ảnh ${i + 1} lớn hơn"><img src="${src}" alt="${captions[i] || 'Ảnh cưới ' + (i + 1)}" decoding="async"></button>
               <figcaption><span>${captions[i] || ''}</span><i>${i + 1}A ▸</i></figcaption></figure>`)}</div>
         </div>
         <p class="hint">Vuốt ngang để tua · chạm để xem ảnh lớn</p>
@@ -344,7 +363,14 @@ export default defineTheme({
           const open = acc.hidden; acc.hidden = !open; btn.setAttribute('aria-expanded', String(open)); el.classList.toggle('popped', open);
         });
         // Nội dung chuyển khoản kèm tên khách (không dấu) để cặp đôi đối chiếu sao kê
-        if (ctx.guest) el.querySelectorAll('img.qr[data-qr="1"]').forEach(img => { const u = new URL(img.src); u.searchParams.set('addInfo', ('Mung cuoi ' + plain(ctx.guest)).slice(0, 50)); img.src = u.href; });
+        if (ctx.guest) {
+          const info = encodeURIComponent(('Mung cuoi ' + plain(ctx.guest)).slice(0, 50));
+          el.querySelectorAll('img.qr[data-qr="1"]').forEach(img => {
+            img.src = /([?&])addInfo=[^&]*/.test(img.src)
+              ? img.src.replace(/([?&])addInfo=[^&]*/, `$1addInfo=${info}`)
+              : `${img.src}${img.src.includes('?') ? '&' : '?'}addInfo=${info}`;
+          });
+        }
         el.querySelectorAll('.copy').forEach(b => b.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Đã chép'; } catch { b.textContent = b.dataset.copy; }
           setTimeout(() => { b.textContent = 'Chép số'; }, 2000);

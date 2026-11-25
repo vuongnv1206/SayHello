@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-song-gia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Song Gia (Dual-House Convergence): sân khấu tách đôi 50/50 Nhà Trai & Nhà Gái hội tụ về thiệp chung và nút thắt 2D.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

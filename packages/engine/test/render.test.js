@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defineTheme, renderDocument, buildContext, graphemes, html, toStr, pickMotion, measureFps, bindContextLoss, fmt } from '../src/index.js';
+import { defineTheme, renderDocument, buildContext, graphemes, html, toStr, plain, qrUrl, pickMotion, measureFps, bindContextLoss, fmt } from '../src/index.js';
 
 const invite = {
   slug: 'thu', date: '2027-11-20T18:00:00+07:00', city: 'Hà Nội',
@@ -139,4 +139,22 @@ test('bindContextLoss: gọi preventDefault + callback khi mất ngữ cảnh We
 test('lib: từ chối thư viện không khai báo', async () => {
   const { lib } = await import('../src/client/lib.js');
   await assert.rejects(() => lib('khong-ton-tai'), /Không có thư viện/);
+});
+
+test('plain: bỏ dấu tiếng Việt (kể cả đ/Đ và NFD) và lọc ký tự đặc biệt', () => {
+  assert.equal(plain('Đặng Minh Đức & Khánh Linh!'), 'Dang Minh Duc  Khanh Linh');
+  assert.equal(plain('Trần Gia Huy'.normalize('NFD')), 'Tran Gia Huy');
+  assert.equal(plain('  Đoàn — 2027  '), 'Doan  2027');
+  assert.equal(plain(''), '');
+  assert.equal(plain(null), '');
+});
+
+test('qrUrl: ưu tiên qr sẵn có, dựng VietQR khi đủ bankCode/number, rỗng khi thiếu', () => {
+  assert.equal(qrUrl(null, 'test'), '');
+  assert.equal(qrUrl({ qr: 'https://example.com/qr.png', bankCode: 'VCB', number: '123' }, 'note'), 'https://example.com/qr.png');
+  assert.equal(qrUrl({ bankCode: 'VCB' }, 'note'), '');
+  assert.equal(
+    qrUrl({ bankCode: 'VCB', number: '0123456789', name: 'TRAN GIA HUY' }, 'Mung cuoi'),
+    'https://img.vietqr.io/image/VCB-0123456789-compact2.png?accountName=TRAN%20GIA%20HUY&addInfo=Mung%20cuoi'
+  );
 });

@@ -257,6 +257,23 @@ body.theme-to-hong {
   min-width: 0;
 }
 
+.th-title-plate {
+  padding: 32px clamp(20px, 4vw, 40px);
+  background: var(--sh-panel);
+  border: 1.5px solid var(--gold);
+  border-top: 4px solid var(--thread);
+  box-shadow: 0 18px 42px -26px rgba(35, 48, 61, 0.28);
+  text-align: center;
+}
+
+.th-title-plate .th-names {
+  justify-items: center;
+}
+
+.th-title-plate .th-go {
+  margin-top: 22px;
+}
+
 .th-welcome {
   font-family: var(--f-serif);
   font-size: clamp(17px, 2.2vw, 22px);
@@ -319,8 +336,6 @@ body.theme-to-hong {
   display: grid;
   gap: 10px;
   perspective: 900px;
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 0.25s ease-out;
 }
 
 .th-photo-btn {
@@ -331,6 +346,8 @@ body.theme-to-hong {
   background: var(--sh-panel);
   cursor: zoom-in;
   box-shadow: 0 12px 30px -18px rgba(35, 48, 61, 0.35);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.25s ease-out;
 }
 
 .th-photo-btn:focus-visible {
@@ -523,6 +540,10 @@ body.theme-to-hong {
   flex-wrap: wrap;
   gap: 8px 20px;
   margin-top: 18px;
+}
+
+.th-info-plate .th-go {
+  margin-top: 22px;
 }
 
 /* Trạm chuyện tình (chỉ hiện khi có story) */
@@ -755,7 +776,7 @@ html.th-3d .th-stop {
   scroll-snap-align: start;
 }
 
-html.th-3d .th-stop > * {
+html.th-3d.th-ready .th-stop > * {
   opacity: 0;
 }
 
@@ -882,10 +903,12 @@ html.th-inspecting .th-inspect-ui p {
   pointer-events: inherit;
 }
 
-.th-c-title .th-title-plate { width: 880px; text-align: center; }
-.th-c-title .th-names { font-size: 132px; justify-items: center; }
-.th-c-title .th-welcome { font-size: 30px; }
-.th-c-title .th-place-date { font-size: 26px; }
+.th-c-title .th-title-plate { width: 840px; padding: 36px 40px; text-align: center; }
+.th-c-title .th-names { font-size: 112px; justify-items: center; }
+.th-c-title .th-welcome { font-size: 28px; }
+.th-c-title .th-place-date { font-size: 24px; }
+.th-c-title .th-go,
+.th-c-info .th-go { font-size: 22px; padding: 14px 28px; margin-top: 20px; }
 .th-c-work .th-cap-plate { width: 320px; padding: 18px 22px; background: color-mix(in srgb, var(--sh-panel) 94%, transparent); }
 .th-c-work .th-cap { font-size: 24px; }
 .th-c-when .th-when-plate { width: 680px; }
@@ -915,8 +938,8 @@ html.th-inspecting .th-inspect-ui p {
 .th-c-finale p { font-size: 26px; }
 .th-c-finale .th-go { font-size: 24px; padding: 16px 32px; }
 
-html.th-portrait .th-c-title .th-title-plate { width: 540px; }
-html.th-portrait .th-c-title .th-names { font-size: 92px; }
+html.th-portrait .th-c-title .th-title-plate { width: 540px; padding: 28px 24px; }
+html.th-portrait .th-c-title .th-names { font-size: 86px; }
 html.th-portrait .th-c-work .th-cap-plate { width: 420px; }
 html.th-portrait .th-c-info .th-info-plate { width: 520px; grid-template-columns: 1fr; }
 html.th-portrait .th-c-info .th-fam,
@@ -1169,6 +1192,7 @@ html.th-portrait .th-c-finale .th-finale-plate { width: 520px; }
 
 @media (prefers-reduced-motion: reduce) {
   .th-frame,
+  .th-photo-btn,
   .th-gate-mist,
   .th-guest-ribbon.is-released {
     transition: none;

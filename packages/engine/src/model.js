@@ -14,6 +14,8 @@ export function merge(base, over) {
 
 export const mapUrl = p => p ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.coords || p.address || p.label || '') : '';
 
+export const qrUrl = (a, note = '') => !a ? '' : a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note || '')}` : '');
+
 // Ảnh trong dữ liệu ghi tương đối ("images/anh1.jpg"): gắn vào gốc ảnh của thiệp
 const absolutize = (src, base) => !src || /^(https?:|data:|\/)/.test(src) ? src || '' : base.replace(/\/?$/, '/') + src.replace(/^\.\//, '');
 
@@ -38,6 +40,14 @@ export function buildContext(theme, invite, { assetBase = '' } = {}) {
     album, captions: images.captions || [],
     // Ảnh theo ô (hero, groom, bride, thanks...), thiếu thì lấy ảnh thứ i trong album
     img(slot, i = 0) { return absolutize(images[slot], assetBase) || album[i % Math.max(1, album.length)] || ''; },
+    // Cặp ảnh nền + lớp tách người 2.5D (fallback mượt về fg: '' nếu không có ảnh tách)
+    imgPair(slot, i = 0) {
+      const slotSrc = typeof images[slot] === 'string' ? absolutize(images[slot], assetBase) : '';
+      const bg = slotSrc || album[i % Math.max(1, album.length)] || '';
+      const rawFg = images.cutouts?.[slot] || images[`${slot}Cutout`] || (Array.isArray(images.albumCutouts) ? images.albumCutouts[i] : '') || '';
+      const fg = typeof rawFg === 'string' && rawFg ? absolutize(rawFg, assetBase) : '';
+      return { bg, fg };
+    },
     // Chỗ điền tên khách: máy chủ để chữ mặc định, trình duyệt thay bằng ?k= nếu có
     guest(fallback = say('guest')) { return html`<span data-guest data-fallback="${fallback}">${fallback}</span>`; },
     has(feature) {

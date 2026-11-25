@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-chieu-sau",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Chiều Sâu (Cinema Lookbook 2.5D): bố cục bất đối xứng 62/38 với chiều sâu tiền cảnh tách lớp và đẩy tiêu cự quang học.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

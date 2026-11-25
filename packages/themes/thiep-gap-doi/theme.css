@@ -1,0 +1,322 @@
+/* Thiệp Gấp Đôi (Tactile Folio) — hai cánh đối xứng trên máy tính, giấy gấp 3 nếp trên điện thoại */
+.theme-thiep-gap-doi {
+  background: var(--sh-bg);
+  color: var(--sh-ink);
+  font-family: var(--sh-font-body);
+}
+
+.theme-thiep-gap-doi h1,
+.theme-thiep-gap-doi h2,
+.theme-thiep-gap-doi h3 {
+  font-family: var(--sh-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.theme-thiep-gap-doi .fg-kicker {
+  margin: 0 0 8px;
+  font-size: max(13px, 0.85rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sh-accent);
+  font-weight: 600;
+}
+
+/* ===== 1. Bìa niêm phong ===== */
+.theme-thiep-gap-doi .sh-gate {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: var(--sh-bg);
+}
+
+.theme-thiep-gap-doi .fg-envelope {
+  position: relative;
+  width: min(520px, 100%);
+  padding: clamp(24px, 5vw, 44px);
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  background: var(--sh-surface);
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.18);
+}
+
+.theme-thiep-gap-doi .fg-flap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background: color-mix(in srgb, var(--sh-surface) 92%, var(--sh-foil));
+  border-right: 1px solid var(--sh-soft);
+  transition: transform 280ms var(--sh-ease-tactile), opacity 280ms var(--sh-ease-tactile);
+  pointer-events: none;
+  opacity: 0.28;
+}
+.theme-thiep-gap-doi .fg-flap-l { left: 0; }
+.theme-thiep-gap-doi .fg-flap-r { right: 0; border-right: 0; border-left: 1px solid var(--sh-soft); }
+.theme-thiep-gap-doi .sh-gate.is-unsealing .fg-flap-l { transform: translateX(-100%); opacity: 0; }
+.theme-thiep-gap-doi .sh-gate.is-unsealing .fg-flap-r { transform: translateX(100%); opacity: 0; }
+
+.theme-thiep-gap-doi .fg-jacket { position: relative; z-index: 2; display: grid; gap: 12px; justify-items: center; }
+.theme-thiep-gap-doi .fg-guest { margin: 0; font-size: 16px; }
+.theme-thiep-gap-doi .fg-monogram {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1px solid var(--sh-foil);
+  display: grid;
+  place-items: center;
+  font-family: var(--sh-font-display);
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  color: var(--sh-foil);
+}
+.theme-thiep-gap-doi .fg-cover-names {
+  margin: 4px 0 0;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.1;
+}
+.theme-thiep-gap-doi .fg-cover-names span { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+.theme-thiep-gap-doi .fg-cover-meta { margin: 0; font-size: 15px; opacity: 0.86; }
+.theme-thiep-gap-doi .fg-seal {
+  margin-top: 8px;
+  min-width: 156px;
+  min-height: 48px;
+  border-radius: 999px;
+  background: var(--sh-accent);
+  color: var(--sh-accent-ink);
+  border: 1px solid color-mix(in srgb, var(--sh-foil) 65%, transparent);
+}
+.theme-thiep-gap-doi .fg-cover-hint { margin: 0; font-size: max(13px, 0.875rem); opacity: 0.78; }
+
+/* ===== 2. Bố cục hai cánh mở ===== */
+.theme-thiep-gap-doi .fg-spread {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 40px) clamp(16px, 3vw, 32px);
+  display: grid;
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.theme-thiep-gap-doi .fg-card {
+  position: relative;
+  padding: clamp(24px, 3.2vw, 40px);
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--sh-foil) 42%, var(--sh-soft));
+  background:
+    radial-gradient(circle at var(--gx, 28%) var(--gy, 22%), color-mix(in srgb, var(--sh-foil) 16%, transparent), transparent 54%),
+    var(--sh-surface);
+  display: grid;
+  gap: 18px;
+  text-align: center;
+}
+
+.theme-thiep-gap-doi .fg-crest {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  border: 1px solid var(--sh-foil);
+  font-family: var(--sh-font-display);
+  font-size: 20px;
+  color: var(--sh-foil);
+}
+
+.theme-thiep-gap-doi .fg-names {
+  margin: 0;
+  font-size: clamp(32px, 3.6vw, 46px);
+  line-height: 1.15;
+  display: grid;
+  gap: 4px;
+}
+.theme-thiep-gap-doi .fg-names em { font-size: 24px; color: var(--sh-foil); font-style: italic; }
+
+.theme-thiep-gap-doi .fg-rule {
+  width: 72px;
+  height: 1px;
+  margin: 0 auto;
+  background: var(--sh-foil);
+  opacity: 0.6;
+}
+
+.theme-thiep-gap-doi .fg-date-main { margin: 0; font-size: 18px; font-weight: 600; }
+.theme-thiep-gap-doi .fg-date-dots { margin: 4px 0 0; font-size: 15px; opacity: 0.86; }
+.theme-thiep-gap-doi .fg-lunar { margin: 4px 0 0; font-size: max(13px, 0.875rem); opacity: 0.8; }
+.theme-thiep-gap-doi .fg-venue { margin: 0; font-size: 17px; font-weight: 600; }
+.theme-thiep-gap-doi .fg-addr { margin: 4px 0 0; font-size: 15px; opacity: 0.86; }
+.theme-thiep-gap-doi .fg-card-actions { display: flex; justify-content: center; padding-top: 4px; }
+
+/* Cánh phải cuộn nội dung */
+.theme-thiep-gap-doi .fg-right { display: grid; gap: 28px; }
+.theme-thiep-gap-doi .fg-hero-plate {
+  margin: 0;
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--sh-surface);
+}
+.theme-thiep-gap-doi .fg-hero-plate img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.theme-thiep-gap-doi .fg-hero-plate figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: max(13px, 0.875rem);
+  border-top: 1px solid var(--sh-soft);
+}
+
+.theme-thiep-gap-doi .fg-sheet {
+  padding: 24px 0 0;
+  border-top: 1px dashed var(--sh-soft);
+}
+.theme-thiep-gap-doi .fg-fam-grid,
+.theme-thiep-gap-doi .fg-couple-grid,
+.theme-thiep-gap-doi .fg-ev-list,
+.theme-thiep-gap-doi .fg-album-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.theme-thiep-gap-doi .fg-fam-card,
+.theme-thiep-gap-doi .fg-ev-card,
+.theme-thiep-gap-doi .fg-acc {
+  padding: 18px;
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  background: var(--sh-surface);
+}
+.theme-thiep-gap-doi .fg-fam-card h3,
+.theme-thiep-gap-doi .fg-ev-card h3 { margin: 0 0 8px; font-size: 22px; }
+.theme-thiep-gap-doi .fg-fam-card p { margin: 4px 0 0; font-size: 15px; }
+.theme-thiep-gap-doi .fg-dim { opacity: 0.78; font-size: 14px; }
+
+.theme-thiep-gap-doi .fg-portrait {
+  margin: 0;
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--sh-surface);
+}
+.theme-thiep-gap-doi .fg-portrait img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.theme-thiep-gap-doi .fg-portrait figcaption { padding: 14px 16px; display: grid; gap: 4px; }
+.theme-thiep-gap-doi .fg-portrait small { font-size: max(13px, 0.85rem); color: var(--sh-accent); text-transform: uppercase; letter-spacing: 0.08em; }
+.theme-thiep-gap-doi .fg-portrait b { font-size: 18px; font-family: var(--sh-font-display); }
+.theme-thiep-gap-doi .fg-portrait span { font-size: 14px; opacity: 0.84; }
+
+.theme-thiep-gap-doi .fg-ev-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+.theme-thiep-gap-doi .fg-ev-time { font-size: max(13px, 0.9rem); color: var(--sh-accent); font-weight: 600; }
+.theme-thiep-gap-doi .fg-ev-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.theme-thiep-gap-doi .fg-ghost {
+  background: transparent;
+  color: var(--sh-ink);
+  border: 1px solid var(--sh-soft);
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.theme-thiep-gap-doi .fg-album-item {
+  margin: 0;
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--sh-surface);
+}
+.theme-thiep-gap-doi .fg-album-item img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.theme-thiep-gap-doi .fg-album-item figcaption { padding: 10px 14px; font-size: max(13px, 0.875rem); }
+
+/* ===== 3. Chuyện hai đứa ===== */
+.theme-thiep-gap-doi .sh-scene[data-scene="chuyen-tinh"] { min-height: auto; }
+.theme-thiep-gap-doi .fg-story-wrap {
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  padding: 28px clamp(16px, 3vw, 32px);
+}
+.theme-thiep-gap-doi .fg-story-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.theme-thiep-gap-doi .fg-story-item {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  background: var(--sh-surface);
+}
+.theme-thiep-gap-doi .fg-story-year {
+  font-family: var(--sh-font-display);
+  font-size: 24px;
+  color: var(--sh-accent);
+  font-weight: 600;
+}
+.theme-thiep-gap-doi .fg-story-item h3 { margin: 0 0 6px; font-size: 22px; }
+.theme-thiep-gap-doi .fg-story-item p { margin: 0; font-size: 16px; opacity: 0.88; }
+
+/* ===== 4. Phiếu hồi âm & Quà mừng ===== */
+.theme-thiep-gap-doi .fg-finale {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 24px clamp(16px, 3vw, 32px) 96px;
+  display: grid;
+  gap: 28px;
+}
+.theme-thiep-gap-doi .fg-reply-sheet,
+.theme-thiep-gap-doi .fg-gift-sheet {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--sh-soft);
+  border-radius: 6px;
+  background: var(--sh-surface);
+}
+.theme-thiep-gap-doi .fg-tear-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--sh-foil);
+  font-size: max(13px, 0.85rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.theme-thiep-gap-doi .fg-reply-grid { display: grid; gap: 28px; }
+.theme-thiep-gap-doi .fg-lead { margin: 0 0 16px; font-size: 16px; opacity: 0.86; }
+.theme-thiep-gap-doi .accounts { display: grid; gap: 16px; margin-top: 12px; }
+.theme-thiep-gap-doi .fg-acc { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+.theme-thiep-gap-doi .fg-acc img.qr { border-radius: 6px; background: #fff; padding: 4px; }
+.theme-thiep-gap-doi .fg-acc-meta { display: grid; gap: 4px; justify-items: start; font-size: 15px; }
+.theme-thiep-gap-doi .fg-acc-num { font-size: 16px; font-weight: 600; letter-spacing: 0.04em; }
+
+@media (min-width: 900px) {
+  .theme-thiep-gap-doi .fg-spread {
+    grid-template-columns: minmax(350px, 0.88fr) minmax(0, 1.12fr);
+    align-items: start;
+  }
+  .theme-thiep-gap-doi .fg-left {
+    position: sticky;
+    top: 24px;
+  }
+  .theme-thiep-gap-doi .fg-fam-grid,
+  .theme-thiep-gap-doi .fg-couple-grid,
+  .theme-thiep-gap-doi .fg-album-grid,
+  .theme-thiep-gap-doi .fg-reply-grid,
+  .theme-thiep-gap-doi .accounts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .theme-thiep-gap-doi .fg-acc { grid-template-columns: 1fr; }
+}

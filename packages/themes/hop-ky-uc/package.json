@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-hop-ky-uc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Hộp Ký Ức (Jewel-Box Deck): hộp đựng bộ thẻ ảnh chia bài đàn hồi, lật mặt sau đọc ghi chú và thanh điều hướng 4 ngăn.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

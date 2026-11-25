@@ -63,18 +63,19 @@ export async function runMotion2d(el, ctx) {
     );
     cleanups.push(() => ftw.scrollTrigger?.kill(), () => ftw.kill());
 
-    // Hiệu ứng nghiêng 2.5D khi rê chuột trên khung ảnh
+    // Hiệu ứng nghiêng 2.5D giới hạn <= ±4.5° chỉ trên khung ảnh (không nghiêng chữ chú thích)
+    const tiltTarget = frame.querySelector('.th-photo-btn') || frame;
     const onMove = e => {
       if (e.pointerType !== 'mouse') return;
       const r = frame.getBoundingClientRect();
-      const nx = ((e.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2;
-      const ny = ((e.clientY - r.top) / Math.max(1, r.height) - 0.5) * 2;
-      frame.style.setProperty('--rx', `${(-ny * 5).toFixed(2)}deg`);
-      frame.style.setProperty('--ry', `${(nx * 6).toFixed(2)}deg`);
+      const nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2));
+      const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / Math.max(1, r.height) - 0.5) * 2));
+      tiltTarget.style.setProperty('--rx', `${(-ny * 4.5).toFixed(2)}deg`);
+      tiltTarget.style.setProperty('--ry', `${(nx * 4.5).toFixed(2)}deg`);
     };
     const onLeave = () => {
-      frame.style.setProperty('--rx', '0deg');
-      frame.style.setProperty('--ry', '0deg');
+      tiltTarget.style.setProperty('--rx', '0deg');
+      tiltTarget.style.setProperty('--ry', '0deg');
     };
     frame.addEventListener('pointermove', onMove, { passive: true });
     frame.addEventListener('pointerleave', onLeave);

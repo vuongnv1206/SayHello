@@ -102,7 +102,13 @@ function runSyncEngine() {
   const script = join(ROOT, 'apps', 'web', 'scripts', 'sync-engine.mjs');
   const res = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: 'utf8' });
   if (res.status !== 0) {
-    throw new Error(`sync-engine.mjs failed (${res.status}): ${res.stderr || res.stdout}`);
+    const out = `${res.stderr || ''}\n${res.stdout || ''}`;
+    const alreadySynced = existsSync(join(ROOT, 'apps', 'web', 'public', '_e', 'engine', 'index.js'));
+    if (alreadySynced && /EPERM|EBUSY|EACCES/i.test(out)) {
+      console.warn('Warning: sync-engine.mjs hit EPERM/EBUSY on public/_e; reusing existing synced assets.');
+      return;
+    }
+    throw new Error(`sync-engine.mjs failed (${res.status}): ${out}`);
   }
 }
 

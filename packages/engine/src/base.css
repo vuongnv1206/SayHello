@@ -1,12 +1,22 @@
 /* Kiểu nền của bộ máy thiệp v2. Mọi bộ chọn nằm trong :where() nên độ ưu tiên bằng 0: mẫu viết đè tự do.
    Biến màu mẫu nên khai báo: --sh-bg, --sh-ink, --sh-accent, --sh-accent-ink, --sh-soft, --sh-panel */
 :where(:root) {
-  --sh-bg: #111; --sh-ink: #f4ede1; --sh-accent: #e8a33d; --sh-accent-ink: #1a1208; --sh-soft: rgba(255,255,255,.18); --sh-panel: #1c1814;
-  --sh-radius: 14px; --sh-ease: cubic-bezier(.2,.7,.2,1);
+  --sh-bg: #111; --sh-surface: #1c1814; --sh-ink: #f4ede1;
+  --sh-muted: color-mix(in srgb, var(--sh-ink) 68%, transparent);
+  --sh-accent: #e8a33d; --sh-accent-ink: #1a1208; --sh-foil: #d4b06a;
+  --sh-soft: rgba(255,255,255,.18); --sh-panel: var(--sh-surface);
+  --sh-font-display: 'Cormorant Garamond', Georgia, serif;
+  --sh-font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+  --sh-font-mono: 'Space Mono', ui-monospace, monospace;
+  --sh-radius: 14px;
+  --sh-ease-tactile: cubic-bezier(0.22, 1, 0.36, 1);
+  --sh-ease: var(--sh-ease-tactile);
+  --sh-dur-ui: 240ms;
   -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
 }
 :where(*, *::before, *::after) { box-sizing: border-box; }
-:where(body.sh) { margin: 0; background: var(--sh-bg); color: var(--sh-ink); min-height: 100svh; overflow-x: clip; -webkit-tap-highlight-color: transparent; }
+:where(body.sh) { margin: 0; background: var(--sh-bg); color: var(--sh-ink); font-family: var(--sh-font-body); font-size: max(16px, 1rem); line-height: 1.6; min-height: 100svh; overflow-x: clip; -webkit-tap-highlight-color: transparent; }
+:where(body.sh small) { font-size: max(13px, 1em); }
 :where(img) { max-width: 100%; display: block; }
 :where(.sh-sr) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -14,10 +24,10 @@
 :where(html.sh-locked, html.sh-locked body) { overflow: hidden; }
 :where(.sh-gate) { position: fixed; inset: 0; z-index: 50; overflow: hidden; }
 :where(.sh-gate.is-open) { pointer-events: none; }
-:where(.sh-gate[hidden]) { display: none; }
+.sh-gate[hidden] { display: none !important; }
 
 /* Cảnh: mặc định cao ít nhất một màn hình, mẫu tự quyết bố cục bên trong */
-:where(.sh-scene) { position: relative; min-height: 100svh; }
+:where(.sh-scene) { position: relative; min-height: 100svh; overflow-x: clip; }
 :where(.sh-scene:focus) { outline: none; }
 
 /* Chữ tách từng ký tự (splitText) */
@@ -25,10 +35,11 @@
 :where(.split .ch) { display: inline-block; white-space: pre; }
 
 /* Nút và form mặc định */
-:where(.sh-btn) {
+:where(.sh-btn, .sh-tactile-btn) {
   display: inline-flex; align-items: center; justify-content: center; gap: .5em; min-height: 48px; padding: 12px 22px;
   border: 0; border-radius: 999px; background: var(--sh-accent); color: var(--sh-accent-ink);
   font: 600 16px/1.2 inherit; font-family: inherit; text-decoration: none; cursor: pointer; touch-action: manipulation;
+  transition: transform var(--sh-dur-ui) var(--sh-ease-tactile), background-color var(--sh-dur-ui) var(--sh-ease-tactile), border-color var(--sh-dur-ui) var(--sh-ease-tactile), opacity var(--sh-dur-ui) var(--sh-ease-tactile);
 }
 :where(.sh-btn:disabled) { opacity: .6; }
 :where(.sh-btn:focus-visible, .sh-form :is(input, select, textarea):focus-visible, .sh-quick-btn:focus-visible) { outline: 3px solid var(--sh-accent); outline-offset: 2px; }

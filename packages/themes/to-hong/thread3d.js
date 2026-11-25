@@ -23,12 +23,12 @@ export async function runThread(el, ctx, opts = {}) {
   const SNAP = new URLSearchParams(location.search).has('snap');
   if (!ctx.opened || root.dataset.motion === 'lite') throw new Error('đã hạ mức');
 
-  root.classList.add('th-3d');
   const T = await loadThree(ctx);
   if (!ctx.opened || root.dataset.motion === 'lite') {
     root.classList.remove('th-3d');
     throw new Error('đã hạ mức');
   }
+  root.classList.add('th-3d');
 
   const { THREE, RoomEnvironment, CSS3DRenderer, CSS3DObject, mergeGeometries, bindContextLoss } = T;
   const V3 = THREE.Vector3;
@@ -95,12 +95,12 @@ export async function runThread(el, ctx, opts = {}) {
     const n = stops.length;
     const FIN = Math.max(1, n - 1);
 
-    /* ---------- Đường cong sợi tơ đỏ động (co giãn 6–30 ảnh) ---------- */
+    /* ---------- Đường cong sợi tơ đỏ động (lượn nhẹ phía sau các khung thiệp) ---------- */
     const curvePt = k => {
       const finBlend = ease(clamp((k - (FIN - 1.2)) / 1.2));
-      const x = (Math.sin(k * 1.15 + 0.4) * 1.45 + Math.sin(k * 2.3) * 0.25) * (1 - finBlend);
-      const y = (Math.cos(k * 0.85 + 0.5) * 0.42 + 1.25) * (1 - finBlend) + 1.35 * finBlend;
-      return new V3(x, y, -k * STEP);
+      const x = Math.sin(k * 1.15 + 0.4) * 1.2 * (1 - finBlend);
+      const y = (Math.cos(k * 0.85 + 0.5) * 0.36 + 1.25) * (1 - finBlend) + 1.35 * finBlend;
+      return new V3(x, y, -k * STEP - 0.55);
     };
     const ctrlPts = [];
     for (let k = -0.6; k <= FIN + 0.6; k += 0.4) ctrlPts.push(curvePt(k));
@@ -109,8 +109,8 @@ export async function runThread(el, ctx, opts = {}) {
 
     stops.forEach(st => {
       st.t = stopT(st.k);
-      st.pt = curve.getPointAt(st.t);
-      st.tan = curve.getTangentAt(st.t);
+      st.pt = new V3(0, 1.35, -st.k * STEP);
+      st.tan = new V3(0, 0, -1);
       st.side = st.k % 2 === 0 ? -1 : 1;
       st.g = new THREE.Group();
       st.g.position.copy(st.pt);
@@ -248,21 +248,21 @@ export async function runThread(el, ctx, opts = {}) {
     const LAYOUT_OFFSETS = {
       hero: [[0, 0.18, 0, 0]],
       single: [[0, 0.12, 0, 0]],
-      duet: [[-1.12, 0.18, 0.25, 0.12], [1.12, -0.06, -0.15, -0.12]],
-      trio: [[-1.35, 0.24, 0.3, 0.16], [0, -0.18, -0.25, 0], [1.35, 0.2, 0.28, -0.16]],
+      duet: [[-1.12, 0.18, 0.25, 0.06], [1.12, -0.06, -0.15, -0.06]],
+      trio: [[-1.35, 0.24, 0.3, 0.08], [0, -0.18, -0.25, 0], [1.35, 0.2, 0.28, -0.08]],
     };
 
     for (const st of stops) {
       if (!st.works.length) continue;
       const offs = LAYOUT_OFFSETS[st.hang] || LAYOUT_OFFSETS.single;
       const isCluster = st.hang === 'duet' || st.hang === 'trio';
-      const lat = isCluster ? 0 : st.side * (st.hang === 'hero' ? 0.55 : 0.85);
 
       st.works.forEach((w, j) => {
         const o = offs[j] || [0, 0, 0, 0];
         const ig = new THREE.Group();
-        ig.position.set(lat + o[0], o[1] + 0.1, o[2]);
-        ig.rotation.y = o[3] + (isCluster ? 0 : -st.side * 0.12);
+        const baseRy = isCluster ? o[3] : 0;
+        ig.position.set(o[0], o[1] + 0.1, o[2]);
+        ig.rotation.y = baseRy;
         st.g.add(ig);
 
         const pMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), photoMat());
@@ -278,7 +278,7 @@ export async function runThread(el, ctx, opts = {}) {
         ig.add(wire);
 
         const item = {
-          st, work: w, j, ig, pMesh, backing, wire, border: null,
+          st, work: w, j, ig, baseRy, pMesh, backing, wire, border: null,
           long: st.hang === 'hero' ? 2.2 : st.hang === 'trio' ? 1.45 : st.hang === 'duet' ? 1.65 : 1.95,
           aspect: 0.75, w: 1.5, h: 2.0, W: 1.6, Hh: 2.1, tex: null,
         };
@@ -494,7 +494,7 @@ export async function runThread(el, ctx, opts = {}) {
           varying vec3 vN, vV;
           varying float vD;
           void main() {
-            vec3 lo = aLoose + vec3(sin(uTime * 0.9 + aLoose.y * 3.0), cos(uTime * 0.7 + aLoose.x * 3.0), 0.0) * 0.04;
+            vec3 lo = aLoose;
             vec3 p = mix(lo, position, uTight);
             vec4 mv = modelViewMatrix * vec4(p, 1.0);
             vN = normalize(normalMatrix * normal);
@@ -679,8 +679,8 @@ export async function runThread(el, ctx, opts = {}) {
 
       const fill = st.kind === 'info' ? 0.86 : 0.78;
       const d = Math.max(bh / (fill * 2 * tanV), bw / (fill * 2 * tanV * aspect)) + 0.25;
-      st.camPos = new V3(g.x * 0.75, g.y + cy + 0.15, g.z + d);
-      st.camLook = new V3(g.x, g.y + cy, g.z);
+      st.camPos = new V3(0, g.y + cy, g.z + d);
+      st.camLook = new V3(0, g.y + cy, g.z);
     }
 
     function resize(force) {
@@ -868,25 +868,28 @@ export async function runThread(el, ctx, opts = {}) {
 
     function frame(t, dt) {
       const now = t / 1000;
+      const tx = clamp(look.x * 0.45 + look.dragX * 1.1, -1, 1);
+      const ty = clamp(look.y * 0.45 + look.dragY * 1.1, -1, 1);
       const moving = dirty || loader.pending || Math.abs(pT - p) > 1e-4 || Math.abs(tightTarget - tight) > 1e-3
-        || Math.abs(look.x + look.dragX - look.sx) > 1e-3 || Math.abs(look.y + look.dragY - look.sy) > 1e-3
-        || !cur.init || cur.pos.distanceToSquared(wantPos) > 1e-6 || !!inspectItem;
+        || Math.abs(tx - look.sx) > 1e-3 || Math.abs(ty - look.sy) > 1e-3
+        || !cur.init || cur.pos.distanceToSquared(wantPos) > 1e-6
+        || cur.look.distanceToSquared(wantLook) > 1e-6 || Math.abs(cur.fov - camera.fov) > 0.05
+        || allItems.some(it => Math.abs((it === inspectItem ? 1 : 0) - it.pMesh.material.uniforms.uFocus.value) > 1e-3);
       if (!moving) return;
       dirty = false;
       loader.pump();
 
       p = SNAP ? pT : p + (pT - p) * (1 - Math.exp(-dt * 4.5));
       tight += (tightTarget - tight) * (1 - Math.exp(-dt * 6));
-      const tx = clamp(look.x * 0.45 + look.dragX * 1.1, -1, 1);
-      const ty = clamp(look.y * 0.45 + look.dragY * 1.1, -1, 1);
       look.sx += (tx - look.sx) * (1 - Math.exp(-dt * 7));
       look.sy += (ty - look.sy) * (1 - Math.exp(-dt * 7));
 
       if (progressBar) progressBar.style.transform = `scaleY(${clamp(p / FIN).toFixed(3)})`;
 
-      // Hiện chỉ các điểm dừng gần camera
+      // Hiện chỉ các điểm dừng ở phía trước và gần camera (tránh điểm đã qua che ống kính)
+      const camZ = cur.init ? camera.position.z : (stops[Math.round(p)]?.camPos.z ?? 4);
       for (const st of stops) {
-        st.g.visible = Math.abs(st.k - p) < 2.6 || st.k === FIN;
+        st.g.visible = st.g.position.z < camZ - 0.6 && (Math.abs(st.k - p) < 2.6 || st.k === FIN);
       }
 
       // Tính vị trí camera giữa hai điểm dừng hoặc khi đang soi ảnh 2.5D
@@ -928,17 +931,18 @@ export async function runThread(el, ctx, opts = {}) {
         camera.updateProjectionMatrix();
       }
       camera.lookAt(cur.look);
-      // Xoay nhẹ ±16° ngang, ±10° dọc theo kéo tay / chuột / con quay
-      camera.rotateY(-look.sx * (inspectItem ? 0.08 : 0.28));
-      camera.rotateX(-look.sy * (inspectItem ? 0.05 : 0.17));
       camera.updateMatrixWorld();
 
-      // Cập nhật shader ảnh (hiệu ứng chiều sâu 2.5D)
+      // Cập nhật ánh sáng & độ nghiêng <= ±5° chỉ trên khung ảnh (chữ CSS3D luôn thẳng đứng)
+      const pAmt = inspectItem ? 0 : 1;
+      keyLight.position.set(4 + look.sx * 1.4, 7 - look.sy * 0.9, 5);
       for (const it of allItems) {
         const u = it.pMesh.material.uniforms;
         const isFoc = it === inspectItem ? 1 : 0;
         u.uFocus.value += (isFoc - u.uFocus.value) * (1 - Math.exp(-dt * 8));
         u.uTilt.value.set(look.sx, look.sy);
+        it.ig.rotation.y = it.baseRy + look.sx * 0.06 * pAmt;
+        it.ig.rotation.x = -look.sy * 0.045 * pAmt;
       }
 
       // Cập nhật chữ CSS3D
@@ -960,7 +964,7 @@ export async function runThread(el, ctx, opts = {}) {
       // Cập nhật nút thắt cuối & cánh hoa
       knotU.uTime.value = now;
       knotU.uTight.value = tight;
-      knotGroup.rotation.y = Math.sin(now * 0.45) * 0.14;
+      knotGroup.scale.setScalar(1 - tight * 0.05);
       petalU.uCam.value.copy(camera.position);
       petalU.uTime.value = now;
 

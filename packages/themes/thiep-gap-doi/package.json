@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-thiep-gap-doi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Thiệp Gấp Đôi (Tactile Folio): bìa niêm phong, hai trang mở đối xứng, chữ nhũ ánh kim và hồi âm xé góc.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

@@ -1,6 +1,6 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, extname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const ROOT = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
 
@@ -16,6 +16,11 @@ export const R1_REJECTED_PROTOS = [
   'chu-la-hinh.html',
   'hai-bo.html',
   'hai-vong-lich.html',
+];
+
+export const LEGACY_JUNK_FILES = [
+  'legacy/proto/to-hong.html',
+  'apps/web/README.md',
 ];
 
 export const RETAINED_V1_THEMES = [
@@ -63,7 +68,7 @@ export function listLegacyProtos() {
   return readdirSync(dir).filter(f => f.endsWith('.html'));
 }
 
-function skipCommentOrString(src, i) {
+function skipComment(src, i) {
   const ch = src[i];
   if (ch === '/' && src[i + 1] === '/') {
     const nl = src.indexOf('\n', i + 2);
@@ -73,6 +78,13 @@ function skipCommentOrString(src, i) {
     const end = src.indexOf('*/', i + 2);
     return end === -1 ? src.length : end + 2;
   }
+  return i;
+}
+
+function skipCommentOrString(src, i) {
+  const afterComment = skipComment(src, i);
+  if (afterComment !== i) return afterComment;
+  const ch = src[i];
   if (ch === '"' || ch === "'" || ch === '`') {
     let j = i + 1;
     while (j < src.length) {
@@ -101,7 +113,7 @@ function findMatchingBrace(src, openIdx) {
   return -1;
 }
 
-function parseThemesObject(src) {
+export function parseThemesObject(src) {
   const registeredIds = [];
   const entries = {};
   const declMatch = /export\s+const\s+THEMES\b/.exec(src);
@@ -130,7 +142,7 @@ function parseThemesObject(src) {
 
   i = assignIdx + 1;
   while (i < src.length) {
-    const next = skipCommentOrString(src, i);
+    const next = skipComment(src, i);
     if (next !== i) { i = next; continue; }
     if (!/\s/.test(src[i])) break;
     i++;
@@ -141,7 +153,7 @@ function parseThemesObject(src) {
 
   i++;
   while (i < closeIdx) {
-    const next = skipCommentOrString(src, i);
+    const next = skipComment(src, i);
     if (next !== i) { i = next; continue; }
     const ch = src[i];
     if (/\s|,/.test(ch)) { i++; continue; }
@@ -149,7 +161,7 @@ function parseThemesObject(src) {
     let key = '';
     if (ch === '"' || ch === "'") {
       const endQ = skipCommentOrString(src, i);
-      key = src.slice(i + 1, endQ - 1);
+      key = endQ > i + 1 && src[endQ - 1] === ch ? src.slice(i + 1, endQ - 1) : '';
       i = endQ;
     } else if (/[a-zA-Z0-9_-]/.test(ch)) {
       let j = i;
@@ -162,7 +174,7 @@ function parseThemesObject(src) {
     }
 
     while (i < closeIdx) {
-      const n2 = skipCommentOrString(src, i);
+      const n2 = skipComment(src, i);
       if (n2 !== i) { i = n2; continue; }
       if (!/\s/.test(src[i])) break;
       i++;
@@ -170,7 +182,7 @@ function parseThemesObject(src) {
     if (src[i] !== ':') continue;
     i++;
     while (i < closeIdx) {
-      const n2 = skipCommentOrString(src, i);
+      const n2 = skipComment(src, i);
       if (n2 !== i) { i = n2; continue; }
       if (!/\s/.test(src[i])) break;
       i++;
@@ -181,21 +193,28 @@ function parseThemesObject(src) {
       if (valEnd === -1) break;
       const entryText = src.slice(i, valEnd + 1);
       if (key) {
-        registeredIds.push(key);
-        const ab = entryText.match(/\bassetBase\s*:\s*(["'])([^"']+)\1/);
+        if (!registeredIds.includes(key)) registeredIds.push(key);
+        const ab = entryText.match(/\bassetBase\s*:\s*(["'])([^"']*)\1/);
         entries[key] = { assetBase: ab ? ab[2] : '' };
       }
       i = valEnd + 1;
     } else {
-      while (i < closeIdx && src[i] !== ',') {
+      let depthP = 0, depthB = 0;
+      while (i < closeIdx) {
         const n2 = skipCommentOrString(src, i);
         if (n2 !== i) { i = n2; continue; }
-        if (src[i] === '{') {
+        const vc = src[i];
+        if (vc === '{') {
           const endB = findMatchingBrace(src, i);
           if (endB === -1) break;
           i = endB + 1;
           continue;
         }
+        if (vc === '(') depthP++;
+        else if (vc === ')') depthP = Math.max(0, depthP - 1);
+        else if (vc === '[') depthB++;
+        else if (vc === ']') depthB = Math.max(0, depthB - 1);
+        else if (vc === ',' && depthP === 0 && depthB === 0) break;
         i++;
       }
     }
@@ -204,14 +223,94 @@ function parseThemesObject(src) {
   return { registeredIds, entries };
 }
 
+export function extractManifestThemes(data) {
+  const ids = [];
+  const entries = {};
+  if (!data || typeof data !== 'object') return { ids, entries };
+
+  const addEntry = (id, val) => {
+    if (!id || typeof id !== 'string') return;
+    if (!ids.includes(id)) ids.push(id);
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      entries[id] = { ...(entries[id] || {}), ...val, id };
+    } else if (!entries[id]) {
+      entries[id] = { id };
+    }
+  };
+
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      if (typeof item === 'string') addEntry(item, null);
+      else if (item && typeof item === 'object' && typeof item.id === 'string') addEntry(item.id, item);
+    }
+    return { ids, entries };
+  }
+
+  if (Array.isArray(data.themes)) {
+    for (const item of data.themes) {
+      if (typeof item === 'string') addEntry(item, null);
+      else if (item && typeof item === 'object' && typeof item.id === 'string') addEntry(item.id, item);
+    }
+    return { ids, entries };
+  }
+
+  if (data.themes && typeof data.themes === 'object' && !Array.isArray(data.themes)) {
+    for (const [key, val] of Object.entries(data.themes)) {
+      const id = (val && typeof val === 'object' && typeof val.id === 'string' && val.id) ? val.id : key;
+      addEntry(id, val);
+    }
+    return { ids, entries };
+  }
+
+  const META_KEYS = new Set(['version', 'themes', 'generatedAt', 'schema', 'schemaVersion', 'updatedAt']);
+  for (const [key, val] of Object.entries(data)) {
+    if (META_KEYS.has(key) && (!val || typeof val !== 'object' || Array.isArray(val))) continue;
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      const id = (typeof val.id === 'string' && val.id) ? val.id : key;
+      addEntry(id, val);
+    }
+  }
+  return { ids, entries };
+}
+
+export function readGeneratedManifestIds(manifestPaths) {
+  const candidates = manifestPaths || [
+    join(ROOT, 'apps', 'web', 'public', '_e', 'manifest.json'),
+    join(ROOT, 'apps', 'web', 'src', 'lib', 'themes-manifest.json'),
+    join(ROOT, 'apps', 'web', 'src', 'lib', 'manifest.json'),
+    join(ROOT, 'packages', 'themes', 'manifest.json'),
+  ];
+  const ids = [];
+  const entries = {};
+  for (const file of candidates) {
+    if (!existsSync(file)) continue;
+    try {
+      const data = JSON.parse(readFileSync(file, 'utf8'));
+      const parsed = extractManifestThemes(data);
+      for (const id of parsed.ids) {
+        if (!ids.includes(id)) ids.push(id);
+        entries[id] = { ...(entries[id] || {}), ...(parsed.entries[id] || {}) };
+      }
+    } catch {}
+  }
+  return { ids, entries };
+}
+
 export function readWebThemesRegistry() {
   const file = join(ROOT, 'apps', 'web', 'src', 'lib', 'themes.ts');
-  const src = readFileSync(file, 'utf8');
-  const { registeredIds, entries } = parseThemesObject(src);
+  const src = existsSync(file) ? readFileSync(file, 'utf8') : '';
+  const parsed = parseThemesObject(src);
+  const manifest = readGeneratedManifestIds();
+  const importIds = [...src.matchAll(/@sayhello\/theme-([a-z0-9-]+)/g)].map(m => m[1]);
+
+  const registeredIds = [...new Set([...parsed.registeredIds, ...manifest.ids, ...importIds])];
+  const entries = { ...manifest.entries, ...parsed.entries };
+
   const pkgThemesDir = join(ROOT, 'packages', 'themes');
   const packageIds = existsSync(pkgThemesDir)
     ? readdirSync(pkgThemesDir).filter(d => existsSync(join(pkgThemesDir, d, 'theme.js')))
     : [];
+
   return { file, src, registeredIds, entries, packageIds };
 }
 
@@ -227,10 +326,196 @@ export function readV2ThemeEntry(themeId) {
   };
 }
 
+async function importThemeMeta(themeJsPath) {
+  try {
+    const mod = (await import(pathToFileURL(themeJsPath).href)).default;
+    if (!mod || typeof mod !== 'object') return null;
+    const topics = Array.isArray(mod.topics)
+      ? mod.topics.map(t => (typeof t === 'string' ? { id: t } : t)).filter(t => t?.id)
+      : [];
+    return {
+      id: mod.id || '',
+      name: mod.name || '',
+      layout: mod.layout || '',
+      tier: mod.tier || '',
+      gateMs: mod.gateMs,
+      palettes: Array.isArray(mod.palettes) ? mod.palettes : [],
+      topics,
+      features: mod.features || {},
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function probeUrlStatus(url, timeoutMs = 4000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, redirect: 'follow' });
+    return res.status;
+  } catch {
+    return 0;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+async function scrapeV2ShowcaseTargets(webUrl) {
+  const links = [];
+  if (!webUrl) return links;
+  try {
+    const res = await fetch(`${webUrl.replace(/\/$/, '')}/v2/`);
+    if (res.status !== 200) return links;
+    const html = await res.text();
+    const re = /href=["']([^"']*\/v2\/demo\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?\/?(?:\?([^"']*))?)["']/gi;
+    let m;
+    while ((m = re.exec(html))) {
+      const fullHref = m[1];
+      const themeId = m[2];
+      const pathTopic = m[3] || '';
+      const query = m[4] || '';
+      const qp = new URLSearchParams(query);
+      const topic = pathTopic || qp.get('topic') || qp.get('p') || '';
+      links.push({ href: fullHref, id: themeId, topic });
+    }
+  } catch {}
+  return links;
+}
+
+/**
+ * Dynamically discovers all v2 themes/templates/topics across disk (`packages/themes/*`),
+ * `apps/web/src/lib/themes.ts` / generated manifests, and live `/v2/` showcase + `/v2/demo/<id>/` HTTP probes.
+ */
+export async function discoverV2Themes({ webUrl = '' } = {}) {
+  const webReg = readWebThemesRegistry();
+  const showcaseLinks = await scrapeV2ShowcaseTargets(webUrl);
+  const showcaseIds = [...new Set(showcaseLinks.map(l => l.id))];
+
+  const candidateIds = [...new Set([
+    ...webReg.packageIds,
+    ...webReg.registeredIds,
+    ...showcaseIds,
+  ])];
+
+  const results = [];
+  for (const id of candidateIds) {
+    const entry = readV2ThemeEntry(id);
+    const meta = entry ? await importThemeMeta(entry.themeJs) : null;
+    const inPackages = Boolean(entry);
+    const inWebRegistry = webReg.registeredIds.includes(id);
+
+    let registeredOnline = false;
+    if (webUrl) {
+      const status = await probeUrlStatus(`${webUrl.replace(/\/$/, '')}/v2/demo/${id}/`);
+      registeredOnline = status === 200;
+    }
+
+    const isRegistered = webUrl ? (registeredOnline || inWebRegistry) : inWebRegistry;
+    const showcaseTopics = showcaseLinks
+      .filter(l => l.id === id && l.topic)
+      .map(l => ({ id: l.topic, href: l.href }));
+    const metaTopics = meta?.topics || [];
+    const topics = [...new Map([...metaTopics, ...showcaseTopics].map(t => [t.id, t])).values()];
+
+    const isPending = inPackages && !isRegistered;
+    results.push({
+      id,
+      name: meta?.name || id,
+      layout: meta?.layout || '',
+      tier: meta?.tier || '',
+      gateMs: meta?.gateMs,
+      palettes: meta?.palettes || [],
+      topics,
+      features: meta?.features || {},
+      demo: entry?.demo || null,
+      themeJs: entry?.themeJs || '',
+      assetBase: webReg.entries?.[id]?.assetBase || `/_e/themes/${id}/`,
+      inPackages,
+      inWebRegistry,
+      registeredOnline,
+      isRegistered,
+      isPending,
+      pendingReason: isPending ? `M1/M2: wire "${id}" into apps/web/src/lib/themes.ts` : '',
+    });
+  }
+
+  return results;
+}
+
 export function readAdvisoryDoc() {
   const file = join(ROOT, 'docs', 'THAM-MUU-THIET-KE.md');
   if (!existsSync(file)) return null;
   return { file, text: readFileSync(file, 'utf8') };
+}
+
+export function listActiveDocs() {
+  const docsDir = join(ROOT, 'docs');
+  if (!existsSync(docsDir)) return [];
+  return readdirSync(docsDir)
+    .filter(name => name.endsWith('.md'))
+    .map(name => join(docsDir, name))
+    .filter(full => statSync(full).isFile());
+}
+
+export function checkM3Docs() {
+  const required = [
+    'docs/ASSESSMENT-AND-RESTRUCTURING-PLAN.md',
+    'docs/TEMPLATES-AND-TOPICS.md',
+    'docs/ARCHITECTURE.md',
+    'docs/CLAUDE-HANDOFF.md',
+  ];
+  const missing = required.filter(rel => !existsSync(join(ROOT, rel)));
+  if (missing.length > 0) {
+    return {
+      ready: false,
+      missing,
+      pendingMilestone: 'M3: multi-angle assessment, templates/topics blueprint & synchronized docs',
+      message: `M3 docs not yet created: ${missing.join(', ')}`,
+    };
+  }
+
+  const assessment = readFileSync(join(ROOT, 'docs/ASSESSMENT-AND-RESTRUCTURING-PLAN.md'), 'utf8');
+  const templatesDoc = readFileSync(join(ROOT, 'docs/TEMPLATES-AND-TOPICS.md'), 'utf8');
+  const archDoc = readFileSync(join(ROOT, 'docs/ARCHITECTURE.md'), 'utf8');
+  const handoffDoc = readFileSync(join(ROOT, 'docs/CLAUDE-HANDOFF.md'), 'utf8');
+
+  const errors = [];
+  if (assessment.length < 1500) errors.push('docs/ASSESSMENT-AND-RESTRUCTURING-PLAN.md too short');
+  if (!/chóng mặt|xoay|dizziness|camera/i.test(assessment)) errors.push('Assessment doc missing 3D dizziness root-cause analysis');
+  if (!/wow/i.test(assessment)) errors.push('Assessment doc missing generic vs "wow" comparison');
+  if (!/kiến trúc|architecture/i.test(assessment) || !/trải nghiệm|UX|thẩm mỹ/i.test(assessment)) {
+    errors.push('Assessment doc missing >= 3 evaluation angles');
+  }
+
+  if (templatesDoc.length < 1500) errors.push('docs/TEMPLATES-AND-TOPICS.md too short');
+  if (!/cringe/i.test(templatesDoc)) errors.push('Templates doc missing anti-cringe criteria');
+  if (!/mcpservers\.org\/agent-skills/i.test(templatesDoc)) errors.push('Templates doc missing mcpservers.org/agent-skills citation');
+  if (!/motionsites\.ai/i.test(templatesDoc)) errors.push('Templates doc missing motionsites.ai citation');
+  if (!/highfield|higgsfield/i.test(templatesDoc)) errors.push('Templates doc missing Highfield/Higgsfield citation');
+
+  for (const [docName, text] of [
+    ['docs/ARCHITECTURE.md', archDoc],
+    ['docs/CLAUDE-HANDOFF.md', handoffDoc],
+  ]) {
+    if (text.trim().length < 400) errors.push(`${docName} too short`);
+    // Verify mentioned repo paths exist when explicitly written as backticked relative paths
+    const pathMatches = [...text.matchAll(/`((?:apps|packages|legacy|tests|docs)\/[a-zA-Z0-9_.\-/]+)`/g)].map(m => m[1]);
+    for (const rel of pathMatches) {
+      const cleanRel = rel.replace(/\/$/, '');
+      if (cleanRel.includes('*') || cleanRel.includes('[') || cleanRel.includes('<')) continue;
+      if (!existsSync(join(ROOT, cleanRel))) {
+        errors.push(`${docName} references missing path \`${rel}\``);
+      }
+    }
+  }
+
+  return {
+    ready: errors.length === 0,
+    missing: [],
+    errors,
+    message: errors.join('; '),
+  };
 }
 
 export function isV2ShowcaseUpgraded() {
@@ -241,7 +526,7 @@ export function isV2ShowcaseUpgraded() {
   return true;
 }
 
-const SKIP_DIRS = new Set(['node_modules', '.next', '.git', 'test-results', 'public']);
+const SKIP_DIRS = new Set(['node_modules', '.next', '.git', 'test-results', 'public', 'archive']);
 const SCAN_EXTS = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx', '.css', '.html', '.json', '.md']);
 
 export function collectFiles(targets) {

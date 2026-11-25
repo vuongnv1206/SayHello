@@ -1,0 +1,312 @@
+/* Song Gia (Dual-House Convergence) — sân khấu chia đôi 50/50 hội tụ về thiệp chung */
+.theme-song-gia {
+  background: var(--sh-bg);
+  color: var(--sh-ink);
+  font-family: var(--sh-font-body);
+}
+
+.theme-song-gia h1,
+.theme-song-gia h2,
+.theme-song-gia h3 {
+  font-family: var(--sh-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.theme-song-gia .sg-kicker {
+  margin: 0 0 8px;
+  font-size: max(13px, 0.85rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sh-foil);
+  font-weight: 600;
+}
+
+/* ===== 1. Bìa tách đôi ===== */
+.theme-song-gia .sh-gate {
+  display: grid;
+  place-items: stretch;
+  background: var(--sh-bg);
+}
+
+.theme-song-gia .sg-gate-stage {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 20px;
+}
+
+.theme-song-gia .sg-half {
+  padding: 24px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  justify-items: center;
+  text-align: center;
+  transition: transform 280ms var(--sh-ease-tactile), opacity 280ms var(--sh-ease-tactile);
+}
+.theme-song-gia .sg-side-tag {
+  margin: 0;
+  font-size: max(13px, 0.85rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-accent);
+  font-weight: 600;
+}
+.theme-song-gia .sg-side-name {
+  font-family: var(--sh-font-display);
+  font-size: clamp(20px, 3vw, 28px);
+}
+.theme-song-gia .sg-seam {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+  bottom: 24px;
+  width: 1px;
+  background: var(--sh-foil);
+  opacity: 0.55;
+  transform: translateX(-50%);
+}
+.theme-song-gia .sh-gate.is-converging .sg-half-l { transform: translateX(14px); opacity: 0; }
+.theme-song-gia .sh-gate.is-converging .sg-half-r { transform: translateX(-14px); opacity: 0; }
+
+.theme-song-gia .sg-gate-center {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / -1;
+  width: min(540px, 100%);
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 40px);
+  border-radius: 10px;
+  border: 1px solid var(--sh-soft);
+  background: var(--sh-surface);
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+.theme-song-gia .sg-guest { margin: 0; font-size: 16px; }
+.theme-song-gia .sg-gate-center h1 {
+  margin: 0;
+  font-size: clamp(32px, 4.8vw, 52px);
+  line-height: 1.08;
+}
+.theme-song-gia .sg-gate-center em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+.theme-song-gia .sg-gate-meta { margin: 0; font-size: 15px; opacity: 0.85; }
+.theme-song-gia .sg-gate-hint { margin: 0; font-size: max(13px, 0.875rem); opacity: 0.78; }
+
+/* ===== 2. Bố cục 50/50 Song Gia ===== */
+.theme-song-gia .sg-wrap {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 36px) clamp(16px, 3vw, 32px);
+  display: grid;
+  gap: 28px;
+}
+
+.theme-song-gia .sg-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.theme-song-gia .sg-pill {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--sh-soft);
+  background: var(--sh-surface);
+  color: var(--sh-ink);
+  font-size: max(13px, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 220ms var(--sh-ease-tactile), color 220ms var(--sh-ease-tactile);
+}
+.theme-song-gia .sg-pill.is-active {
+  background: var(--sh-accent);
+  color: var(--sh-accent-ink);
+  border-color: transparent;
+}
+
+.theme-song-gia .sg-split {
+  position: relative;
+  display: grid;
+  gap: 20px;
+}
+.theme-song-gia .sg-col {
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--sh-soft);
+  background: var(--sh-surface);
+  display: grid;
+  gap: 16px;
+  transition: opacity 220ms var(--sh-ease-tactile), border-color 220ms var(--sh-ease-tactile);
+}
+.theme-song-gia .sg-split[data-side-focus="nha-trai"] .sg-col-right,
+.theme-song-gia .sg-split[data-side-focus="nha-gai"] .sg-col-left {
+  opacity: 0.62;
+}
+.theme-song-gia .sg-split[data-side-focus="nha-trai"] .sg-col-left,
+.theme-song-gia .sg-split[data-side-focus="nha-gai"] .sg-col-right {
+  border-color: var(--sh-foil);
+}
+
+.theme-song-gia .sg-portrait { margin: 0; display: grid; gap: 10px; }
+.theme-song-gia .sg-portrait img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.theme-song-gia .sg-portrait figcaption { display: grid; gap: 4px; }
+.theme-song-gia .sg-portrait b { font-family: var(--sh-font-display); font-size: 22px; }
+.theme-song-gia .sg-portrait span { font-size: 15px; opacity: 0.85; }
+
+.theme-song-gia .sg-fam-card {
+  padding-top: 12px;
+  border-top: 1px solid var(--sh-soft);
+}
+.theme-song-gia .sg-fam-card h3 { margin: 0 0 6px; font-size: 20px; }
+.theme-song-gia .sg-fam-card p { margin: 2px 0 0; font-size: 15px; }
+.theme-song-gia .sg-dim { opacity: 0.78; font-size: 14px; }
+
+.theme-song-gia .sg-converge {
+  padding: clamp(24px, 4vw, 40px);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--sh-foil) 45%, var(--sh-soft));
+  background: var(--sh-surface);
+  display: grid;
+  gap: 12px;
+  text-align: center;
+  justify-items: center;
+}
+.theme-song-gia .sg-pair-title {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 50px);
+  line-height: 1.1;
+}
+.theme-song-gia .sg-pair-title em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+.theme-song-gia .sg-date-main { margin: 0; font-size: 18px; font-weight: 600; }
+.theme-song-gia .sg-lunar { margin: 0; font-size: max(13px, 0.875rem); opacity: 0.82; }
+.theme-song-gia .sg-venue-main { margin: 0; font-size: 16px; opacity: 0.88; }
+.theme-song-gia .sg-cta-row { padding-top: 4px; }
+
+.theme-song-gia .sg-ev-grid,
+.theme-song-gia .sg-album-grid,
+.theme-song-gia .sg-story-grid,
+.theme-song-gia .sg-finale-grid,
+.theme-song-gia .accounts {
+  display: grid;
+  gap: 16px;
+}
+
+.theme-song-gia .sg-ev-card,
+.theme-song-gia .sg-story-card,
+.theme-song-gia .sg-rsvp-box,
+.theme-song-gia .sg-wish-box,
+.theme-song-gia .sg-gift-box,
+.theme-song-gia .sg-acc {
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--sh-soft);
+  background: var(--sh-surface);
+}
+.theme-song-gia .sg-ev-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+.theme-song-gia .sg-ev-top h3 { margin: 0; font-size: 22px; }
+.theme-song-gia .sg-ev-top span { font-size: max(13px, 0.9rem); color: var(--sh-accent); font-weight: 600; }
+.theme-song-gia .sg-ev-venue { margin: 8px 0 0; font-size: 16px; font-weight: 600; }
+.theme-song-gia .sg-ev-addr { margin: 4px 0 0; font-size: 15px; opacity: 0.85; }
+.theme-song-gia .sg-ev-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.theme-song-gia .sg-ghost {
+  background: transparent;
+  color: var(--sh-ink);
+  border: 1px solid var(--sh-soft);
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.theme-song-gia .sg-album-item {
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--sh-soft);
+  background: var(--sh-surface);
+}
+.theme-song-gia .sg-album-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.theme-song-gia .sg-album-item figcaption { padding: 10px 14px; font-size: max(13px, 0.875rem); }
+
+.theme-song-gia .sh-scene[data-scene="hanh-trinh"] { min-height: auto; }
+.theme-song-gia .sg-story-card span { font-size: max(13px, 0.875rem); color: var(--sh-foil); font-weight: 600; }
+.theme-song-gia .sg-story-card h3 { margin: 6px 0; font-size: 22px; }
+.theme-song-gia .sg-story-card p { margin: 0; font-size: 16px; opacity: 0.86; }
+
+/* Nút thắt 2D SVG & Finale */
+.theme-song-gia .sg-finale { padding-bottom: 96px; }
+.theme-song-gia .sg-knot-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.theme-song-gia .sg-knot-svg { flex: 0 0 auto; overflow: visible; }
+.theme-song-gia .sg-knot-track {
+  fill: none;
+  stroke: var(--sh-soft);
+  stroke-width: 3;
+}
+.theme-song-gia .sg-knot-fill {
+  fill: none;
+  stroke: var(--sh-foil);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0.35;
+  transition: stroke-dashoffset 450ms var(--sh-ease-tactile);
+}
+.theme-song-gia .sg-rsvp-box.is-knotted .sg-knot-fill { stroke-dashoffset: 0; }
+.theme-song-gia .sg-lead { margin: 0; font-size: 16px; opacity: 0.86; }
+
+.theme-song-gia .sg-acc { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+.theme-song-gia .sg-acc img.qr { border-radius: 6px; background: #fff; padding: 4px; }
+.theme-song-gia .sg-acc-meta { display: grid; gap: 4px; justify-items: start; font-size: 15px; }
+.theme-song-gia .sg-acc-num { font-size: 16px; font-weight: 600; }
+
+.theme-song-gia .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+@media (min-width: 900px) {
+  .theme-song-gia .sg-split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+  .theme-song-gia .sg-split::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 16px;
+    bottom: 16px;
+    width: 1px;
+    background: var(--sh-foil);
+    opacity: 0.45;
+  }
+  .theme-song-gia .sg-ev-grid,
+  .theme-song-gia .sg-story-grid,
+  .theme-song-gia .sg-finale-grid,
+  .theme-song-gia .accounts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .theme-song-gia .sg-album-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .theme-song-gia .sg-knot-head { flex-direction: column; align-items: flex-start; }
+  .theme-song-gia .sg-acc { grid-template-columns: 1fr; }
+}

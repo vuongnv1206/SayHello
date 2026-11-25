@@ -1,0 +1,113 @@
+{
+  "slug": "demo-thiep-gap-doi",
+  "groom": {
+    "short": "Đức Anh",
+    "full": "Nguyễn Đức Anh",
+    "bio": "Kiến trúc sư bảo tồn công trình gỗ, chuộng những nếp nhà xưa và giấy viết tay."
+  },
+  "bride": {
+    "short": "Minh Khuê",
+    "full": "Lê Minh Khuê",
+    "bio": "Người thiết kế sách nghệ thuật, thích mùi mực in trên giấy Dó Bắc Ninh."
+  },
+  "order": "groom-first",
+  "city": "Hà Nội",
+  "date": "2027-11-28T17:30:00+07:00",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Nguyễn Văn Bình",
+      "mother": "Trần Thị Thu",
+      "address": "Phường Trúc Bạch,\nQuận Ba Đình, Hà Nội"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Lê Hoàng Nam",
+      "mother": "Phạm Ngọc Mai",
+      "address": "Phường Phan Chu Trinh,\nQuận Hoàn Kiếm, Hà Nội"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-11-28T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 18 phố Lý Thường Kiệt, Hoàn Kiếm, Hà Nội",
+      "lunar": "Nhằm ngày 30 tháng 10 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Mừng Thành Hôn",
+      "date": "2027-11-28T17:30:00+07:00",
+      "venue": "Khách sạn Metropole",
+      "address": "Số 15 Ngô Quyền, Hoàn Kiếm, Hà Nội",
+      "lunar": "Nhằm ngày 30 tháng 10 năm Đinh Mùi",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc mừng thành hôn",
+      "address": "Số 15 Ngô Quyền, Hoàn Kiếm, Hà Nội",
+      "coords": "21.0255,105.8565"
+    },
+    {
+      "label": "Tư gia nhà gái",
+      "address": "Số 18 phố Lý Thường Kiệt, Hoàn Kiếm, Hà Nội",
+      "coords": "21.0226,105.8548"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh2.jpg",
+    "bride": "images/anh3.jpg",
+    "album": [
+      "images/anh4.jpg",
+      "images/anh5.jpg",
+      "images/anh6.jpg"
+    ],
+    "captions": [
+      "Hành lang vòm đá",
+      "Buổi thử thiệp giấy Dó",
+      "Nắng chiều phố Phan Chu Trinh"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/dao-buoc.mp3",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "1029384756",
+      "name": "NGUYEN DUC ANH"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "1903456789",
+      "name": "LE MINH KHUE"
+    }
+  ],
+  "story": [
+    {
+      "year": "2022",
+      "title": "Xưởng giấy làng Đông Hồ",
+      "text": "Hai đứa đứng cạnh nhau trong buổi thực hành ép giấy Dó đầu đông."
+    },
+    {
+      "year": "2025",
+      "title": "Bản phác thảo ngôi nhà chung",
+      "text": "Tấm bản vẽ đầu tiên ghi tên cả hai bên góc giấy can."
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời gia đình họ nhà gái",
+      "events": [0],
+      "note": "Đón khách từ 08:30 tại tư gia Lý Thường Kiệt"
+    }
+  ]
+}

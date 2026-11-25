@@ -8,10 +8,7 @@
 //     - lite: bố cục biên tập thoáng 2 cột (desktop) / 1 cột (mobile), sợi tơ tĩnh, không che chữ.
 //   Kết duyên (#ket-duyen): nút giữ thắt nút (#knotBtn) đồng bộ với form[data-sh="rsvp"], thả dải lụa tên khách,
 //     QR mừng cưới (.th-accs) và sổ lời chúc.
-import { defineTheme, html, br, rsvpForm, wishForm, wishList, countdown, fmt } from '@sayhello/engine';
-
-const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w ]/g, '').trim();
-const qrUrl = (a, note) => a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note)}` : '');
+import { defineTheme, html, br, plain, qrUrl, rsvpForm, wishForm, wishList, countdown, fmt } from '@sayhello/engine';
 
 // Tính đường dẫn SVG cho nút thắt hoa hồng cực r = cos(2θ) + 0.3
 export function polarKnotPath(scale = 100) {
@@ -61,22 +58,18 @@ export function plan(ctx) {
   }
 
   const story = ctx.has('story') ? (ctx.story || []).map(s => ({ kind: 'text', s })) : [];
-  const out = [{ kind: 'title' }];
+  const out = [{ kind: 'title' }, { kind: 'info' }, { kind: 'when' }];
   if (hero) out.push({ kind: 'work', hang: 'hero', works: [hero] });
-  out.push({ kind: 'when' });
 
-  const morphAt = gallery.length >= 2 ? Math.max(1, Math.floor(gallery.length * 0.45)) : -1;
-  const infoAt = gallery.length >= 2 ? Math.max(1, Math.floor(gallery.length * 0.78)) : -1;
+  const morphAt = gallery.length >= 2 ? Math.max(1, Math.floor(gallery.length * 0.5)) : -1;
 
   gallery.forEach((g, idx) => {
     out.push(g);
     if (idx === morphAt) out.push({ kind: 'morph' });
     if (story.length && idx % 2 === 1 && idx < gallery.length - 1) out.push(story.shift());
-    if (idx === infoAt) out.push({ kind: 'info' });
   });
 
   if (morphAt === -1) out.push({ kind: 'morph' });
-  if (infoAt === -1) out.push({ kind: 'info' });
   out.push(...story, { kind: 'finale' });
   return out;
 }
@@ -101,7 +94,8 @@ function stopHtml(st, ctx) {
           <span class="th-amp" aria-hidden="true">và</span>
           <span class="th-n2">${splitText(n.second)}</span>
         </h2>
-        <p class="th-place-date">${fmt.short(date)}${city ? html` — ${city}` : ''}</p>
+        <p class="th-place-date">${fmt.short(date)}${main?.date ? html` · ${fmt.time(main.date)}` : ''}${city ? html` — ${city}` : ''}${main?.venue ? html` · ${main.venue}` : ''}</p>
+        <a class="th-go" href="#ket-duyen">Xác nhận tham dự</a>
       </div>
     </li>`;
 
@@ -168,6 +162,7 @@ function stopHtml(st, ctx) {
             </li>`)}
           </ol>
           ${places.length ? html`<p class="th-maps">${places.map(p => html`<a href="${p.url}" target="_blank" rel="noopener">Mở bản đồ: ${p.label}</a>`)}</p>` : ''}
+          <a class="th-go" href="#ket-duyen">Thắt nút xác nhận tham dự</a>
         </div>
       </div>
     </li>`;
@@ -204,7 +199,7 @@ export default defineTheme({
   themeColor: '#EEF1F4',
   fonts: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',
   libs: ['three-post', 'scroll'],
-  gateMs: 900,
+  gateMs: 450,
   features: {
     when: 'required',
     where: 'required',
@@ -379,7 +374,7 @@ export default defineTheme({
           setTimeout(() => {
             cancelAnimationFrame(oscRaf);
             ctx.open();
-          }, ctx.reduced ? 100 : 520);
+          }, ctx.reduced ? 80 : 280);
         };
 
         if (pluckZone) {
@@ -429,7 +424,7 @@ export default defineTheme({
             <button type="button" class="th-inspect-zoom" tabindex="-1">Xem ảnh lớn</button>
             <p>Kéo hoặc nghiêng để soi chiều sâu · Chạm ra ngoài để thoát</p>
           </div>
-          <p class="th-hint3d">Cuộn để đi dọc sợi tơ. Kéo nhẹ để xoay góc nhìn, chạm ảnh để soi gần.</p>
+          <p class="th-hint3d">Cuộn để đi dọc sợi tơ. Di chuyển nhẹ để soi chiều sâu, chạm ảnh để xem gần.</p>
           <div class="th-progress" aria-hidden="true"><i></i></div>
         </div>
         <div class="th-svg-stage" aria-hidden="true">

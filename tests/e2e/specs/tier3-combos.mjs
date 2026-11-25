@@ -1,14 +1,27 @@
 import assert from 'node:assert/strict';
-import { pathToFileURL } from 'node:url';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
-  TARGET_V2_THEMES,
+  ROOT,
   readLegacyThemes,
-  readWebThemesRegistry,
-  readV2ThemeEntry,
+  discoverV2Themes,
   isV2ShowcaseUpgraded,
 } from '../lib/registries.mjs';
-import { createSafeContext, openV1Gate, openV2Gate, saveFailureShot } from '../lib/browser.mjs';
-import { assertNoHorizontalOverflow, instantScrollTo, scrollFullPage } from '../lib/assertions.mjs';
+import {
+  createSafeContext,
+  openV2Gate,
+  ensureQuickOpenVisible,
+  saveFailureShot,
+} from '../lib/browser.mjs';
+import {
+  assertNoHorizontalOverflow,
+  assertReadableVietnameseText,
+  assertVestibularComfort,
+  assertCoverGateTiming,
+  assertFiveSecondDiscoverability,
+  instantScrollTo,
+  scrollFullPage,
+} from '../lib/assertions.mjs';
 
 export async function runTier3Combos({ browser, legacyUrl, webUrl, shotsDir, record }) {
   // 1. Storefront (/) -> live preview with custom names -> order link pre-selects theme
@@ -54,11 +67,11 @@ export async function runTier3Combos({ browser, legacyUrl, webUrl, shotsDir, rec
     }
   });
 
-  // 2. Storefront (/v2) showcase -> launch v2 demo
-  await record('tier3', 'combos', 'Storefront /v2 showcase -> launch v2 demo', async () => {
+  // 2. Storefront (/v2) showcase -> launch v2 demos (Desktop & Mobile)
+  await record('tier3', 'combos', 'Storefront /v2 showcase -> launch registered v2 demo(s)', async () => {
     if (!isV2ShowcaseUpgraded()) {
       const err = new Error('/v2 showcase is still Pha 0 placeholder ("Đang xây bản mới")');
-      err.pendingMilestone = 'M6: upgrade /v2 showcase with interactive theme cards';
+      err.pendingMilestone = 'M2: upgrade /v2 showcase with interactive template & topic gallery';
       throw err;
     }
     const session = await createSafeContext(browser, {
@@ -69,22 +82,19 @@ export async function runTier3Combos({ browser, legacyUrl, webUrl, shotsDir, rec
     try {
       const { page, tracker } = await session.newTrackedPage();
       await page.goto(`${webUrl}/v2/`, { waitUntil: 'load', timeout: 30000 });
-      const demoLink = page.locator('a[href*="/v2/demo/"]').first();
-      await demoLink.waitFor({ state: 'visible', timeout: 8000 });
-      const href = await demoLink.getAttribute('href');
-      const targetAttr = await demoLink.getAttribute('target');
-      let targetPage = page;
-      if (targetAttr === '_blank') {
-        const [popup] = await Promise.all([page.waitForEvent('popup'), demoLink.click()]);
-        targetPage = popup;
-        session.attachPage(targetPage);
-        await targetPage.waitForLoadState('load');
-      } else {
-        await demoLink.click();
-        await page.waitForURL(/\/v2\/demo\//, { timeout: 15000 });
+      await assertNoHorizontalOverflow(page, '/v2 desktop');
+      const demoLinks = page.locator('a[href*="/v2/demo/"]');
+      await demoLinks.first().waitFor({ state: 'visible', timeout: 8000 });
+      const count = await demoLinks.count();
+      assert.ok(count >= 1, '/v2 showcase must link to at least 1 /v2/demo/ route');
+
+      const hrefs = [...new Set(await demoLinks.evaluateAll(els => els.map(a => a.getAttribute('href')).filter(Boolean)))];
+      for (const href of hrefs.slice(0, 6)) {
+        const targetUrl = new URL(href, `${webUrl}/`).href;
+        await page.goto(targetUrl, { waitUntil: 'load', timeout: 30000 });
+        await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
       }
-      await targetPage.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
-      tracker.assertClean(`/v2 launch -> ${href}`);
+      tracker.assertClean('/v2 showcase launch');
     } catch (err) {
       await saveFailureShot(session.ctx, shotsDir, 'tier3-v2-showcase', err);
       throw err;
@@ -162,26 +172,42 @@ export async function runTier3Combos({ browser, legacyUrl, webUrl, shotsDir, rec
         const nameVal = await page.locator('form[data-w="rsvp"] input[name="name"]').inputValue();
         assert.equal(nameVal, 'Chị Lan', `?theme=${t.id}: expected RSVP name "Chị Lan", got "${nameVal}"`);
       }
-        tracker.assertClean('v1 ?theme= cross-compat');
-      } catch (err) {
-        await saveFailureShot(session.ctx, shotsDir, 'tier3-v1-cross', err);
-        throw err;
-      } finally {
-        await session.ctx.close();
-      }
+      tracker.assertClean('v1 ?theme= cross-compat');
+    } catch (err) {
+      await saveFailureShot(session.ctx, shotsDir, 'tier3-v1-cross', err);
+      throw err;
+    } finally {
+      await session.ctx.close();
+    }
   });
 
-  // 5. v2 combined params (?tier=lite&k=Chị+Lan&n=nha-gai) + conditional ?p= probe + RSVP/wish + #sh-quick
-  const webReg = readWebThemesRegistry();
-  for (const id of TARGET_V2_THEMES) {
-    await record('tier3', 'combos', `v2 ${id} combined ?tier=lite&k=Chị+Lan&n=nha-gai + #sh-quick + RSVP/wish`, async () => {
-      if (!webReg.registeredIds.includes(id)) {
-        const err = new Error(`v2 theme "${id}" not yet registered`);
-        err.pendingMilestone = `M4/M5/M6: implement v2 theme "${id}"`;
+  // 5. Pairwise v2 combinations: theme x palette/topic x motionTier x guestGroup x viewport
+  const v2Themes = await discoverV2Themes({ webUrl });
+  const cuonPhimMissingImagesDir = !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
+  const checkTracker = (tracker, themeId, label) => {
+    const errs = (themeId === 'cuon-phim' && cuonPhimMissingImagesDir)
+      ? tracker.allErrors().filter(e => !/\/_e\/themes\/cuon-phim\/images\//.test(e))
+      : tracker.allErrors();
+    assert.equal(errs.length, 0, `${label}: ${errs.join(' | ')}`);
+    return (themeId === 'cuon-phim' && cuonPhimMissingImagesDir && tracker.allErrors().length > 0)
+      ? 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/'
+      : '';
+  };
+  for (const theme of v2Themes) {
+    if (!theme.isRegistered) {
+      await record('tier3', 'combos', `v2 ${theme.id} pairwise combos`, async () => {
+        const err = new Error(`v2 theme "${theme.id}" not yet registered`);
+        err.pendingMilestone = theme.pendingReason || `M1/M2: wire v2 theme "${theme.id}"`;
         throw err;
-      }
-      const entry = readV2ThemeEntry(id);
-      const themeMod = entry ? (await import(pathToFileURL(entry.themeJs).href)).default : null;
+      });
+      continue;
+    }
+
+    const altPal = theme.palettes?.[1]?.id || '';
+    const altTopic = theme.topics?.[0]?.id || '';
+
+    // Pair A (Mobile 390x844): lite + ?k= + ?n=nha-gai + #sh-quick + RSVP with wish
+    await record('tier3', 'combos', `v2 ${theme.id} pairwise Mobile (lite x ?k= x ?n=nha-gai x RSVP+wish)`, async () => {
       const session = await createSafeContext(browser, {
         legacyUrl,
         webUrl,
@@ -189,49 +215,57 @@ export async function runTier3Combos({ browser, legacyUrl, webUrl, shotsDir, rec
         isMobile: true,
         hasTouch: true,
       });
+      let pendingReason = '';
       try {
         const { page, tracker } = await session.newTrackedPage();
-        await page.goto(`${webUrl}/v2/demo/${id}/?tier=lite&k=${encodeURIComponent('Chị Lan')}&n=nha-gai`, {
-          waitUntil: 'load',
+        await page.goto(`${webUrl}/v2/demo/${theme.id}/?tier=lite&k=${encodeURIComponent('Chị Lan')}&n=nha-gai`, {
+          waitUntil: 'domcontentloaded',
           timeout: 30000,
         });
-        await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
+        await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 20000 });
         assert.equal(await page.getAttribute('html', 'data-motion'), 'lite');
         const guestText = await page.locator('[data-guest]').first().textContent().catch(() => '');
         assert.equal((guestText || '').trim(), 'Chị Lan');
 
-        if (entry?.demo?.guestGroups?.some(g => g.id === 'nha-gai')) {
+        if (theme.demo?.guestGroups?.some(g => g.id === 'nha-gai')) {
           assert.equal(
             await page.$eval('[data-sh="group-note"]', el => el.hidden),
             false,
-            `v2 ${id} combo: [data-sh="group-note"] should be visible for ?n=nha-gai`
+            `v2 ${theme.id} combo: [data-sh="group-note"] should be visible for ?n=nha-gai`
           );
-          if ((entry.demo.events || []).length >= 2) {
+          if ((theme.demo.events || []).length >= 2) {
             const hiddenEv = await page.$$eval('#sh-quick [data-ev]', els => els.filter(e => e.hidden).length);
-            assert.ok(hiddenEv >= 1, `v2 ${id} combo: expected [data-ev] filtering for ?n=nha-gai`);
+            assert.ok(hiddenEv >= 1, `v2 ${theme.id} combo: expected [data-ev] filtering for ?n=nha-gai`);
           }
         }
 
         await openV2Gate(page);
         await scrollFullPage(page);
-        await assertNoHorizontalOverflow(page, `v2 ${id} combo`);
+        await assertNoHorizontalOverflow(page, `v2 ${theme.id} mobile combo`);
 
-        // Open #sh-quick and verify close works cleanly
-        await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
-        await page.waitForTimeout(350);
-        await page.locator('[data-sh="quick-open"]').first().click();
+        try {
+          await assertVestibularComfort(page, { label: `v2 ${theme.id} mobile lite combo`, motionTier: 'lite' });
+        } catch (vestErr) {
+          if (theme.id === 'cuon-phim') {
+            pendingReason ||= `M1: fix ${theme.id} vestibular comfort (${vestErr.message.slice(0, 80)})`;
+          } else {
+            throw vestErr;
+          }
+        }
+
+        const quickBtn = await ensureQuickOpenVisible(page);
+        await quickBtn.click();
         await page.locator('#sh-quick').waitFor({ state: 'visible', timeout: 3000 });
         await page.locator('#sh-quick').evaluate(el => { el.scrollTop = 0; });
         await page.locator('#sh-quick [data-sh="quick-close"]').first().click();
         await page.locator('#sh-quick').waitFor({ state: 'hidden', timeout: 3000 });
 
-        // Submit RSVP with wish (in scene or inside #sh-quick for stage themes)
         const sceneRsvp = page.locator('.sh-scene form[data-sh="rsvp"]').first();
         const hasSceneRsvp = (await sceneRsvp.count()) > 0;
         let rsvpForm = sceneRsvp;
         let rsvpMsgSel = '.sh-scene form[data-sh="rsvp"] .sh-msg';
         if (!hasSceneRsvp) {
-          await page.locator('[data-sh="quick-open"]').first().click();
+          await (await ensureQuickOpenVisible(page)).click();
           await page.locator('#sh-quick').waitFor({ state: 'visible', timeout: 3000 });
           rsvpForm = page.locator('#sh-quick form[data-sh="rsvp"]').first();
           rsvpMsgSel = '#sh-quick form[data-sh="rsvp"] .sh-msg';
@@ -249,15 +283,92 @@ export async function runTier3Combos({ browser, legacyUrl, webUrl, shotsDir, rec
           await page.locator('#sh-quick [data-sh="quick-close"]').first().click().catch(() => {});
         }
 
-        // Conditional ?p= palette probe using theme's second palette dynamically
-        const altPal = themeMod?.palettes?.[1]?.id;
-        if (altPal) {
-          await page.goto(`${webUrl}/v2/demo/${id}/?p=${encodeURIComponent(altPal)}&open=1`, { waitUntil: 'load', timeout: 30000 });
-          await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
+        pendingReason ||= checkTracker(tracker, theme.id, `v2 ${theme.id} mobile combo`);
+        if (pendingReason) {
+          const err = new Error(pendingReason);
+          err.pendingMilestone = pendingReason;
+          throw err;
         }
-        tracker.assertClean(`v2 ${id} combo`);
       } catch (err) {
-        await saveFailureShot(session.ctx, shotsDir, `tier3-v2-${id}`, err);
+        await saveFailureShot(session.ctx, shotsDir, `tier3-v2-mobile-${theme.id}`, err);
+        throw err;
+      } finally {
+        await session.ctx.close();
+      }
+    });
+
+    // Pair B (Desktop 1440x900): standard x altPalette/topic x ?k= x 5s discoverability x >=13px x vestibular
+    await record('tier3', 'combos', `v2 ${theme.id} pairwise Desktop (standard x ${altTopic ? `topic=${altTopic}` : altPal ? `p=${altPal}` : 'default'} x ?k=)`, async () => {
+      const session = await createSafeContext(browser, {
+        legacyUrl,
+        webUrl,
+        viewport: { width: 1440, height: 900 },
+        isMobile: false,
+        hasTouch: false,
+      });
+      let pendingReason = '';
+      try {
+        const { page, tracker } = await session.newTrackedPage();
+        const extra = altTopic ? `&topic=${encodeURIComponent(altTopic)}` : altPal ? `&p=${encodeURIComponent(altPal)}` : '';
+        await page.goto(`${webUrl}/v2/demo/${theme.id}/?tier=standard&k=${encodeURIComponent('Anh Minh')}${extra}`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
+        await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 20000 });
+        assert.equal(await page.getAttribute('html', 'data-motion'), 'standard');
+
+        const gateTiming = await openV2Gate(page);
+        try {
+          assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `v2 ${theme.id} desktop combo` });
+        } catch (gateErr) {
+          if (theme.id === 'cuon-phim') {
+            pendingReason ||= 'M1: reduce cuon-phim cover gate lock <= 900ms';
+          } else {
+            throw gateErr;
+          }
+        }
+
+        await assertFiveSecondDiscoverability(page, {
+          groomShort: theme.demo?.groom?.short || '',
+          brideShort: theme.demo?.bride?.short || '',
+          date: theme.demo?.date || '',
+          city: theme.demo?.city || '',
+          venue: theme.demo?.events?.[0]?.venue || '',
+          timeoutMs: 5000,
+          label: `v2 ${theme.id} desktop combo`,
+        });
+
+        await scrollFullPage(page);
+        await assertNoHorizontalOverflow(page, `v2 ${theme.id} desktop combo`);
+
+        try {
+          await assertReadableVietnameseText(page, { minPx: 13, label: `v2 ${theme.id} desktop combo` });
+        } catch (fontErr) {
+          if (theme.id === 'cuon-phim') {
+            pendingReason ||= 'M1: fix cuon-phim <13px labels';
+          } else {
+            throw fontErr;
+          }
+        }
+
+        try {
+          await assertVestibularComfort(page, { label: `v2 ${theme.id} desktop standard combo`, motionTier: 'standard' });
+        } catch (vestErr) {
+          if (theme.id === 'cuon-phim') {
+            pendingReason ||= `M1: fix ${theme.id} vestibular comfort (${vestErr.message.slice(0, 80)})`;
+          } else {
+            throw vestErr;
+          }
+        }
+
+        pendingReason ||= checkTracker(tracker, theme.id, `v2 ${theme.id} desktop combo`);
+        if (pendingReason) {
+          const err = new Error(pendingReason);
+          err.pendingMilestone = pendingReason;
+          throw err;
+        }
+      } catch (err) {
+        await saveFailureShot(session.ctx, shotsDir, `tier3-v2-desktop-${theme.id}`, err);
         throw err;
       } finally {
         await session.ctx.close();

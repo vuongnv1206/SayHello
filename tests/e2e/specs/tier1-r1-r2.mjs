@@ -1,23 +1,26 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   ROOT,
   R1_FORBIDDEN_TERMS,
   R1_REJECTED_PROTOS,
+  LEGACY_JUNK_FILES,
   RETAINED_V1_THEMES,
   readLegacyThemes,
   readLegacySlugs,
   readWebThemesRegistry,
   listLegacyProtos,
-  readAdvisoryDoc,
+  listActiveDocs,
+  checkM3Docs,
   collectFiles,
   scanFilesForR1,
 } from '../lib/registries.mjs';
 import { createSafeContext, saveFailureShot } from '../lib/browser.mjs';
 
 export async function runTier1R1R2({ browser, legacyUrl, webUrl, shotsDir, record }) {
-  // 1. Static R1 scan across active runtime, config, registries, and non-historical docs
-  await record('tier1', 'r1-r2', 'R1 static scan across active code, registries & docs checklists', async () => {
+  // 1. Static R1 scan across active runtime, config, registries, and active docs/*.md (excluding docs/archive/)
+  await record('tier1', 'r1-r2', 'R1 static scan across active code, registries & docs/*.md', async () => {
     const activeTargets = [
       join(ROOT, 'legacy', 'index.html'),
       join(ROOT, 'legacy', 'slugs.json'),
@@ -30,19 +33,33 @@ export async function runTier1R1R2({ browser, legacyUrl, webUrl, shotsDir, recor
       join(ROOT, 'legacy', 'proto'),
       join(ROOT, 'packages'),
       join(ROOT, 'apps', 'web', 'src'),
-      join(ROOT, 'docs', 'TAO-MAU-MOI.md'),
-      join(ROOT, 'docs', 'TASKS.md'),
+      ...listActiveDocs(),
     ];
+    for (const rootDoc of ['README.md', 'CLAUDE.md']) {
+      const full = join(ROOT, rootDoc);
+      if (existsSync(full)) activeTargets.push(full);
+    }
     for (const slug of readLegacySlugs()) {
       activeTargets.push(join(ROOT, 'legacy', slug));
     }
     const files = collectFiles(activeTargets);
     const hits = scanFilesForR1(files);
-    assert.equal(hits.length, 0, `R1 forbidden term(s) found in active files: ${JSON.stringify(hits.slice(0, 10))}`);
+    const m3Ready = checkM3Docs().ready;
+    const codeHits = hits.filter(h => !h.file.startsWith('docs/'));
+    const docHits = hits.filter(h => h.file.startsWith('docs/'));
+    assert.equal(codeHits.length, 0, `R1 forbidden term(s) found in active code/config: ${JSON.stringify(codeHits.slice(0, 10))}`);
+    if (docHits.length > 0) {
+      if (!m3Ready) {
+        const err = new Error(`Unarchived legacy docs still mention removed R1 themes: ${JSON.stringify(docHits.slice(0, 5))}`);
+        err.pendingMilestone = 'M3: archive historical docs (PROGRESS.md, PROPOSAL.md, REDESIGN.md) to docs/archive/';
+        throw err;
+      }
+      assert.equal(docHits.length, 0, `R1 forbidden term(s) found in active docs/*.md: ${JSON.stringify(docHits.slice(0, 10))}`);
+    }
   });
 
   // 2. Registry consistency: exact 10 retained v1 themes & slugs, 0 forbidden
-  await record('tier1', 'r1-r2', 'R1 active registries (legacy/themes/index.json, slugs.json, web themes.ts)', async () => {
+  await record('tier1', 'r1-r2', 'R1 active registries (legacy/themes/index.json, slugs.json, web themes)', async () => {
     const legacyThemes = readLegacyThemes();
     const themeIds = legacyThemes.map(t => t.id);
     assert.deepEqual([...themeIds].sort(), [...RETAINED_V1_THEMES].sort(), `Expected 10 retained v1 themes, got ${themeIds.join(', ')}`);
@@ -57,13 +74,15 @@ export async function runTier1R1R2({ browser, legacyUrl, webUrl, shotsDir, recor
     }
   });
 
-  // 3. Rejected prototype files in legacy/proto/
-  await record('tier1', 'r1-r2', 'R1 rejected prototypes absent from legacy/proto/', async () => {
+  // 3. Rejected prototype files & stale junk cleanup (M1 F1)
+  await record('tier1', 'r1-r2', 'M1 cleanup: rejected prototypes & stale junk files removed', async () => {
     const present = listLegacyProtos();
-    const leftover = R1_REJECTED_PROTOS.filter(p => present.includes(p));
-    if (leftover.length) {
-      const err = new Error(`Rejected prototypes still present in legacy/proto/: ${leftover.join(', ')}`);
-      err.pendingMilestone = 'M1: remove rejected prototypes from legacy/proto/';
+    const leftoverProtos = R1_REJECTED_PROTOS.filter(p => present.includes(p));
+    const leftoverJunk = LEGACY_JUNK_FILES.filter(rel => existsSync(join(ROOT, rel)));
+    const allLeftover = [...leftoverProtos.map(p => `legacy/proto/${p}`), ...leftoverJunk];
+    if (allLeftover.length) {
+      const err = new Error(`Stale prototypes/junk still present: ${allLeftover.join(', ')}`);
+      err.pendingMilestone = 'M1: remove rejected prototypes and stale junk files';
       throw err;
     }
   });
@@ -117,37 +136,14 @@ export async function runTier1R1R2({ browser, legacyUrl, webUrl, shotsDir, recor
     }
   });
 
-  // 6. R2 Advisory Document (docs/THAM-MUU-THIET-KE.md) 4-pillar completeness
-  await record('tier1', 'r1-r2', 'R2 docs/THAM-MUU-THIET-KE.md covers all 4 advisory pillars', async () => {
-    const doc = readAdvisoryDoc();
-    if (!doc) {
-      const err = new Error('docs/THAM-MUU-THIET-KE.md does not exist yet');
-      err.pendingMilestone = 'M1: R2 advisory doc docs/THAM-MUU-THIET-KE.md';
+  // 6. M3 Multi-angle assessment, templates/topics blueprint, architecture & Claude handoff docs
+  await record('tier1', 'r1-r2', 'M3 docs/*.md synchronized (ASSESSMENT-AND-RESTRUCTURING-PLAN, TEMPLATES-AND-TOPICS, ARCHITECTURE, CLAUDE-HANDOFF)', async () => {
+    const check = checkM3Docs();
+    if (check.pendingMilestone) {
+      const err = new Error(check.message);
+      err.pendingMilestone = check.pendingMilestone;
       throw err;
     }
-    assert.ok(doc.text.length >= 3000, `Advisory doc too short (${doc.text.length} chars)`);
-
-    // Pillar 1: motionsites.ai, Anthropic skills, BRIEF-3D, template repetition diagnosis
-    assert.match(doc.text, /motionsites\.ai/i, 'Missing reference to motionsites.ai');
-    assert.match(doc.text, /frontend-design|codebase-design|Anthropic/i, 'Missing Anthropic design skill synthesis');
-    assert.match(doc.text, /BRIEF-3D/i, 'Missing BRIEF-3D synthesis');
-    assert.match(doc.text, /520px/i, 'Missing diagnosis of 520px collapse');
-    assert.match(doc.text, /khuôn mẫu|data-rv/i, 'Missing template repetition diagnosis');
-
-    // Pillar 2: all 10 retained v1 topics
-    for (const id of RETAINED_V1_THEMES) {
-      assert.ok(doc.text.includes(id), `Advisory doc missing upgrade plan for v1 topic "${id}"`);
-    }
-
-    // Pillar 3: new photo-first v2 topics
-    for (const id of ['to-hong', 'phong-trien-lam', 'bau-troi-anh', 'ho-guong']) {
-      assert.ok(doc.text.includes(id), `Advisory doc missing new topic "${id}"`);
-    }
-
-    // Pillar 4: layout, motion, typography >=13px, color palettes, rubric
-    assert.match(doc.text, /13px/i, 'Missing >=13px Vietnamese typography requirement');
-    assert.match(doc.text, /vietnamese/i, 'Missing vietnamese font subset requirement');
-    assert.match(doc.text, /Rubric|Agent-as-Judge/i, 'Missing Agent-as-Judge rubric');
-    assert.match(doc.text, /#sh-quick|Thông tin nhanh/i, 'Missing #sh-quick accessibility guidance');
+    assert.ok(check.ready, `M3 documentation check failed: ${check.message}`);
   });
 }

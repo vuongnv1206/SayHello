@@ -1,0 +1,128 @@
+{
+  "slug": "demo-chieu-sau",
+  "groom": {
+    "short": "Quốc Bảo",
+    "full": "Lý Quốc Bảo",
+    "bio": "Nhiếp ảnh gia phim 35mm, lưu lại những buổi sáng sương mù trên đồi thông."
+  },
+  "bride": {
+    "short": "Thảo Nhi",
+    "full": "Võ Thảo Nhi",
+    "bio": "Biên đạo ánh sáng sân khấu, yêu những khung hình tĩnh mà có chiều sâu."
+  },
+  "order": "groom-first",
+  "city": "Đà Lạt",
+  "date": "2027-12-05T17:00:00+07:00",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Lý Minh Tuấn",
+      "mother": "Ngô Thanh Hà",
+      "address": "Phường 3,\nThành phố Đà Lạt"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Võ Quốc Hưng",
+      "mother": "Trần Mỹ Linh",
+      "address": "Phường Đa Kao,\nQuận 1, TP. Hồ Chí Minh"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Gia Tiên",
+      "date": "2027-12-05T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 24 Đinh Tiên Hoàng, Quận 1, TP. Hồ Chí Minh",
+      "lunar": "Nhằm ngày 08 tháng 11 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Vườn Thông",
+      "date": "2027-12-05T17:00:00+07:00",
+      "venue": "Khu vườn Đồi Thông",
+      "address": "Đường Hùng Vương, Phường 10, Đà Lạt",
+      "lunar": "Nhằm ngày 08 tháng 11 năm Đinh Mùi",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc vườn thông",
+      "address": "Đường Hùng Vương, Phường 10, Đà Lạt",
+      "coords": "11.9404,108.4583"
+    },
+    {
+      "label": "Tư gia nhà gái",
+      "address": "Số 24 Đinh Tiên Hoàng, Quận 1, TP. Hồ Chí Minh",
+      "coords": "10.7885,106.7012"
+    }
+  ],
+  "images": {
+    "hero": "images/anh-01.jpg",
+    "cutouts": {
+      "hero": "images/anh-01-nguoi.webp"
+    },
+    "album": [
+      "images/anh-01.jpg",
+      "images/anh-02.jpg",
+      "images/anh-03.jpg",
+      "images/anh-04.jpg",
+      "images/anh-05.jpg",
+      "images/anh-06.jpg"
+    ],
+    "albumCutouts": [
+      "images/anh-01-nguoi.webp",
+      "",
+      "images/anh-03-nguoi.webp",
+      "images/anh-04-nguoi.webp",
+      "",
+      "images/anh-06-nguoi.webp"
+    ],
+    "captions": [
+      "Dưới vòm đá cổ lúc sớm",
+      "Cầu đá bến hồ lên đèn",
+      "Áo dài bên khung cửa sáng",
+      "Khoảnh khắc giữa hành lang",
+      "Thủy đình chiều chạng vạng",
+      "Bó hoa trắng trước giờ lễ"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/dao-buoc.mp3",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "1045678912",
+      "name": "LY QUOC BAO"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "ACB",
+      "bankCode": "ACB",
+      "number": "2244668810",
+      "name": "VO THAO NHI"
+    }
+  ],
+  "story": [
+    {
+      "year": "2021",
+      "title": "Buổi chiếu thử đèn sân khấu",
+      "text": "Anh mang cuộn phim đầu tiên tới rọi thử dưới luồng sáng em chỉnh."
+    },
+    {
+      "year": "2024",
+      "title": "Đồi thông sương tháng mười một",
+      "text": "Tấm hình đầu tiên có cả hai đứa đứng chung một chiều sâu tiêu cự."
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Thân mời gia đình và khách quý họ nhà gái",
+      "events": [0],
+      "note": "Đón khách tại tư gia Đinh Tiên Hoàng lúc 08:30"
+    }
+  ]
+}

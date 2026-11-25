@@ -1,23 +1,125 @@
 // Chép mã chạy trên trình duyệt của bộ máy thiệp và các mẫu vào public/_e/ để phục vụ tĩnh (CDN của Vercel).
-// Trang thiệp nạp chúng qua import map, không qua bundler của Next, nên máy chủ và trình duyệt dùng cùng một file.
-// Chạy tự động trước `next dev` và `next build` (predev/prebuild). Thư mục public/_e/ không đưa lên git.
-import { cpSync, rmSync, mkdirSync, readdirSync, existsSync, statSync } from 'node:fs';
+// Tự động quét packages/themes/* để sinh public/_e/manifest.json và src/lib/themes.generated.ts (xoá nút thắt đăng ký 5 file).
+// Chạy tự động trước `next dev` và `next build` (predev/prebuild).
+import { cpSync, rmSync, mkdirSync, readdirSync, existsSync, statSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const WEB = fileURLToPath(new URL('..', import.meta.url));
 const PKG = join(WEB, '..', '..', 'packages');
 const OUT = join(WEB, 'public', '_e');
+const GENERATED_TS = join(WEB, 'src', 'lib', 'themes.generated.ts');
+const MANIFEST_JSON = join(OUT, 'manifest.json');
 const ALLOWED = new Set(['.js', '.css', '.svg', '.png', '.jpg', '.webp', '.woff2']);
-const copy = (src, dest) => cpSync(src, dest, { recursive: true, filter: p => statSync(p).isDirectory() || ALLOWED.has(extname(p)) });
 
-rmSync(OUT, { recursive: true, force: true });
+const copy = (src, dest) =>
+  cpSync(src, dest, { recursive: true, filter: p => statSync(p).isDirectory() || ALLOWED.has(extname(p)) });
+
+const toIdent = id =>
+  id.replace(/-([a-z0-9])/g, (_, ch) => ch.toUpperCase()).replace(/[^a-zA-Z0-9_$]/g, '_');
+
+const resolvePreview = (id, demo) => {
+  const raw = demo?.images?.preview || demo?.images?.hero || demo?.images?.album?.[0] || '';
+  if (!raw) return '';
+  if (/^(https?:|\/)/.test(raw)) return raw;
+  return `/_e/themes/${id}/${raw.replace(/^\.\//, '')}`;
+};
+
+try {
+  rmSync(OUT, { recursive: true, force: true, maxRetries: 5, retryDelay: 120 });
+} catch {
+  if (existsSync(OUT)) {
+    for (const sub of readdirSync(OUT)) {
+      rmSync(join(OUT, sub), { recursive: true, force: true, maxRetries: 5, retryDelay: 120 });
+    }
+  }
+}
 mkdirSync(OUT, { recursive: true });
 copy(join(PKG, 'engine', 'src'), join(OUT, 'engine'));
-const themes = existsSync(join(PKG, 'themes')) ? readdirSync(join(PKG, 'themes')).filter(d => existsSync(join(PKG, 'themes', d, 'theme.js'))) : [];
-for (const id of themes) {
+
+const themesRoot = join(PKG, 'themes');
+// photobooth (65c554f) chưa đạt chuẩn bìa <=900ms & hiệu ứng vô hạn nên chưa đăng ký vào /v2/ trong M2.
+const EXCLUDED_WIP = new Set(['photobooth']);
+const themeIds = existsSync(themesRoot)
+  ? readdirSync(themesRoot)
+      .filter(d => !EXCLUDED_WIP.has(d) && existsSync(join(themesRoot, d, 'theme.js')) && existsSync(join(themesRoot, d, 'demo.json')))
+      .sort()
+  : [];
+
+const manifestThemes = [];
+const tsImports = [];
+const tsEntries = [];
+
+for (const id of themeIds) {
+  const srcDir = join(themesRoot, id);
   const dest = join(OUT, 'themes', id);
-  copy(join(PKG, 'themes', id), dest);
+  copy(srcDir, dest);
   rmSync(join(dest, 'node_modules'), { recursive: true, force: true });
+
+  const mod = (await import(pathToFileURL(join(srcDir, 'theme.js')).href)).default;
+  const demo = JSON.parse(readFileSync(join(srcDir, 'demo.json'), 'utf8'));
+  const assetBase = `/_e/themes/${id}/`;
+  const preview = resolvePreview(id, demo);
+
+  const serializeTopics = list =>
+    (Array.isArray(list) ? list : []).map(t => ({
+      id: t.id,
+      name: t.name || t.id,
+      ...(t.desc ? { desc: t.desc } : {}),
+      ...(t.swatch ? { swatch: [...t.swatch] } : {}),
+      ...(t.themeColor ? { themeColor: t.themeColor } : {}),
+    }));
+
+  manifestThemes.push({
+    id: mod.id || id,
+    name: mod.name || id,
+    version: mod.version || '1.0.0',
+    layout: mod.layout || 'scroll',
+    tier: mod.tier || 'basic',
+    gateMs: mod.gateMs ?? 450,
+    ...(mod.tagline ? { tagline: mod.tagline } : {}),
+    ...(mod.moment ? { moment: { ...mod.moment } } : {}),
+    topics: serializeTopics(mod.topics),
+    palettes: serializeTopics(mod.palettes),
+    assetBase,
+    preview,
+    demo: {
+      groom: demo?.groom?.short || '',
+      bride: demo?.bride?.short || '',
+      date: demo?.date || '',
+      city: demo?.city || '',
+    },
+  });
+
+  const ident = toIdent(id);
+  tsImports.push(
+    `import ${ident}Theme from "../../../../packages/themes/${id}/theme.js";`,
+    `import ${ident}Demo from "../../../../packages/themes/${id}/demo.json";`
+  );
+  tsEntries.push(
+    `  "${id}": {\n    id: "${id}",\n    theme: ${ident}Theme as unknown as ThemeSpec,\n    demo: ${ident}Demo as unknown as ThemeDemoData,\n    assetBase: "${assetBase}",\n    preview: "${preview}",\n  },`
+  );
 }
-console.log(`✓ Đã chép bộ máy thiệp và ${themes.length} mẫu vào public/_e/ (${themes.join(', ')})`);
+
+writeFileSync(
+  MANIFEST_JSON,
+  JSON.stringify({ version: 1, themes: manifestThemes }, null, 2) + '\n',
+  'utf8'
+);
+
+const generatedTs = [
+  '// Auto-generated by apps/web/scripts/sync-engine.mjs — do not edit manually.',
+  'import type { ThemeDemoData, ThemeRegistryEntry, ThemeSpec } from "./theme-types";',
+  '',
+  ...tsImports,
+  '',
+  'export const THEMES: Record<string, ThemeRegistryEntry> = {',
+  ...tsEntries,
+  '};',
+  '',
+  'export const THEME_LIST: ThemeRegistryEntry[] = Object.values(THEMES);',
+  '',
+].join('\n');
+
+writeFileSync(GENERATED_TS, generatedTs, 'utf8');
+console.log(`✓ Đã đồng bộ bộ máy thiệp và ${themeIds.length} mẫu vào public/_e/ & themes.generated.ts (${themeIds.join(', ')})`);

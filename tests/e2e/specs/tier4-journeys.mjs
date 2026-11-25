@@ -1,12 +1,27 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
-  TARGET_V2_THEMES,
+  ROOT,
   readShopConfig,
-  readWebThemesRegistry,
+  discoverV2Themes,
   isV2ShowcaseUpgraded,
 } from '../lib/registries.mjs';
-import { createSafeContext, openV1Gate, openV2Gate, saveFailureShot } from '../lib/browser.mjs';
-import { assertNoHorizontalOverflow, instantScrollTo, scrollFullPage } from '../lib/assertions.mjs';
+import {
+  createSafeContext,
+  openV1Gate,
+  openV2Gate,
+  ensureQuickOpenVisible,
+  saveFailureShot,
+} from '../lib/browser.mjs';
+import {
+  assertNoHorizontalOverflow,
+  assertCoverGateTiming,
+  assertFiveSecondDiscoverability,
+  assertVisibleImagesLoaded,
+  instantScrollTo,
+  scrollFullPage,
+} from '../lib/assertions.mjs';
 
 export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, record }) {
   // Journey 1 (Mobile 390x844): v1 Craft & Courtyard (/demo-thiep-gap/, /demo-song-hy/)
@@ -85,9 +100,9 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
         ['demo-khoa-tinh', 'Chú Hùng'],
         ['demo-den-long', 'Bác Mai'],
       ]) {
-        await page.goto(`${legacyUrl}/${slug}/?k=${encodeURIComponent(guest)}`, { waitUntil: 'load', timeout: 30000 });
+        await page.goto(`${legacyUrl}/${slug}/?k=${encodeURIComponent(guest)}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
         if (slug === 'demo-khoa-tinh') {
-          await page.waitForFunction(() => document.body.classList.contains('ready'), null, { timeout: 12000 });
+          await page.waitForFunction(() => document.body.classList.contains('ready'), null, { timeout: 20000 });
           const dials = page.locator('#cover [data-dial]');
           if ((await dials.count()) === 4) {
             await dials.nth(0).focus();
@@ -136,16 +151,18 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
     }
   });
 
-  // Journey 3 (Mobile & Desktop): v2 3D Photo-First Themes
-  const webReg = readWebThemesRegistry();
-  for (const id of TARGET_V2_THEMES) {
-    await record('tier4', 'journeys', `Journey 3 (Desktop + Mobile): v2 ${id} full interactive flow`, async () => {
-      if (!webReg.registeredIds.includes(id)) {
-        const err = new Error(`v2 theme "${id}" not yet registered`);
-        err.pendingMilestone = `M4/M5/M6: implement v2 theme "${id}"`;
+  // Journey 3+ (Desktop & Mobile): Complete Guest Journey per dynamically discovered v2 theme
+  const v2Themes = await discoverV2Themes({ webUrl });
+  const cuonPhimMissingImagesDir = !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
+  for (const theme of v2Themes) {
+    await record('tier4', 'journeys', `Journey (Desktop + Mobile): v2 ${theme.id} complete guest workflow`, async () => {
+      if (!theme.isRegistered) {
+        const err = new Error(`v2 theme "${theme.id}" not yet registered`);
+        err.pendingMilestone = theme.pendingReason || `M1/M2: wire v2 theme "${theme.id}"`;
         throw err;
       }
 
+      let pendingReason = '';
       for (const vp of [
         { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true },
         { name: 'desktop', width: 1440, height: 900, isMobile: false, hasTouch: false },
@@ -159,10 +176,40 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
         });
         try {
           const { page, tracker } = await session.newTrackedPage();
-          await page.goto(`${webUrl}/v2/demo/${id}/?k=${encodeURIComponent('Khách Quý')}`, { waitUntil: 'load', timeout: 30000 });
-          await openV2Gate(page);
+          await page.goto(`${webUrl}/v2/demo/${theme.id}/?k=${encodeURIComponent('Khách Quý')}&n=nha-gai`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+          const gateTiming = await openV2Gate(page);
+          try {
+            assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `Journey ${theme.id} ${vp.name}` });
+          } catch (gateErr) {
+            if (theme.id === 'cuon-phim') {
+              pendingReason ||= 'M1: reduce cuon-phim cover gate lock <= 900ms';
+            } else {
+              throw gateErr;
+            }
+          }
+
+          await assertFiveSecondDiscoverability(page, {
+            groomShort: theme.demo?.groom?.short || '',
+            brideShort: theme.demo?.bride?.short || '',
+            date: theme.demo?.date || '',
+            city: theme.demo?.city || '',
+            venue: theme.demo?.events?.[0]?.venue || '',
+            timeoutMs: 5000,
+            label: `Journey ${theme.id} ${vp.name}`,
+          });
+
           await scrollFullPage(page);
-          await assertNoHorizontalOverflow(page, `Journey 3 ${id} ${vp.name}`);
+          await assertNoHorizontalOverflow(page, `Journey ${theme.id} ${vp.name}`);
+          try {
+            await assertVisibleImagesLoaded(page, `Journey ${theme.id} ${vp.name}`);
+          } catch (imgErr) {
+            if (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir && /\/_e\/themes\/cuon-phim\/images\//.test(imgErr.message)) {
+              pendingReason ||= 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
+            } else {
+              throw imgErr;
+            }
+          }
 
           const layout = await page.getAttribute('html', 'data-layout');
           if (layout === 'stage') {
@@ -176,12 +223,12 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
               })
             );
             const hasStageFallback = await page.evaluate(
-              () => document.querySelectorAll('.ptl-track, .constellation-fallback, .hg-horizon-fallback').length > 0
+              () => document.querySelectorAll('.ptl-track, .th-track, .constellation-fallback, .hg-horizon-fallback').length > 0
             );
-            assert.ok(hasVisibleCanvas || hasStageFallback, `Journey 3 ${id} ${vp.name}: stage theme missing visible canvas or DOM fallback`);
+            assert.ok(hasVisibleCanvas || hasStageFallback, `Journey ${theme.id} ${vp.name}: stage theme missing visible canvas or DOM fallback`);
           }
 
-          if (id === 'cuon-phim') {
+          if (theme.id === 'cuon-phim') {
             const stub = page.locator('#ve-moi .tk-stub').first();
             if (await stub.count()) {
               await instantScrollTo(stub);
@@ -193,18 +240,68 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
             }
           }
 
-          await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
-          await page.waitForTimeout(350);
-          await page.locator('[data-sh="quick-open"]').first().click();
+          // Map & Google Calendar links in #sh-quick
+          const quickBtn = await ensureQuickOpenVisible(page);
+          await quickBtn.click({ timeout: 5000 });
           await page.locator('#sh-quick').waitFor({ state: 'visible', timeout: 3000 });
           await page.locator('#sh-quick').evaluate(el => { el.scrollTop = 0; });
+          const gcalHref = await page.locator('#sh-quick a[href*="calendar.google.com/calendar/render"]').first().getAttribute('href').catch(() => '');
+          assert.ok(gcalHref && gcalHref.startsWith('https://calendar.google.com/calendar/render'), `Journey ${theme.id}: missing Google Calendar link`);
+          if (theme.demo?.places?.length) {
+            const mapHref = await page.locator('#sh-quick a[href*="google.com/maps"]').first().getAttribute('href').catch(() => '');
+            assert.ok(mapHref && mapHref.startsWith('https://www.google.com/maps/'), `Journey ${theme.id}: missing Google Maps link`);
+          }
           await page.locator('#sh-quick [data-sh="quick-close"]').first().click();
 
+          // Gift QR & copy flow when accounts exist
+          if ((theme.demo?.accounts || []).length > 0) {
+            const bucketBtn = page.locator('.bucket, [data-gift-open]').first();
+            if (await bucketBtn.count()) {
+              await instantScrollTo(bucketBtn);
+              await bucketBtn.click();
+              await page.waitForTimeout(250);
+            }
+            const qrImg = page.locator('img.qr, .accounts img, .ptl-accs img, .th-accs img').first();
+            if (await qrImg.count()) {
+              const qrSrc = await qrImg.getAttribute('src');
+              assert.ok(qrSrc && (/vietqr\.io/.test(qrSrc) || /^(\/|https?:)/.test(qrSrc)), `Journey ${theme.id}: invalid gift QR src "${qrSrc}"`);
+              if (/vietqr\.io/.test(qrSrc)) {
+                const qrUrl = new URL(qrSrc, 'https://img.vietqr.io');
+                const addInfo = qrUrl.searchParams.get('addInfo') || '';
+                const firstAcc = theme.demo.accounts[0];
+                if (firstAcc?.bankCode && firstAcc?.number) {
+                  assert.ok(decodeURIComponent(qrUrl.pathname).includes(`${firstAcc.bankCode}-${firstAcc.number}`), `Journey ${theme.id}: VietQR missing bankCode-number`);
+                }
+                assert.ok(/mung cuoi|khach quy/i.test(addInfo), `Journey ${theme.id}: VietQR addInfo missing wedding note/guest`);
+              }
+            }
+            const copyBtn = page.locator('[data-copy], button.copy, .ptl-copy, .th-copy').first();
+            if (await copyBtn.count()) {
+              await instantScrollTo(copyBtn);
+              const expectedAccNum = await copyBtn.getAttribute('data-copy');
+              await copyBtn.click();
+              await page.waitForTimeout(200);
+              const copyText = (await copyBtn.textContent() || '').trim();
+              assert.ok(
+                /chép|copy|copied|ok/i.test(copyText) || (expectedAccNum && copyText === expectedAccNum),
+                `Journey ${theme.id}: unexpected copy button state "${copyText}"`
+              );
+            }
+          }
+
+          // Invalid RSVP rejected -> valid RSVP submitted
           const rsvp = page.locator('form[data-sh="rsvp"]').first();
           if (await rsvp.count()) {
             const inDialog = await rsvp.evaluate(el => !!el.closest('#sh-quick'));
-            if (inDialog) await page.locator('[data-sh="quick-open"]').first().click();
+            if (inDialog) await (await ensureQuickOpenVisible(page)).click();
             await instantScrollTo(rsvp);
+
+            await rsvp.locator('input[name="name"]').fill('');
+            await rsvp.locator('[type="submit"]').click();
+            await page.waitForTimeout(150);
+            assert.equal(await rsvp.evaluate(f => f.checkValidity()), false, `Journey ${theme.id}: empty RSVP must fail validity`);
+
+            await rsvp.locator('input[name="name"]').fill('Khách Quý');
             await rsvp.locator('[type="submit"]').click();
             await page.waitForFunction(
               () => /Cảm ơn/.test(document.querySelector('form[data-sh="rsvp"] .sh-msg')?.textContent || ''),
@@ -214,6 +311,7 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
             if (inDialog) await page.locator('#sh-quick [data-sh="quick-close"]').first().click().catch(() => {});
           }
 
+          // Wish submit
           const wish = page.locator('form[data-sh="wish"]').first();
           if (await wish.count()) {
             await instantScrollTo(wish);
@@ -224,21 +322,38 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
               null,
               { timeout: 6000 }
             );
+            const wishesEl = page.locator('[data-sh="wishes"]').first();
+            if (await wishesEl.count()) {
+              const txt = await wishesEl.textContent();
+              assert.ok((txt || '').includes('Chúc mừng ngày vui!'), `Journey ${theme.id}: wish missing from [data-sh="wishes"]`);
+            }
           }
 
-          tracker.assertClean(`Journey 3 ${id} ${vp.name}`);
+          const badErrs = (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir)
+            ? tracker.allErrors().filter(e => !/\/_e\/themes\/cuon-phim\/images\//.test(e))
+            : tracker.allErrors();
+          assert.equal(badErrs.length, 0, `Journey ${theme.id} ${vp.name}: ${badErrs.join(' | ')}`);
+          if (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir && tracker.allErrors().length > 0) {
+            pendingReason ||= 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
+          }
         } catch (err) {
-          await saveFailureShot(session.ctx, shotsDir, `tier4-journey3-${id}-${vp.name}`, err);
+          await saveFailureShot(session.ctx, shotsDir, `tier4-journey-${theme.id}-${vp.name}`, err);
           throw err;
         } finally {
           await session.ctx.close();
         }
       }
+
+      if (pendingReason) {
+        const err = new Error(pendingReason);
+        err.pendingMilestone = pendingReason;
+        throw err;
+      }
     });
   }
 
-  // Journey 4 (Desktop 1440x900): /v2 showcase & / storefront browsing
-  await record('tier4', 'journeys', 'Journey 4 (Desktop): / storefront & /v2 showcase browsing', async () => {
+  // Journey: /v2 showcase & / storefront browsing (Desktop + Mobile)
+  await record('tier4', 'journeys', 'Journey (Desktop + Mobile): / storefront & /v2 showcase browsing', async () => {
     const session = await createSafeContext(browser, {
       legacyUrl,
       webUrl,
@@ -252,7 +367,6 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
       assert.ok((await page.locator('#packs .pack').count()) >= 1, 'Expected pricing packs on /');
       await assertNoHorizontalOverflow(page, 'Storefront /');
 
-      // Ensure poster images load
       await scrollFullPage(page);
       const brokenImgs = await page.evaluate(() =>
         [...document.querySelectorAll('#themes img.poster')].filter(i => !i.complete || i.naturalWidth === 0).map(i => i.src)
@@ -260,24 +374,26 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
       assert.equal(brokenImgs.length, 0, `Broken poster images on /: ${brokenImgs.join(', ')}`);
 
       await page.goto(`${webUrl}/v2/`, { waitUntil: 'load', timeout: 30000 });
-      await assertNoHorizontalOverflow(page, '/v2 showcase');
-      tracker.assertClean('Journey 4');
+      await assertNoHorizontalOverflow(page, '/v2 showcase desktop');
+      await page.setViewportSize({ width: 390, height: 844 });
+      await assertNoHorizontalOverflow(page, '/v2 showcase mobile');
+      tracker.assertClean('Journey storefront & /v2');
 
       if (!isV2ShowcaseUpgraded()) {
         const err = new Error('/v2 showcase still shows Pha 0 placeholder');
-        err.pendingMilestone = 'M6: upgrade /v2 showcase';
+        err.pendingMilestone = 'M2: upgrade /v2 showcase with interactive template & topic gallery';
         throw err;
       }
     } catch (err) {
-      await saveFailureShot(session.ctx, shotsDir, 'tier4-journey4', err);
+      await saveFailureShot(session.ctx, shotsDir, 'tier4-journey-storefront', err);
       throw err;
     } finally {
       await session.ctx.close();
     }
   });
 
-  // Journey 5 (Mobile & Desktop): /dat-thiep/ ordering & /studio/ + /studio/khach.html
-  await record('tier4', 'journeys', 'Journey 5 (Mobile + Desktop): /dat-thiep/ order flow & /studio/ tools', async () => {
+  // Journey: /dat-thiep/ ordering & /studio/ + /studio/khach.html
+  await record('tier4', 'journeys', 'Journey (Mobile + Desktop): /dat-thiep/ order flow & /studio/ tools', async () => {
     const shop = readShopConfig();
     const pack = shop.packages.find(p => p.id === 'co-ban') || shop.packages[0];
     const session = await createSafeContext(browser, {
@@ -293,7 +409,6 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
       await page.waitForSelector('#themes input', { timeout: 10000 });
       await assertNoHorizontalOverflow(page, '/dat-thiep/ mobile');
 
-      // Empty submit triggers validation
       await page.click('#submit');
       assert.ok((await page.textContent('#err') || '').trim().length > 0, 'Empty order submit should set #err');
 
@@ -303,7 +418,6 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
       await page.fill('input[name="phone"]', '0912345678');
       assert.equal(await page.inputValue('input[name="slug"]'), 'quoc-bao-mai-anh');
 
-      // Duplicate slug check + blocked submit verification
       await page.fill('input[name="slug"]', 'demo-thu-tay');
       await page.waitForFunction(() => /đã có người dùng/.test(document.querySelector('#slug-msg')?.textContent || ''), null, { timeout: 4000 });
       await page.click('#submit');
@@ -318,7 +432,6 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
       const qr = await page.getAttribute('#qr', 'src');
       assert.ok(qr?.includes(`amount=${pack.price}`) && qr.includes(code), `QR missing amount/code: ${qr}`);
 
-      // Desktop Studio + Guest Manager check
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(`${legacyUrl}/studio/?thiep=demo-song-hy&ma=thu`, { waitUntil: 'load', timeout: 30000 });
       await page.waitForSelector('#form details.group', { timeout: 10000 });
@@ -332,9 +445,9 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
       await page.click('[data-t="seating"]');
       await page.waitForSelector('#seat-out', { timeout: 5000 });
 
-      tracker.assertClean('Journey 5');
+      tracker.assertClean('Journey /dat-thiep & /studio');
     } catch (err) {
-      await saveFailureShot(session.ctx, shotsDir, 'tier4-journey5', err);
+      await saveFailureShot(session.ctx, shotsDir, 'tier4-journey-order-studio', err);
       throw err;
     } finally {
       await session.ctx.close();

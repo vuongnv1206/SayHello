@@ -1,0 +1,113 @@
+{
+  "slug": "demo-song-gia",
+  "groom": {
+    "short": "Minh Triết",
+    "full": "Trần Minh Triết",
+    "bio": "Người con đất Hà Nội, làm gốm mỹ nghệ và giữ nghề men lam gia truyền."
+  },
+  "bride": {
+    "short": "Phương Thảo",
+    "full": "Ngô Phương Thảo",
+    "bio": "Kiến trúc sư cảnh quan tại Sài Gòn, yêu sắc gốm mộc và hoa sen trắng."
+  },
+  "order": "groom-first",
+  "city": "Hà Nội · TP. Hồ Chí Minh",
+  "date": "2027-12-12T18:00:00+07:00",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Trần Quang Minh",
+      "mother": "Lê Thị Kim Dung",
+      "address": "Phố Hàng Bông, Hoàn Kiếm,\nHà Nội"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Ngô Văn Thành",
+      "mother": "Nguyễn Ngọc Ánh",
+      "address": "Phường Võ Thị Sáu, Quận 3,\nTP. Hồ Chí Minh"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy (Nhà Gái)",
+      "date": "2027-12-10T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 45 Tú Xương, Quận 3, TP. Hồ Chí Minh",
+      "lunar": "Nhằm ngày 13 tháng 11 năm Đinh Mùi"
+    },
+    {
+      "title": "Lễ Thành Hôn & Tiệc Mừng (Nhà Trai)",
+      "date": "2027-12-12T18:00:00+07:00",
+      "venue": "Trung tâm Hội nghị Quốc tế",
+      "address": "Số 11 Lê Hồng Phong, Ba Đình, Hà Nội",
+      "lunar": "Nhằm ngày 15 tháng 11 năm Đinh Mùi",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Lễ Thành Hôn (Hà Nội)",
+      "address": "Số 11 Lê Hồng Phong, Ba Đình, Hà Nội",
+      "coords": "21.0332,105.8364"
+    },
+    {
+      "label": "Lễ Vu Quy (TP.HCM)",
+      "address": "Số 45 Tú Xương, Quận 3, TP. Hồ Chí Minh",
+      "coords": "10.7798,106.6876"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "groom": "images/anh2.jpg",
+    "bride": "images/anh3.jpg",
+    "album": [
+      "images/anh4.jpg",
+      "images/anh5.jpg",
+      "images/anh6.jpg"
+    ],
+    "captions": [
+      "Lễ ăn hỏi tại Hàng Bông",
+      "Khoảng sân nắng quận Ba",
+      "Đôi nhẫn gốm men ngà"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/dao-buoc.mp3",
+  "accounts": [
+    {
+      "who": "Nhà trai · Minh Triết",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "1033445566",
+      "name": "TRAN MINH TRIET"
+    },
+    {
+      "who": "Nhà gái · Phương Thảo",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "1907788990",
+      "name": "NGO PHUONG THAO"
+    }
+  ],
+  "story": [
+    {
+      "year": "2022",
+      "title": "Triển lãm gốm hai miền",
+      "text": "Cuộc gặp đầu tiên bên bàn trà gốm men lam giữa Hà Nội và Sài Gòn."
+    },
+    {
+      "year": "2026",
+      "title": "Nối hai thành phố trong một ngày vui",
+      "text": "Hai gia đình cùng chọn ngày Rằm tháng Một để chính thức sum họp."
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời gia đình và khách quý họ nhà gái",
+      "events": [0],
+      "note": "Lễ Vu Quy tổ chức tại tư gia đường Tú Xương, Quận 3"
+    }
+  ]
+}

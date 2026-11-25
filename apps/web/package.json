@@ -13,12 +13,6 @@
   },
   "dependencies": {
     "@sayhello/engine": "*",
-    "@sayhello/theme-cuon-phim": "*",
-    "@sayhello/theme-phong-trien-lam": "*",
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.58.0",
-    "lucide-react": "^1.78.0",
-    "motion": "^14.14.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"

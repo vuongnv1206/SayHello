@@ -9,58 +9,42 @@
 // Hậu kỳ (cinematic): bloom chỉ cho thứ phát sáng (ngưỡng 1,6), tone mapping Neutral (giữ màu ảnh), hạt phim.
 // Hiệu năng: chỉ vẽ các điểm dừng gần; đứng yên thì không vẽ lại; FPS thấp thì tự tắt hậu kỳ, rồi rơi về bản phẳng.
 
-import { fpsGuard, barOnly, recoverContext } from '@sayhello/engine/client/stage3d.js';
+import {
+  clamp, ease, flicker, withTimeout, loadThree, createLife, makeRenderer,
+  SHADER_TAIL, createPost, createPhotoLoader, clonePlate, scrollStops,
+  fpsGuard, barOnly, recoverContext, startLoop, disposeScene,
+} from '@sayhello/engine/client/stage3d.js';
 
 const PX = 1 / 400;            // 400px chữ DOM = 1 mét trong phòng
 const HALF = 3.4, H = 4.2;     // nửa chiều rộng hành lang, chiều cao trần
-const STEP = 3.8;              // khoảng cách giữa hai điểm dừng
+const STEP = 6.2;              // khoảng cách giữa hai điểm dừng (đủ xa để ảnh đã qua không che ống kính)
 const HANG = 1.62;             // tâm treo tranh
 const NEAR = 4;                // số điểm dừng mỗi phía được vẽ
-
-const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
-const ease = t => t * t * t * (t * (t * 6 - 15) + 10); // smootherstep
-// Đèn bật có chớp: lóe, tắt, lóe, sáng hẳn (động từ "rọi" của mẫu)
-const flicker = t => t <= 0 ? 0 : t < .05 ? .9 : t < .11 ? .08 : t < .16 ? .7 : t < .22 ? .2 : clamp(.6 + (t - .22) * 3);
-const withTimeout = (p, ms, msg) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(msg)), ms))]);
 
 export async function runGallery(el, ctx, opts) {
   const { tier, palettes, clickSound = () => {} } = opts;
   const root = document.documentElement;
   const SNAP = new URLSearchParams(location.search).has('snap'); // chỉ để chụp màn hình kiểm tra: camera tới ngay
-  root.classList.add('ptl-3d');
-  // Mạng chậm hay CDN bị chặn: không để khách kẹt ở màn "Đang bật đèn"
-  const [{ THREE, RoomEnvironment, EffectComposer, RenderPass, UnrealBloomPass, OutputPass }, { CSS3DRenderer, CSS3DObject }, { ShaderPass }, { mergeGeometries }, { bindContextLoss }] = await withTimeout(Promise.all([
-    ctx.lib('three-post'),
-    import('three/addons/renderers/CSS3DRenderer.js'),
-    import('three/addons/postprocessing/ShaderPass.js'),
-    import('three/addons/utils/BufferGeometryUtils.js'),
-    import('@sayhello/engine'),
-  ]), 9000, 'tải thư viện 3D quá lâu');
   if (!ctx.opened || root.dataset.motion === 'lite') throw new Error('đã hạ mức');
-
-  const pal = palettes.find(p => p.id === root.dataset.palette) || palettes[0];
-  const P = pal.preset;
-  const cine = tier === 'cinematic';
-  const coarse = matchMedia('(pointer: coarse)').matches;
-  const V3 = THREE.Vector3, Y = new V3(0, 1, 0);
-  const MAXT = cine ? 1024 : 768;
-
-  /* ---------- Renderer ---------- */
-  const canvas = el.querySelector('.ptl-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !cine || !coarse, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: !SNAP });
-  // Máy chỉ có GPU phần mềm (SwiftShader, llvmpipe) thì cảnh 3D sẽ giật: dùng bản phẳng
-  const gl = renderer.getContext(), dbg = gl.getExtension('WEBGL_debug_renderer_info');
-  const gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-  if (!SNAP && /swiftshader|llvmpipe|software/i.test(gpu)) { renderer.dispose(); throw new Error('GPU phần mềm'); }
-
-  let alive = true, started = false, raf = 0;
-  const off = [];   // hàm gỡ listener
-  const listen = (t, type, fn, o) => { t.addEventListener(type, fn, o); off.push(() => t.removeEventListener(type, fn, o)); };
+  const life = createLife(root, ['ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-cc', 'ptl-portrait']);
 
   try {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cine ? 1.5 : 1));
-    renderer.toneMapping = THREE.NeutralToneMapping;
-    renderer.toneMappingExposure = P.exposure;
+    // Mạng chậm hay CDN bị chặn: không để khách kẹt ở màn "Đang bật đèn"
+    const T = await loadThree(ctx);
+    if (!ctx.opened || root.dataset.motion === 'lite') throw new Error('đã hạ mức');
+    root.classList.add('ptl-3d');
+    const { THREE, RoomEnvironment, CSS3DRenderer, CSS3DObject, mergeGeometries, bindContextLoss } = T;
+
+    const pal = palettes.find(p => p.id === root.dataset.palette) || palettes[0];
+    const P = pal.preset;
+    const cine = tier === 'cinematic';
+    const coarse = matchMedia('(pointer: coarse)').matches;
+    const V3 = THREE.Vector3, Y = new V3(0, 1, 0);
+    const MAXT = cine ? 1024 : 768;
+
+    /* ---------- Renderer ---------- */
+    const canvas = el.querySelector('.ptl-canvas');
+    const { renderer, gpu } = makeRenderer(THREE, canvas, { cine, coarse, snap: SNAP, exposure: P.exposure, life });
 
     const scene = new THREE.Scene();
     const voidC = new THREE.Color(P.void);
@@ -77,6 +61,8 @@ export async function runGallery(el, ctx, opts) {
     scene.add(camera);
     const cssLayer = el.querySelector('.ptl-css');
     const css = new CSS3DRenderer({ element: cssLayer });
+    life.own(() => cssLayer.replaceChildren());
+    life.own(() => disposeScene(scene));
 
     /* ---------- Kết cấu vẽ bằng canvas (không tải thêm file) ---------- */
     const canvasTex = (w, h, draw, repeat) => {
@@ -108,8 +94,6 @@ export async function runGallery(el, ctx, opts) {
       g.fillStyle = f; g.fillRect(-w, -h, 2 * w, 2 * h); g.restore();
     });
     const softTex = canvasTex(64, 64, radial(.5, .5, 1, [[0, 1], [1, 0]]));
-    // Bóng đổ mềm của khung (đèn chiếu từ trên xuống nên bóng lệch xuống dưới)
-    const shadowTex = canvasTex(128, 128, (g, w, h) => { g.filter = 'blur(10px)'; g.fillStyle = '#fff'; g.fillRect(22, 22, w - 44, h - 44); });
     const blank = new THREE.DataTexture(new Uint8Array([40, 40, 40, 255]), 1, 1); blank.needsUpdate = true;
 
     /* ---------- Điểm dừng (đọc từ HTML) ---------- */
@@ -119,7 +103,7 @@ export async function runGallery(el, ctx, opts) {
       plate: li.querySelector('.ptl-plate'), lit: 0, litAt: -1, dwell: 0, items: [], near: [],
     }));
     const n = stops.length, FIN = n - 1, finSt = stops[FIN];
-    const zEnd = -(n - 2) * STEP - 4.4, zStart = 5, LEN = zStart - zEnd, zMid = (zStart + zEnd) / 2;
+    const zEnd = -(n - 1) * STEP - 4.5, zStart = 7, LEN = zStart - zEnd, zMid = (zStart + zEnd) / 2;
     const lightC = new THREE.Color(P.light), washC = new THREE.Color(P.wash);
 
     /* ---------- Phòng ---------- */
@@ -155,9 +139,6 @@ export async function runGallery(el, ctx, opts) {
     const torch = new THREE.SpotLight(new THREE.Color('#fff4e4'), 0, 0, .16, .55, 2); scene.add(torch, torch.target);
 
     /* ---------- Shader ---------- */
-    const TAIL = `
-      #include <tonemapping_fragment>
-      #include <colorspace_fragment>`;
     const printVS = `varying vec2 vUv; varying vec3 vW; varying vec3 vN; varying vec3 vV;
       void main(){ vUv=uv; vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; vN=normalize(mat3(modelMatrix)*normal); vV=normalize(cameraPosition-w.xyz); gl_Position=projectionMatrix*viewMatrix*w; }`;
     // Ảnh in: vùng sáng của đèn rọi (sáng ở 4/5 chiều cao, tối dần ra góc dưới), đèn pin, kính phản chiếu
@@ -172,7 +153,7 @@ export async function runGallery(el, ctx, opts) {
         float fres=pow(max(1.-abs(dot(normalize(vN),normalize(vV))),0.),3.);
         float band=smoothstep(.07,0.,abs(vUv.x*.8+vUv.y*.55-uGlint));
         col+=vec3(1.,.97,.92)*(band*.025+fres*.04)*(uLit+uEmit+.12);
-        gl_FragColor=vec4(col,uOp);${TAIL}
+        gl_FragColor=vec4(col,uOp);${SHADER_TAIL}
       }`;
     const printMat = transparent => new THREE.ShaderMaterial({
       uniforms: { map: { value: blank }, uLit: { value: 0 }, uSpot: { value: 1 }, uTorch: { value: new V3(0, -99, 0) }, uTorchI: { value: 0 }, uGlint: { value: .7 }, uOp: { value: 1 }, uEmit: { value: 0 } },
@@ -183,7 +164,7 @@ export async function runGallery(el, ctx, opts) {
       uniforms: { map: { value: blank }, uOp: { value: 0 } },
       vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
       fragmentShader: `uniform sampler2D map; uniform float uOp; varying vec2 vUv;
-        void main(){ vec3 c=texture2D(map,vec2(1.-vUv.x,vUv.y*.9),5.).rgb; float a=uOp*pow(max(1.-vUv.y,0.),3.5)*smoothstep(0.,.18,vUv.x)*smoothstep(1.,.82,vUv.x); gl_FragColor=vec4(c*a,1.);${TAIL} }`,
+        void main(){ vec3 c=texture2D(map,vec2(1.-vUv.x,vUv.y*.9),5.).rgb; float a=uOp*pow(max(1.-vUv.y,0.),3.5)*smoothstep(0.,.18,vUv.x)*smoothstep(1.,.82,vUv.x); gl_FragColor=vec4(c*a,1.);${SHADER_TAIL} }`,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     });
     const beamMat = () => new THREE.ShaderMaterial({
@@ -191,7 +172,7 @@ export async function runGallery(el, ctx, opts) {
       vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vV;
         void main(){ vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`,
       fragmentShader: `uniform float uOp; uniform vec3 uC; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
-        void main(){ float edge=pow(abs(dot(vN,vV)),2.2); float a=uOp*edge*(.25+.75*vUv.y)*smoothstep(.05,.8,vUv.y); gl_FragColor=vec4(uC*a,1.);${TAIL} }`,
+        void main(){ float edge=pow(abs(dot(vN,vV)),2.2); float a=uOp*edge*(.25+.75*vUv.y)*smoothstep(.05,.8,vUv.y); gl_FragColor=vec4(uC*a,1.);${SHADER_TAIL} }`,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
     });
 
@@ -247,13 +228,8 @@ export async function runGallery(el, ctx, opts) {
 
     for (const st of stops) {
       const g = new THREE.Group();
-      if (st.k === FIN) { g.position.set(0, HANG + .3, zStart - .01); g.rotation.y = Math.PI; }
-      else if (st.hang === 'wire') { g.position.set(0, HANG + .15, -st.k * STEP); }
-      else {
-        st.side = st.k % 2 === 0 ? -1 : 1;
-        g.position.set(st.side * (HALF - .01), HANG, -st.k * STEP);
-        g.rotation.y = st.side < 0 ? Math.PI / 2 : -Math.PI / 2;
-      }
+      g.position.set(0, st.k === FIN ? HANG + .15 : HANG, -st.k * STEP);
+      g.rotation.y = 0;
       scene.add(g); st.g = g; g.updateMatrixWorld();
       st.normal = new V3(0, 0, 1).applyQuaternion(g.quaternion);
 
@@ -271,15 +247,9 @@ export async function runGallery(el, ctx, opts) {
         if (wire) {
           item.fMat = frameMat.clone(); item.fMat.transparent = true;
           item.mMat = matMat.clone(); item.mMat.transparent = true;
-          item.back = plane(1, 1, new Std({ color: '#7b6c58', transparent: true })); item.back.rotation.y = Math.PI; item.back.position.z = -.002; ig.add(item.back);
-        } else {
-          // Bóng đổ mềm của khung
-          // Bóng đổ hai lớp: sát khung (đậm) và loang rộng (nhạt); đèn chiếu từ trên nên lệch xuống
-          item.shadow = plane(1, 1, new THREE.MeshBasicMaterial({ map: shadowTex, color: '#000', transparent: true, opacity: .55, depthWrite: false }));
-          item.shadow.position.set(0, -.02, .002); ig.add(item.shadow);
-          item.shadow2 = plane(1, 1, new THREE.MeshBasicMaterial({ map: shadowTex, color: '#000', transparent: true, opacity: .25, depthWrite: false }));
-          item.shadow2.position.set(0, -.09, .001); ig.add(item.shadow2);
         }
+        item.back = plane(1, 1, new Std({ color: wire ? '#7b6c58' : '#1b1a18', ...(wire ? { transparent: true } : {}) }));
+        item.back.rotation.y = Math.PI; item.back.position.z = -.002; ig.add(item.back);
         if (st.hang !== 'salon' && !wire) { // bóng ảnh trên sàn
           item.refl = new THREE.Mesh(new THREE.PlaneGeometry(1, 1.5), reflMat());
           item.refl.rotation.order = 'YXZ';
@@ -289,17 +259,15 @@ export async function runGallery(el, ctx, opts) {
         setSize(item, .75);
       }
 
-      // Đèn rọi trên trần, vệt sáng tường + sàn, chùm sáng (trừ hộp đèn tự phát sáng)
+      // Đèn rọi trên trần, vệt sáng sàn, chùm sáng (trừ hộp đèn tự phát sáng)
       if (st.hang !== 'lightbox') {
         const wide = st.hang === 'salon' ? 2 : st.hang === 'hero' ? 1.9 : st.kind === 'work' ? 1 : 1.5;
-        const wallPos = g.localToWorld(new V3(0, .32, .004));
-        pools.push({ k: st.k, wt: st.kind === 'work' || st.k === FIN ? .36 : .28, m: new THREE.Matrix4().compose(wallPos, g.quaternion, new V3(2.1 * wide + (st.kind === 'work' ? 0 : .8), 2.6, 1)) });
         if (st.hang !== 'wire') {
           const fp = g.position.clone().addScaledVector(st.normal, .9 + (st.k === FIN ? .4 : 0)).setY(.004);
           q4.setFromEuler(new THREE.Euler(-Math.PI / 2, Math.atan2(-st.normal.x, -st.normal.z), 0, 'YXZ'));
           pools.push({ k: st.k, wt: st.k === FIN ? .05 : .07, m: new THREE.Matrix4().compose(fp, q4, new V3(1.6 * wide, 2.6, 1)) });
         }
-        const fixPos = st.hang === 'wire' ? g.position.clone().add(new V3(0, 0, 1.3)).setY(H - .2) : g.position.clone().addScaledVector(st.normal, 1.25).setY(H - .2);
+        const fixPos = g.position.clone().addScaledVector(st.normal, 1.3).setY(H - .2);
         const aim = g.position.clone().setY(g.position.y + .1);
         const look = new THREE.Object3D(); look.position.copy(fixPos); look.lookAt(aim); look.rotateX(Math.PI / 2); look.updateMatrix();
         const can = new THREE.CylinderGeometry(.07, .09, .24, 14); can.applyMatrix4(look.matrix); statics.push(can);
@@ -314,9 +282,6 @@ export async function runGallery(el, ctx, opts) {
         const bdir = beamEnd.clone().sub(fixPos).normalize(), bu = new V3().crossVectors(bdir, Math.abs(bdir.y) > .9 ? new V3(1, 0, 0) : Y).normalize();
         st.bm = { fix: fixPos, dir: bdir, len, rad: .5 * wide, u: bu, v: new V3().crossVectors(bdir, bu), end: beamEnd };
         Object.assign(st, { fixPos, aim });
-      } else {
-        // Hộp đèn: quầng sáng quanh hộp thay cho đèn rọi
-        pools.push({ k: st.k, wt: .3, m: new THREE.Matrix4().compose(g.localToWorld(new V3(0, 0, .004)), g.quaternion, new V3(3.4, 3.4, 1)) });
       }
       if (st.hang === 'wire') { // hai sợi dây treo lên trần
         for (const sx of [-.45, .45]) { const c = new THREE.CylinderGeometry(.003, .003, H - HANG - .9, 4); c.translate(sx, (H + HANG + .9) / 2, -st.k * STEP); statics.push(c); }
@@ -336,8 +301,6 @@ export async function runGallery(el, ctx, opts) {
         else { item.mat = new THREE.Mesh(fg.mat, item.mMat || matMat); item.ig.add(item.mat); }
       }
       item.W = fg.W; item.Hh = fg.Hh;
-      item.shadow?.scale.set(fg.W + .08, fg.Hh + .08, 1);
-      item.shadow2?.scale.set(fg.W + .3, fg.Hh + .3, 1);
       item.back?.scale.set(fg.W, fg.Hh, 1);
       if (item.refl) {
         item.refl.scale.set(fg.W * 1.05, 1, 1);
@@ -348,7 +311,7 @@ export async function runGallery(el, ctx, opts) {
 
     // Vệt sáng, ống kính đèn: InstancedMesh, màu từng bản = cường độ
     const black = new THREE.Color(0, 0, 0);
-    const poolMesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: poolTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }), pools.length);
+    const poolMesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: poolTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }), Math.max(1, pools.length));
     pools.forEach((p, i) => { poolMesh.setMatrixAt(i, p.m); poolMesh.setColorAt(i, black); });
     poolMesh.frustumCulled = false; scene.add(poolMesh);
     const lensMesh = new THREE.InstancedMesh(new THREE.CircleGeometry(.075, 16), new THREE.MeshBasicMaterial(), Math.max(1, lenses.length));
@@ -359,7 +322,7 @@ export async function runGallery(el, ctx, opts) {
     const LAMPS = 12;
     const bulbMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(.045, 12, 10), new THREE.MeshBasicMaterial(), LAMPS);
     const lamps = Array.from({ length: LAMPS }, (_, i) => {
-      const x = -2.75 + i * (5.5 / (LAMPS - 1)), drop = .5 + ((i * 37) % 5) * .12, z = zStart - 1.3;
+      const x = -2.75 + i * (5.5 / (LAMPS - 1)), drop = .5 + ((i * 37) % 5) * .12, z = -FIN * STEP + 1.8;
       const c = new THREE.CylinderGeometry(.003, .003, drop, 4); c.translate(x, H - drop / 2, z); statics.push(c);
       bulbMesh.setMatrixAt(i, m4.makeTranslation(x, H - drop - .045, z)); bulbMesh.setColorAt(i, black);
       return { at: -1 };
@@ -368,9 +331,6 @@ export async function runGallery(el, ctx, opts) {
     let litLamps = 0, animUntil = 0;
     const lightLamps = (count, at) => { while (litLamps < Math.min(LAMPS, count)) { lamps[litLamps++].at = at; animUntil = Math.max(animUntil, at + 1); } };
 
-    // Bục đặt bảng chữ cuối phòng (đứng giữa lối đi, nhìn về phía bức chính)
-    const signPos = new V3(0, 1.32, zEnd + 3.1);
-    box(.46, .72, .22, 0, .36, zEnd + 3.12);
     // Dải tối sát chân tường: neo tường xuống sàn (thay cho AO)
     const aoTex = canvasTex(8, 64, (g, w, h) => { const r = g.createLinearGradient(0, 0, 0, h); r.addColorStop(0, 'rgba(0,0,0,.6)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); });
     for (const sx of [-1, 1]) {
@@ -393,29 +353,14 @@ export async function runGallery(el, ctx, opts) {
 
     /* ---------- Chữ trên tường: bản sao DOM trong CSS3D ---------- */
     const plates = [];
-    const cloneInto = (src, cls) => {
-      const c = src.cloneNode(true);
-      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
-      c.querySelectorAll('a, button').forEach(x => x.setAttribute('tabindex', '-1'));
-      const wrap = document.createElement('div'); wrap.className = 'ptl-c ' + cls; wrap.append(c);
-      const obj = new CSS3DObject(wrap); obj.scale.setScalar(PX);
-      return { obj, cel: wrap, last: -1 };
-    };
     for (const st of stops) {
       if (!st.plate) continue;
-      const pl = cloneInto(st.plate, 'ptl-c-' + st.kind);
-      if (st.k === FIN) { pl.obj.position.copy(signPos); pl.obj.rotation.y = Math.PI; scene.add(pl.obj); pl.sign = true; }
-      else st.g.add(pl.obj);
+      const pl = clonePlate(CSS3DObject, st.plate, 'ptl-c ptl-c-' + st.kind, PX);
+      st.g.add(pl.obj);
       pl.st = st; st.pl = pl; plates.push(pl);
     }
-    // Nhãn của bức chính (hiện sau màn chào)
-    const heroSrc = document.createElement('div'); heroSrc.className = 'ptl-plate ptl-label';
-    heroSrc.innerHTML = '<b></b><small>Tác phẩm chính, Số 1</small>';
-    heroSrc.querySelector('b').textContent = finSt.plate?.querySelector('h2')?.textContent || '';
-    const heroPl = cloneInto(heroSrc, 'ptl-c-work'); heroPl.hero = true; heroPl.st = finSt; plates.push(heroPl);
-    if (finSt.items.length) finSt.g.add(heroPl.obj);
     // Link "#le-tan" trong cảnh 3D: cuộn tới quầy lễ tân
-    listen(cssLayer, 'click', e => {
+    life.listen(cssLayer, 'click', e => {
       const a = e.target.closest('a[href^="#"]'); if (!a) return;
       e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
     });
@@ -445,7 +390,7 @@ export async function runGallery(el, ctx, opts) {
           for(int i=0;i<7;i++){ float fi=float(i); vec2 p=vec2(h(vec2(fi,1.)),fract(h(vec2(fi,2.))+uT*.012*(1.+fi*.2))); p+=uTilt*(.04+.02*fi);
             vec2 q=(vUv-p)*vec2(uA,1.); c+=vec3(1.,.86,.66)*.08*smoothstep(.07+.012*fi,.0,length(q)); }
           c*=mix(.55,1.,smoothstep(.95,.3,length(vUv-.5)));
-          gl_FragColor=vec4(c,uOp);${TAIL}
+          gl_FragColor=vec4(c,uOp);${SHADER_TAIL}
         }`,
       transparent: true, depthTest: false, depthWrite: false,
     });
@@ -464,7 +409,7 @@ export async function runGallery(el, ctx, opts) {
       if (need) document.addEventListener('touchmove', blockMove, { passive: false });
       else document.removeEventListener('touchmove', blockMove, { passive: false });
     };
-    off.push(() => document.removeEventListener('touchmove', blockMove, { passive: false }));
+    life.own(() => document.removeEventListener('touchmove', blockMove, { passive: false }));
 
     function enter(item) {
       if (inside.dir || inside.item || !item.tex) return;
@@ -472,9 +417,9 @@ export async function runGallery(el, ctx, opts) {
       const u = insideMat.uniforms;
       u.map.value = item.tex; u.uIA.value = item.aspect; u.uMix.value = 0;
       insideQuad.visible = true; root.classList.add('ptl-inside'); syncTouch();
-      outBtn.tabIndex = 0; setTimeout(() => alive && outBtn.focus({ preventScroll: true }), 900);
+      outBtn.tabIndex = 0; setTimeout(() => life.alive && outBtn.focus({ preventScroll: true }), 900);
     }
-    function leave() { if (inside.item && inside.dir !== -1) inside.dir = -1; }
+    function leave() { if (inside.item && inside.dir !== -1) { inside.dir = -1; look.dx = look.dy = 0; } }
     function swipe(dir) { // xem ảnh kế tiếp ngay trong chế độ toàn màn hình
       if (!inside.item || inside.dir) return;
       let v = inside.view;
@@ -484,8 +429,8 @@ export async function runGallery(el, ctx, opts) {
       if (u.uMix.value > .5) { u.map.value = u.map2.value; u.uIA.value = u.uIA2.value; }
       u.map2.value = it.tex; u.uIA2.value = it.aspect; u.uMix.value = 0; inside.mixT = 0; inside.view = v;
     }
-    listen(outBtn, 'click', leave);
-    listen(document, 'keydown', e => {
+    life.listen(outBtn, 'click', leave);
+    life.listen(document, 'keydown', e => {
       if (!inside.item) return;
       if (e.key === 'Escape') leave(); else if (e.key === 'ArrowRight') swipe(1); else if (e.key === 'ArrowLeft') swipe(-1);
     });
@@ -499,86 +444,30 @@ export async function runGallery(el, ctx, opts) {
       cc.t = 0; root.classList.add('ptl-cc'); syncTouch(); clickSound(.8);
     }
     for (const b of [el.querySelector('.ptl-track [data-sh-allon]'), finSt.pl?.cel.querySelector('[data-sh-allon]')].filter(Boolean)) {
-      listen(b, 'pointerdown', e => { e.stopPropagation(); cc.holding = true; dirty = true; });
-      for (const t of ['pointerup', 'pointerleave', 'pointercancel']) listen(b, t, () => { cc.holding = false; });
-      listen(b, 'click', e => { if (e.detail === 0) curtain(); }); // bàn phím, trình đọc màn hình
+      life.listen(b, 'pointerdown', e => { e.stopPropagation(); cc.holding = true; dirty = true; });
+      for (const t of ['pointerup', 'pointerleave', 'pointercancel']) life.listen(b, t, () => { cc.holding = false; });
+      life.listen(b, 'click', e => { if (e.detail === 0) curtain(); }); // bàn phím, trình đọc màn hình
     }
 
     /* ---------- Tải ảnh: giải mã ngoài luồng chính, mỗi khung hình chỉ đưa lên GPU một ảnh ---------- */
-    const ua = navigator.userAgent;
-    const appleWebKit = /iPhone|iPad|iPod/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua));
-    async function decode(src) {
-      if (!appleWebKit && 'createImageBitmap' in window) {
-        try {
-          const blob = await (await fetch(src)).blob();
-          const probe = await createImageBitmap(blob);
-          const s = Math.min(1, MAXT / Math.max(probe.width, probe.height));
-          const w = Math.round(probe.width * s), h = Math.round(probe.height * s);
-          probe.close?.();
-          const bmp = await createImageBitmap(blob, { resizeWidth: w, resizeHeight: h, resizeQuality: 'high', imageOrientation: 'flipY' });
-          return { image: bmp, w, h, flipY: false };
-        } catch {}
-      }
-      const im = new Image(); im.crossOrigin = 'anonymous'; im.decoding = 'async'; im.src = src; await im.decode();
-      const s = Math.min(1, MAXT / Math.max(im.naturalWidth, im.naturalHeight));
-      const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
-      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-      return { image: c, w: c.width, h: c.height, flipY: true };
-    }
-    const uploads = [];
-    async function loadItem(item) {
-      const d = await decode(item.w.src);
-      if (!alive) { d.image.close?.(); return; }
-      const tex = new THREE.Texture(d.image);
-      tex.flipY = d.flipY; tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-      tex.needsUpdate = true;
-      uploads.push({ item, tex, aspect: d.w / d.h });
-    }
-    // Ảnh gần lối vào trước, bức chính sau cùng
+    const loader = createPhotoLoader(THREE, renderer, { maxTex: MAXT, life });
     const order = allItems.filter(it => it.st.k !== FIN).concat(allItems.filter(it => it.st.k === FIN));
-    const loading = (async () => { for (const it of order) { if (!alive) return; try { await loadItem(it); } catch { console.warn('[phòng tranh] không tải được ảnh', it.w.src); } } })();
+    const loading = loader.loadAll(order, it => it.w.src, (it, tex, a) => {
+      it.tex = tex; it.pm.uniforms.map.value = tex;
+      if (it.refl) it.refl.material.uniforms.map.value = tex;
+      setSize(it, a); placeStop(it.st); dirty = true;
+    });
 
     /* ---------- Hậu kỳ ---------- */
-    let composer = null, grade = null;
-    if (cine) {
-      const ext = renderer.extensions;
-      const type = ext.has('EXT_color_buffer_float') || ext.has('EXT_color_buffer_half_float') ? THREE.HalfFloatType : THREE.UnsignedByteType;
-      composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type, samples: coarse ? 0 : 4 }));
-      composer.addPass(new RenderPass(scene, camera));
-      // Ngưỡng 1,6: chỉ ống kính đèn và bóng đèn mới loá, ảnh cưới giữ nguyên màu
-      composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), P.bloom, .6, 1.6));
-      composer.addPass(new OutputPass());
-      grade = new ShaderPass({
-        uniforms: { tDiffuse: { value: null }, uT: { value: 0 }, uGrain: { value: .03 }, uVig: { value: .32 }, uAsp: { value: 1 } },
-        vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-        // Chỉnh màu nhẹ, an toàn cho ảnh: đường cong S mềm, vai sáng không cháy, chỉ vùng tối ngả lạnh, đen kiểu phim
-        fragmentShader: `uniform sampler2D tDiffuse; uniform float uT,uGrain,uVig,uAsp; varying vec2 vUv;
-          void main(){ vec3 c=texture2D(tDiffuse,vUv).rgb;
-            c=mix(c,c*c*(3.-2.*c),.14);
-            vec3 k=max(c-.82,0.); c=c-k+k/(1.+k*3.);
-            float l=dot(c,vec3(.2126,.7152,.0722));
-            c=mix(c+vec3(-.004,.006,.012),c,smoothstep(.02,.18,l));
-            c=vec3(.014,.016,.018)+c*.986;
-            vec2 q=(vUv-.5)*vec2(uAsp,1.); c*=mix(1.,smoothstep(1.05,.3,length(q)),uVig);
-            float nz=fract(sin(dot(vUv*vec2(1271.3,947.7)+fract(uT)*91.,vec2(12.9898,78.233)))*43758.5453);
-            c+=(nz-.5)*uGrain*(.5+.5*(1.-l)); gl_FragColor=vec4(c,1.); }`,
-      });
-      composer.addPass(grade);
-    }
+    let post = cine ? createPost(T, renderer, scene, camera, { bloom: P.bloom, threshold: 1.6, radius: .6, coarse }) : null;
+    life.own(() => post?.dispose());
 
     /* ---------- Bố cục theo màn hình ---------- */
-    let W = 0, Hh = 0, aspect = 1, offsets = [], tanV = .4, portrait = false, dirty = true;
-    // Đo bảng chữ kể cả khi đang ẩn (CSS3DRenderer ẩn bằng display:none khi đối tượng không hiện)
-    const plateSize = pl => {
-      if (!pl) return [0, 0];
-      const prev = pl.cel.style.display; pl.cel.style.display = '';
-      const r = [pl.cel.offsetWidth * PX, pl.cel.offsetHeight * PX];
-      pl.cel.style.display = prev; return r;
-    };
-    const measure = () => { offsets = stops.map(s => s.li.getBoundingClientRect().top + scrollY); };
-    let barT = 0;
+    const scrollMap = scrollStops(stops.map(s => s.li));
+    let W = 0, Hh = 0, aspect = 1, portrait = false, dirty = true, barT = 0;
+    life.own(() => clearTimeout(barT));
     function resize(force) {
-      if (!alive) return;
+      if (!life.alive) return;
       const w = innerWidth, h = innerHeight;
       if (!force && w === W && h === Hh) return;
       if (!force && barOnly(w, h, W, Hh)) {
@@ -589,8 +478,7 @@ export async function runGallery(el, ctx, opts) {
       const widthChanged = w !== W;
       W = w; Hh = h; aspect = W / Hh;
       camera.fov = aspect < 1 ? 56 : 44; camera.aspect = aspect; camera.updateProjectionMatrix();
-      tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-      renderer.setSize(W, Hh, false); css.setSize(W, Hh); composer?.setSize(W, Hh); if (grade) grade.uniforms.uAsp.value = aspect;
+      renderer.setSize(W, Hh, false); css.setSize(W, Hh); post?.setSize(W, Hh);
       const wasPortrait = portrait;
       portrait = aspect < .9;
       root.classList.toggle('ptl-portrait', portrait); // đổi khổ chữ trước khi đo
@@ -598,43 +486,52 @@ export async function runGallery(el, ctx, opts) {
         const l = it.lay?.[portrait ? 1 : 0] || it.lay?.[0]; if (!l) continue;
         Object.assign(it, { x: l[0], y: l[1], maxH: l[2], maxW: l[3] }); it.ig.position.set(l[0], l[1], 0); setSize(it, it.aspect);
       }
-      if (widthChanged || force) { stops.forEach(placeStop); measure(); }
+      if (widthChanged || force) { stops.forEach(placeStop); scrollMap.measure(); }
       dirty = true;
     }
-    const ANG = { single: 22, salon: 0, wire: 0, lightbox: 0, hero: 0 };
+    const ANG = { single: 0, salon: 0, wire: 0, lightbox: 0, hero: 0 };
     function placeStop(st) {
-      // Khung cần thấy trọn (toạ độ của bức tường), nhãn đặt cạnh hoặc dưới
+      // Khung cần thấy trọn, nhãn đặt cạnh hoặc dưới; mọi khung nhìn thẳng êm mắt
       let x0 = 0, x1 = 0, y0 = 0, y1 = 0, ang = 0, fill = .82;
       if (st.items.length) {
         x0 = Math.min(...st.items.map(i => i.x - i.W / 2)); x1 = Math.max(...st.items.map(i => i.x + i.W / 2));
         y0 = Math.min(...st.items.map(i => i.y - i.Hh / 2)); y1 = Math.max(...st.items.map(i => i.y + i.Hh / 2));
-        const pl = st.k === FIN ? heroPl : st.pl, [lw, lh] = plateSize(pl);
+        const pl = st.pl, [lw, lh] = pl ? pl.size() : [0, 0];
         if (pl) {
-          if (portrait) { pl.obj.position.set(x0 + lw / 2, y0 - .14 - lh / 2, .02); y0 -= .14 + lh; }
-          else { pl.obj.position.set(x1 + .12 + lw / 2, y0 + lh / 2, .02); x1 += .12 + lw; }
+          if (portrait || st.k === FIN) {
+            if (portrait) {
+              pl.obj.position.set(st.k === FIN ? 0 : x0 + lw / 2, y0 - .16 - lh / 2, .03);
+              y0 -= .16 + lh;
+              if (st.k === FIN) { x0 = Math.min(x0, -lw / 2); x1 = Math.max(x1, lw / 2); }
+            } else {
+              pl.obj.position.set(x1 + .18 + lw / 2, st.k === FIN ? (y0 + y1) / 2 : y0 + lh / 2, .03);
+              x1 += .18 + lw;
+              if (st.k === FIN) { const cy = (y0 + y1) / 2; y0 = Math.min(y0, cy - lh / 2); y1 = Math.max(y1, cy + lh / 2); }
+            }
+          } else {
+            pl.obj.position.set(x1 + .12 + lw / 2, y0 + lh / 2, .02);
+            x1 += .12 + lw;
+          }
         }
-        ang = ANG[st.hang] ?? 10; fill = st.hang === 'hero' ? .92 : st.hang === 'single' ? .72 : st.hang === 'salon' ? .76 : .84;
-      } else if (st.pl && !st.pl.sign) {
-        const [pw, ph] = plateSize(st.pl);
+        ang = ANG[st.hang] ?? 0; fill = st.hang === 'hero' ? .88 : st.hang === 'single' ? .72 : st.hang === 'salon' ? .76 : .84;
+      } else if (st.pl) {
+        const [pw, ph] = st.pl.size();
         st.pl.obj.position.set(0, .15, .01);
         x0 = -pw / 2; x1 = pw / 2; y0 = .15 - ph / 2; y1 = .15 + ph / 2;
-        ang = st.kind === 'text' ? 8 : 0; // tường tên nhìn thẳng
+        ang = 0;
       }
-      if (portrait) ang /= 2;
       // Ống kính dài khi đứng trước tác phẩm (phẳng, sang), rộng hơn cho tường chữ và lúc đi trong hành lang
       st.fov = st.items.length && st.hang !== 'salon' ? (portrait ? 50 : 37) : portrait ? 54 : 44;
       const tanS = Math.tan(THREE.MathUtils.degToRad(st.fov / 2));
       const bw = Math.max(.5, x1 - x0), bh = Math.max(.5, y1 - y0), a = THREE.MathUtils.degToRad(ang);
       let d = Math.max(bh / (fill * 2 * tanS), bw * Math.cos(a) / (fill * 2 * tanS * aspect)) + .05;
       const target = st.g.localToWorld(new V3((x0 + x1) / 2, (y0 + y1) / 2, 0));
-      let dir = st.normal.clone();
-      if (a) { const d1 = dir.clone().applyAxisAngle(Y, a), d2 = dir.clone().applyAxisAngle(Y, -a); dir = d1.z >= d2.z ? d1 : d2; } // chếch về phía vừa đi qua
-      if (st.k !== FIN && st.hang !== 'wire') d = Math.min(d, (HALF * 2 - .4) / Math.max(.3, Math.abs(dir.x)));
+      const dir = st.normal.clone();
       const cam = target.clone().addScaledVector(dir, d);
       cam.x = clamp(cam.x, -HALF + .3, HALF - .3); cam.y = clamp(cam.y, 1.15, 2.4);
       if (st.k === FIN) {
         st.closeCam = cam; st.closeTarget = target;
-        st.longCam = new V3(0, 1.72, zEnd + (portrait ? .7 : 1.3)); st.longTarget = new V3(0, HANG + .45, zStart);
+        st.longCam = new V3(0, HANG + .15, -FIN * STEP + 6.2); st.longTarget = target;
         st.cam = cc.done || !st.items.length ? cam : st.longCam; st.target = cc.done || !st.items.length ? target : st.longTarget;
       } else { st.cam = cam; st.target = target; }
     }
@@ -642,18 +539,15 @@ export async function runGallery(el, ctx, opts) {
     /* ---------- Điều khiển: cuộn, nhìn quanh, chạm, giữ để rọi, vuốt trong ảnh ---------- */
     let pT = 0, p = 0;
     const readScroll = () => {
-      const y = scrollY;
-      let k = 0; while (k < n - 1 && y >= offsets[k + 1]) k++;
-      const span = k < n - 1 ? offsets[k + 1] - offsets[k] : innerHeight;
-      pT = clamp(k + (y - (offsets[k] || 0)) / (span || 1), 0, n - 1);
-      if (y > 40) el.classList.remove('show-hint');
+      pT = scrollMap.read();
+      if (scrollY > 40) el.classList.remove('show-hint');
     };
     const look = { x: 0, y: 0, sx: 0, sy: 0, dx: 0, dy: 0 };
-    listen(window, 'pointermove', e => { if (e.pointerType === 'mouse') { look.x = e.clientX / W * 2 - 1; look.y = e.clientY / Hh * 2 - 1; } }, { passive: true });
+    life.listen(window, 'pointermove', e => { if (e.pointerType === 'mouse') { look.x = clamp((e.clientX || 0) / Math.max(1, W) * 2 - 1, -1, 1); look.y = clamp((e.clientY || 0) / Math.max(1, Hh) * 2 - 1, -1, 1); } }, { passive: true });
     let base = null;
     const orient = () => screen.orientation?.angle ?? window.orientation ?? 0;
-    listen(window, 'deviceorientation', e => {
-      if (e.gamma == null) return;
+    life.listen(window, 'deviceorientation', e => {
+      if (e.gamma == null || e.beta == null) return;
       const a = orient();
       let gx = e.gamma, gy = e.beta;
       if (a === 90) { gx = e.beta; gy = -e.gamma; } else if (a === -90 || a === 270) { gx = -e.beta; gy = e.gamma; }
@@ -664,18 +558,18 @@ export async function runGallery(el, ctx, opts) {
       if (Math.abs(nx - look.x) < .008 && Math.abs(ny - look.y) < .008) return;
       look.x = nx; look.y = ny;
     });
-    listen(window, 'orientationchange', () => { base = null; setTimeout(() => { resize(true); readScroll(); }, 350); });
+    life.listen(window, 'orientationchange', () => { base = null; setTimeout(() => { resize(true); readScroll(); }, 350); });
 
     let down = null, torchOn = false;
     const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
     const toNdc = (x, y) => { const r = canvas.getBoundingClientRect(); return ndc.set((x - r.left) / r.width * 2 - 1, -((y - r.top) / r.height) * 2 + 1); };
     const shown = m => m.visible && m.parent.visible && m.parent.parent?.visible !== false;
     const hitPrint = (x, y) => { ray.setFromCamera(toNdc(x, y), camera); return ray.intersectObjects(prints.filter(shown), false)[0]; };
-    listen(canvas, 'pointerdown', e => { down = { x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY, t: performance.now(), id: e.pointerId }; dirty = true; });
-    listen(canvas, 'pointermove', e => {
+    life.listen(canvas, 'pointerdown', e => { down = { x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY, t: performance.now(), id: e.pointerId }; dirty = true; });
+    life.listen(canvas, 'pointermove', e => {
       if (!down || e.pointerId !== down.id) return;
       down.cx = e.clientX; down.cy = e.clientY;
-      if (inside.item) { look.dx = clamp((e.clientX - down.x) / W * 3, -1.4, 1.4); look.dy = clamp((e.clientY - down.y) / Hh * 3, -1.4, 1.4); }
+      if (inside.item && inside.dir >= 0) { look.dx = clamp((e.clientX - down.x) / Math.max(1, W) * 3, -1.4, 1.4); look.dy = clamp((e.clientY - down.y) / Math.max(1, Hh) * 3, -1.4, 1.4); }
     });
     const endPress = e => {
       if (!down) return;
@@ -690,33 +584,33 @@ export async function runGallery(el, ctx, opts) {
       }
       if (still && quick && !wasTorch) { const h = hitPrint(e.clientX, e.clientY); if (h) enter(h.object.userData.item); }
     };
-    listen(canvas, 'pointerup', endPress); listen(canvas, 'pointercancel', endPress);
-    listen(window, 'scroll', readScroll, { passive: true });
+    life.listen(canvas, 'pointerup', endPress); life.listen(canvas, 'pointercancel', endPress);
+    life.listen(window, 'scroll', readScroll, { passive: true });
     let rz = 0;
-    listen(window, 'resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { resize(false); readScroll(); }); });
+    life.own(() => cancelAnimationFrame(rz));
+    life.listen(window, 'resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { resize(false); readScroll(); }); });
 
     /* ---------- Sự kiện thiệp: lời chúc, giữ chỗ, chấm đỏ ---------- */
     let now = performance.now() / 1000;
     lightLamps(Math.min(LAMPS - 1, ctx.wishes.length), now);
-    ctx.on('wishes', list => { if (alive) { lightLamps(Math.min(LAMPS - 1, list.length), now); dirty = true; } });
+    ctx.on('wishes', list => { if (life.alive) { lightLamps(Math.min(LAMPS - 1, list.length), now); dirty = true; } });
     ctx.on('reddot', ({ i }) => {
-      if (!alive) return;
+      if (!life.alive) return;
       lightLamps(litLamps + 1, now);
       const it = allItems.find(x => x.w.i === i) || allItems[0]; if (!it) return;
       const dot = new THREE.Mesh(new THREE.CircleGeometry(.028, 20), new THREE.MeshBasicMaterial({ color: '#d23a2a' }));
       dot.position.set(it.W / 2 + .07, -it.Hh / 2 + .06, .012); it.ig.add(dot);
       it.dot = { mesh: dot, at: now }; animUntil = Math.max(animUntil, now + .6);
     });
-    ctx.on('allon', () => alive && curtain());
-    ctx.on('motion', m => { if (m?.motion === 'lite') teardown(); });
+    ctx.on('allon', () => life.alive && curtain());
+    ctx.on('motion', m => { if (m?.motion === 'lite') life.teardown(); });
 
     /* ---------- Vòng vẽ ---------- */
     const cur = { pos: new V3(), look: new V3(), init: false };
     const want = new V3(), wantL = new V3(), tmp = new V3(), tmpC = new THREE.Color();
     const rail = { el: el.querySelector('.ptl-rail i'), last: -1 };
-    let last = performance.now();
     // Canh FPS dùng chung: chỉ đo quãng vẽ liên tục (đứng ngắm tranh hay chuyển app không bị tính là máy chậm)
-    const guard = fpsGuard({ disabled: SNAP, onSlow: () => { if (!composer) return; composer.dispose(); composer = null; grade = null; renderer.setPixelRatio(1); resize(true); }, onTooSlow: () => { teardown(); ctx.downgrade('fps'); } });
+    const guard = fpsGuard({ disabled: SNAP, onSlow: () => { if (!post) return; post.dispose(); post = null; renderer.setPixelRatio(1); resize(true); }, onTooSlow: () => { life.teardown(); ctx.downgrade('fps'); } });
     const torchTargets = () => roomMeshes.concat(prints.filter(shown));
 
     function lightOf(st) {
@@ -724,33 +618,26 @@ export async function runGallery(el, ctx, opts) {
       return cc.t < .8 ? st.lit * clamp(1 - cc.t / .4) : flicker((cc.t - ccOn(st.k)) / 1.0);
     }
 
-    function frame(t) {
-      if (!alive) return;
-      raf = requestAnimationFrame(frame);
-      const dt = Math.min(.1, (t - last) / 1000); last = t; now = t / 1000;
+    function frame(t, dt) {
+      now = t / 1000;
 
       // Có gì cần vẽ lại không? Đứng yên thì nghỉ cho đỡ tốn pin
-      const busy = dirty || uploads.length || Math.abs(pT - p) > 1e-4 || now < animUntil || inside.dir || inside.item || down || cc.t >= 0 || cc.holding || cc.hold > 0
+      const busy = dirty || loader.pending || Math.abs(pT - p) > 1e-4 || now < animUntil || inside.dir || inside.item || down || cc.t >= 0 || cc.holding || cc.hold > 0
         || (p > FIN - .05 && !cc.done) || Math.abs(look.x + look.dx - look.sx) + Math.abs(look.y + look.dy - look.sy) > 1e-3 || !cur.init || cur.pos.distanceToSquared(want) > 1e-8;
       if (!busy) return;
       dirty = false;
 
       // Mỗi khung hình đưa lên GPU tối đa một ảnh
-      const up = uploads.shift();
-      if (up) {
-        renderer.initTexture(up.tex);
-        up.tex.image?.close?.();
-        up.item.tex = up.tex; up.item.pm.uniforms.map.value = up.tex;
-        if (up.item.refl) up.item.refl.material.uniforms.map.value = up.tex;
-        setSize(up.item, up.aspect); placeStop(up.item.st);
-      }
+      loader.pump();
 
       if (!inside.item && cc.t < 0) p = SNAP ? pT : p + (pT - p) * (1 - Math.exp(-dt * 3.2));
       look.sx += (look.x + look.dx - look.sx) * (1 - Math.exp(-dt * 4)); look.sy += (look.y + look.dy - look.sy) * (1 - Math.exp(-dt * 4));
 
       // Đèn tường bật khi khách đến gần; ảnh được "rọi" khi khách dừng lại (hoặc tự rọi bằng đèn pin)
+      const camZ = cur.init ? camera.position.z : (stops[Math.round(p)]?.cam.z ?? 4);
       for (const st of stops) {
-        const near = Math.abs(st.k - p) <= NEAR || p > FIN - 1.2 || cc.t >= 0;
+        const dz = camZ - st.g.position.z;
+        const near = (dz > 0.6 || cc.t >= 0 || inside.item?.st === st) && (Math.abs(st.k - p) <= NEAR || p > FIN - 1.2 || cc.t >= 0);
         st.g.visible = near; st.near.forEach(o => { o.visible = near; });
         if (st.k === FIN) { if (!cc.done) st.litAt = -1; }
         else if (st.litAt < 0 && p > st.k - 1.35) { st.litAt = now + (st.k === 0 ? .15 : 0); animUntil = Math.max(animUntil, st.litAt + 1.2); }
@@ -759,6 +646,7 @@ export async function runGallery(el, ctx, opts) {
         // Chùm sáng nhạt đi khi camera đứng sát: không vạch vệt lên mặt ảnh
         if (st.beam) st.beam.material.uniforms.uOp.value = (cine ? .085 : .06) * L * clamp((camera.position.distanceTo(st.bm.end) - .8) / 1.4);
         if (Math.abs(p - st.k) < .2 && !inside.item) st.dwell += dt; else st.dwell = 0;
+        const tiltAmt = inside.item ? 0 : 1, lx = clamp(look.sx, -1, 1), ly = clamp(look.sy, -1, 1);
         for (const it of st.items) {
           if (it.rlAt < 0 && (st.dwell > .9 || it.torchT > .45 || (cc.t >= 0 && cc.t > ccOn(st.k)))) { it.rlAt = now; animUntil = Math.max(animUntil, now + 1.2); }
           it.rl = it.rlAt < 0 ? 0 : flicker((now - it.rlAt) / 1.1);
@@ -766,12 +654,15 @@ export async function runGallery(el, ctx, opts) {
           if (st.hang === 'lightbox') { u.uLit.value = 0; u.uEmit.value = .06 + 1.02 * L; }
           else if (st.k === FIN && cc.t < 0 && !cc.done) u.uLit.value = .04;
           else u.uLit.value = .08 + .26 * L + .58 * it.rl * (cc.t >= 0 ? L : 1);
+          // Chỉ nghiêng nhẹ khung ảnh (<= ±5°), tuyệt đối không xoay camera hay làm nghiêng chữ CSS3D
+          it.ig.rotation.y = lx * 0.05 * tiltAmt;
+          it.ig.rotation.x = -ly * 0.035 * tiltAmt;
           // Vệt loá trên kính chạy theo vị trí camera và độ nghiêng máy
           it.ig.worldToLocal(tmp.copy(camera.position));
-          u.uGlint.value = .72 + tmp.x / Math.max(.5, Math.abs(tmp.z)) * .45 + look.sx * .25;
+          u.uGlint.value = .72 + tmp.x / Math.max(.5, Math.abs(tmp.z)) * .45 + lx * .25;
           if (it.refl) it.refl.material.uniforms.uOp.value = (st.k === FIN ? .05 : .08) * (L * .4 + it.rl * .6);
           if (it.wire) { // treo giữa lối đi: tan ra khi camera đi xuyên qua
-            const dz = Math.abs(camera.position.z - st.g.position.z), op = Math.abs(camera.position.x) < 1.3 ? clamp((dz - .15) / .75) : 1;
+            const dzw = Math.abs(camera.position.z - st.g.position.z), op = Math.abs(camera.position.x) < 1.3 ? clamp((dzw - .15) / .75) : 1;
             u.uOp.value = op; it.fMat.opacity = op; it.mMat.opacity = op; it.back.material.opacity = op; it.ig.visible = op > .01;
           }
           if (it.dot) it.dot.mesh.scale.setScalar(2.2 - 1.2 * ease(clamp((now - it.dot.at) / .4)));
@@ -793,13 +684,13 @@ export async function runGallery(el, ctx, opts) {
         key.intensity = 46 * (cc.t >= 0 ? 1 : w) * lightOf(st);
       });
 
-      // Camera: nội suy giữa hai điểm dừng, đi qua giữa hành lang, liếc về phía trước khi bước
-      const a = stops[k0], b = stops[Math.min(k0 + 1, n - 1)], e = ease(clamp(f)), arc = Math.sin(Math.PI * e);
-      want.lerpVectors(a.cam, b.cam, e); want.x *= 1 - arc * .5;
-      wantL.lerpVectors(a.target, b.target, e); wantL.x *= 1 - arc * .55; if (b.k !== FIN) wantL.z -= arc * 2.4;
-      let fov = (a.fov || 44) + ((b.fov || 44) - (a.fov || 44)) * e + arc * (portrait ? 6 : 10);
+      // Camera: nội suy êm giữa hai điểm dừng, không lắc ngang hay bơm góc nhìn
+      const a = stops[k0], b = stops[Math.min(k0 + 1, n - 1)], e = ease(clamp(f));
+      want.lerpVectors(a.cam, b.cam, e);
+      wantL.lerpVectors(a.target, b.target, e);
+      let fov = (a.fov || 44) + ((b.fov || 44) - (a.fov || 44)) * e;
 
-      // Màn chào: lùi xa nhìn cả hành lang, đèn tắt rồi bật dần, camera tiến về bức chính
+      // Màn chào: lùi nhẹ nhìn bức chính, đèn tắt rồi bật dần, camera tiến êm lại gần
       if (cc.holding) cc.hold += dt; else cc.hold = Math.max(0, cc.hold - dt * 2);
       if (p > FIN - .05 && cc.t < 0 && !cc.done) { cc.idle += SNAP ? 1 : dt; if (cc.hold > 1.1 || cc.idle > 9) curtain(); }
       if (finSt.pl) finSt.pl.cel.style.setProperty('--hold', clamp(cc.hold / 1.1).toFixed(2));
@@ -815,11 +706,11 @@ export async function runGallery(el, ctx, opts) {
       }
 
       if (inside.item) {
-        // Dolly zoom vào bức ảnh rồi xuyên qua mặt kính
+        // Tiến êm vào bức ảnh rồi xuyên qua mặt kính (không bơm góc nhìn gây chóng mặt)
         const it = inside.item;
         inside.t = clamp(inside.t + Math.min(.05, dt) * (SNAP ? 5 : 1) * (inside.dir > 0 ? .8 : -1.25) * (inside.dir ? 1 : 0));
         const q = ease(inside.t);
-        const fovZ = fov + 26 * Math.sin(Math.PI * clamp(q / .75) / 2) * (1 - clamp((q - .75) / .25));
+        const fovZ = fov - 4 * q;
         const tanZ = Math.tan(THREE.MathUtils.degToRad(fovZ / 2));
         const centre = it.ig.localToWorld(new V3()), nrm = it.st.normal;
         const dSame = it.Hh / (2 * tanZ);
@@ -830,7 +721,7 @@ export async function runGallery(el, ctx, opts) {
         insideMat.uniforms.uOp.value = clamp((q - .78) / .22);
         if (inside.mixT < 1) { inside.mixT = Math.min(1, inside.mixT + dt * (SNAP ? 20 : 2.5)); insideMat.uniforms.uMix.value = ease(inside.mixT); }
         if (inside.dir < 0 && inside.t <= 0) {
-          inside.item = null; inside.dir = 0; insideQuad.visible = false;
+          inside.item = null; inside.dir = 0; look.dx = look.dy = 0; insideQuad.visible = false;
           root.classList.remove('ptl-inside'); outBtn.tabIndex = -1; syncTouch();
         } else if (inside.dir > 0 && inside.t >= 1) inside.dir = 0;
       }
@@ -853,15 +744,12 @@ export async function runGallery(el, ctx, opts) {
       if (torch.intensity < .01 && !tI) torch.intensity = 0; else animUntil = Math.max(animUntil, now + .2);
       prints.forEach(m => { m.material.uniforms.uTorchI.value = torch.intensity / 40; });
 
-      // Camera êm (không giật khi bố cục đổi); rung tay rất nhẹ ở mức cinematic
+      // Camera phẳng cân bằng, không rung tay, không xoay theo chuột/con quay
       if (!cur.init || SNAP) { cur.pos.copy(want); cur.look.copy(wantL); cur.init = true; }
       else { const s = inside.item || cc.t >= 0 ? 1 : 1 - Math.exp(-dt * 7); cur.pos.lerp(want, s); cur.look.lerp(wantL, s); }
       camera.position.copy(cur.pos);
-      if (cine && !inside.item) camera.position.add(tmp.set(Math.sin(now * 2.5) * .004, Math.cos(now * 1.9) * .003, 0));
       if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
       camera.lookAt(cur.look);
-      const lookAmt = inside.item ? .25 : 1;
-      camera.rotateY(-look.sx * .09 * lookAmt); camera.rotateX(-look.sy * .05 * lookAmt);
 
       if (insideQuad.visible) {
         const hq = 2 * .3 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
@@ -872,16 +760,9 @@ export async function runGallery(el, ctx, opts) {
 
       // Chữ trên tường: hiện theo khoảng cách; chỉ ghi DOM khi giá trị đổi
       for (const pl of plates) {
-        let op;
-        if (pl.sign) op = (p > FIN - .6 ? clamp((p - (FIN - .6)) / .5) : 0) * (cc.done ? 0 : cc.t >= 0 ? clamp(1 - cc.t / .6) : 1);
-        else if (pl.hero) op = cc.done ? clamp(1.25 - Math.abs(p - FIN) * 1.5) : 0;
-        else op = clamp(1.25 - Math.abs(p - pl.st.k) * 1.5) * clamp(lightOf(pl.st) * 1.4);
-        if (inside.item) op = 0;
-        const r = Math.round(op * 50) / 50;
-        if (r !== pl.last) {
-          pl.last = r; pl.obj.visible = r > 0;
-          pl.cel.style.opacity = r; pl.cel.style.pointerEvents = r > .6 ? 'auto' : 'none';
-        }
+        const lightFactor = pl.st.k === FIN ? (cc.t >= 0 ? clamp(1 - cc.t / .6) : 1) : clamp(lightOf(pl.st) * 1.4);
+        const op = inside.item ? 0 : clamp(1.25 - Math.abs(p - pl.st.k) * 1.5) * lightFactor;
+        pl.fade(op);
       }
 
       if (dust) {
@@ -899,8 +780,7 @@ export async function runGallery(el, ctx, opts) {
 
       const rp = Math.round(p / Math.max(1, n - 1) * 200) / 200;
       if (rp !== rail.last && rail.el) { rail.last = rp; rail.el.style.transform = `scaleY(${rp})`; }
-      if (grade) grade.uniforms.uT.value = now;
-      if (composer) composer.render(); else renderer.render(scene, camera);
+      if (post) post.render(now); else renderer.render(scene, camera);
       css.render(scene, camera);
 
       // Máy không kham nổi: tắt hậu kỳ trước, vẫn chậm thì về bản phẳng
@@ -909,54 +789,32 @@ export async function runGallery(el, ctx, opts) {
       if (SNAP) window.__ptl = { ...(window.__ptl || {}), p, pT, cc: cc.t, ccDone: cc.done };
     }
 
-    listen(document, 'visibilitychange', () => {
-      if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
-      else if (started && alive && !raf) { last = performance.now(); dirty = true; raf = requestAnimationFrame(frame); }
-    });
-
-    // Dọn sạch: listener, GPU, bản sao chữ; trả về sách triển lãm phẳng
-    function teardown() {
-      if (!alive) return;
-      alive = false; cancelAnimationFrame(raf); raf = 0;
-      off.forEach(f => f()); off.length = 0;
-      cssLayer.replaceChildren();
-      scene.traverse(o => {
-        o.geometry?.dispose?.();
-        for (const m of [].concat(o.material || [])) { for (const v of Object.values(m.uniforms || {})) if (v?.value?.isTexture) v.value.dispose(); m.map?.dispose?.(); m.dispose?.(); }
-      });
-      allItems.forEach(it => it.tex?.dispose());
-      scene.environment?.dispose?.();
-      composer?.dispose?.(); renderer.dispose();
-      root.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-cc', 'ptl-portrait');
-    }
-    bindContextLoss(canvas, () => recoverContext(canvas, { teardown, downgrade: () => ctx.downgrade('webglcontextlost'), retry: opts.retried ? null : () => runGallery(el, ctx, { ...opts, retried: true }) }));
+    const loop = startLoop(life, frame);
+    life.listen(document, 'visibilitychange', () => { if (!document.hidden) dirty = true; });
+    bindContextLoss(canvas, () => recoverContext(canvas, { teardown: () => life.teardown(), downgrade: () => ctx.downgrade('webglcontextlost'), retry: opts.retried ? null : () => runGallery(el, ctx, { ...opts, retried: true }) }));
 
     /* ---------- Khởi động: đo bố cục, chờ ảnh đầu, biên dịch shader sau màn che, rồi bật đèn ---------- */
     css.render(scene, camera); // cho bản sao chữ vào trang để đo
     resize(true); readScroll(); p = pT;
-    document.fonts?.ready.then(() => { if (alive) { stops.forEach(placeStop); measure(); readScroll(); dirty = true; } });
+    document.fonts?.ready.then(() => { if (life.alive) { stops.forEach(placeStop); scrollMap.measure(); readScroll(); dirty = true; } });
     await new Promise(r => {
       const t0 = performance.now();
-      const tick = setInterval(() => { if (!alive || uploads.length >= Math.min(2, order.length) || performance.now() - t0 > 2500) { clearInterval(tick); r(); } }, 50);
+      const tick = setInterval(() => { if (!life.alive || loader.pending >= Math.min(2, order.length) || performance.now() - t0 > 2500) { clearInterval(tick); r(); } }, 50);
     });
-    if (!alive) return { teardown };
+    if (!life.alive) return life;
     insideQuad.visible = true;
     try { await withTimeout(renderer.compileAsync(scene, camera), 4000, 'compile'); } catch {}
     insideQuad.visible = false;
-    if (!alive) return { teardown };
-    started = true; guard.reset();
-    if (!document.hidden) frame(performance.now());
+    if (!life.alive) return life;
+    guard.reset();
+    if (!document.hidden) frame(performance.now(), 0.016);
+    loop.start();
     root.classList.add('ptl-ready');
-    setTimeout(() => { if (alive && scrollY < 40) el.classList.add('show-hint'); }, 2200);
-    loading.then(() => { if (alive) { measure(); readScroll(); dirty = true; } });
-    return { teardown };
+    setTimeout(() => { if (life.alive && scrollY < 40) el.classList.add('show-hint'); }, 2200);
+    loading.then(() => { if (life.alive) { scrollMap.measure(); readScroll(); dirty = true; } });
+    return life;
   } catch (err) {
-    // Lỗi giữa chừng: dọn những gì đã dựng rồi báo lên để theme.js chuyển về bản phẳng
-    alive = false; cancelAnimationFrame(raf);
-    off.forEach(f => f());
-    el.querySelector('.ptl-css')?.replaceChildren();
-    renderer.dispose();
-    root.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-cc', 'ptl-portrait');
+    life.teardown();
     throw err;
   }
 }

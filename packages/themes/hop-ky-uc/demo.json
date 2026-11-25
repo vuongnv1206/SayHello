@@ -1,0 +1,117 @@
+{
+  "slug": "demo-hop-ky-uc",
+  "groom": {
+    "short": "Hoàng Long",
+    "full": "Đặng Hoàng Long",
+    "bio": "Kỹ sư âm thanh phòng thu, giữ thói quen viết bưu thiếp mỗi chuyến đi."
+  },
+  "bride": {
+    "short": "Ngọc Diệp",
+    "full": "Bùi Ngọc Diệp",
+    "bio": "Người sưu tầm tem bưu chính cũ và các hộp giấy thủ công."
+  },
+  "order": "groom-first",
+  "city": "Huế",
+  "date": "2027-10-18T17:30:00+07:00",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Đặng Văn Cường",
+      "mother": "Hồ Thị Liên",
+      "address": "Phường Phú Hội,\nThành phố Huế"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Bùi Đình Quang",
+      "mother": "Nguyễn Thị Phương",
+      "address": "Phường Vỹ Dạ,\nThành phố Huế"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-10-18T08:30:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 32 Nguyễn Sinh Cung, Vỹ Dạ, Huế",
+      "lunar": "Nhằm ngày 19 tháng 09 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Cưới",
+      "date": "2027-10-18T17:30:00+07:00",
+      "venue": "Khách sạn Morin Huế",
+      "address": "Số 30 Lê Lợi, Phú Hội, Thành phố Huế",
+      "lunar": "Nhằm ngày 19 tháng 09 năm Đinh Mùi",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới",
+      "address": "Số 30 Lê Lợi, Phú Hội, Thành phố Huế",
+      "coords": "16.4673,107.5892"
+    },
+    {
+      "label": "Tư gia nhà gái",
+      "address": "Số 32 Nguyễn Sinh Cung, Vỹ Dạ, Huế",
+      "coords": "16.4765,107.6021"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "album": [
+      "images/anh1.jpg",
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh4.jpg",
+      "images/anh5.jpg",
+      "images/anh6.jpg"
+    ],
+    "captions": [
+      "Buổi sáng bên hiên Vỹ Dạ",
+      "Phong thư viết tay đầu tiên",
+      "Chiều cầu Trường Tiền",
+      "Nhẫn cưới trên nền nhung",
+      "Góc sân vườn gạch nung",
+      "Khoảnh khắc trước giờ đón khách"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/dao-buoc.mp3",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "1088992233",
+      "name": "DANG HOANG LONG"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "BIDV",
+      "bankCode": "BIDV",
+      "number": "5511223344",
+      "name": "BUI NGOC DIEP"
+    }
+  ],
+  "story": [
+    {
+      "year": "2020",
+      "title": "Tấm bưu thiếp từ sân ga Huế",
+      "text": "Hai tấm bưu thiếp gửi nhầm hòm thư trở thành cuộc trò chuyện kéo dài suốt sáu mùa mưa."
+    },
+    {
+      "year": "2026",
+      "title": "Chiếc hộp gỗ đựng vé tàu",
+      "text": "Tất cả cuống vé những chuyến đi chung được xếp gọn vào chiếc hộp này."
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời gia đình và bạn thân họ nhà gái",
+      "events": [0],
+      "note": "Lễ gia tiên bắt đầu lúc 08:30 tại Vỹ Dạ"
+    }
+  ]
+}
