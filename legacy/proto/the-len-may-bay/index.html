@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thiệp cưới Nhật Minh và Thanh Trúc · Chuyến bay MT2410</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="khoa">
+
+<!-- Bảng giờ bay (bìa) -->
+<section class="bang-bay" id="bang-bay" aria-label="Bảng giờ khởi hành">
+  <header class="bb-dau"><p>Khởi hành</p><p class="dong-ho" id="dong-ho">--:--</p></header>
+  <div class="bb-dong" data-dong="1"></div>
+  <div class="bb-dong mo" data-dong="2"></div>
+  <div class="bb-dong mo" data-dong="3"></div>
+  <div class="bb-loi">
+    <p class="bb-chu" data-chu="1"></p>
+    <p class="bb-chu" data-chu="2"></p>
+  </div>
+  <p class="an" id="bb-doc">Chuyến bay MT2410 tới Huế, 17 giờ 30 ngày 24 tháng 10 năm 2027: lễ cưới của Nhật Minh và Thanh Trúc. Mời khách lên tàu.</p>
+  <button type="button" class="nut-nhan" id="nhan-the" disabled>Nhận thẻ lên máy bay</button>
+</section>
+
+<main class="trang" id="trang">
+  <!-- Thẻ lên máy bay: chính là thiệp mời -->
+  <section class="khu-the" aria-label="Thẻ lên máy bay">
+    <article class="the" id="the">
+      <div class="the-dau">
+        <p class="kinh-moi">Trân trọng kính mời</p>
+        <h1 class="ten-doi">Nhật Minh<br><i>và</i> Thanh Trúc</h1>
+        <p class="le">đến dự lễ thành hôn</p>
+      </div>
+      <div class="the-than">
+        <div class="tuyen">
+          <div><p class="ma">HN</p><p class="nho">Nơi bạn ở</p></div>
+          <svg viewBox="0 0 120 24" aria-hidden="true"><path d="M2 18 Q60 -6 118 18" fill="none" stroke="currentColor" stroke-dasharray="3 4"/><path d="M60 3l6 3-6 3-1-2 3-1-3-1z" fill="currentColor"/></svg>
+          <div><p class="ma">HUẾ</p><p class="nho">Nơi tụi mình cưới</p></div>
+        </div>
+        <dl class="o-tin">
+          <div class="rong"><dt>Hành khách</dt><dd class="ten-khach">Quý khách</dd></div>
+          <div><dt>Ngày bay</dt><dd>Chủ nhật 24.10.2027</dd></div>
+          <div><dt>Cất cánh</dt><dd>17:30</dd></div>
+          <div class="rong"><dt>Cổng</dt><dd>Nhà hàng Bên Sông, 12 Lê Lợi, Huế</dd></div>
+          <div><dt>Chuyến</dt><dd>MT2410</dd></div>
+          <div><dt>Ghế</dt><dd>Khách quý</dd></div>
+        </dl>
+      </div>
+      <div class="cuong" id="cuong">
+        <i class="duc-lo" aria-hidden="true"></i>
+        <div class="cuong-trong">
+          <svg class="ma-vach" viewBox="0 0 200 40" aria-hidden="true" preserveAspectRatio="none"></svg>
+          <button type="button" class="nut-xe" id="nut-xe">Xé cuống để xác nhận chỗ</button>
+        </div>
+      </div>
+    </article>
+    <form class="form-xac-nhan" id="form" hidden>
+      <p class="fx-dau">Giữ chỗ trên chuyến bay</p>
+      <label class="dong">Tên hành khách<input name="ten" autocomplete="name" required maxlength="40"></label>
+      <fieldset>
+        <legend class="an">Bạn bay cùng tụi mình chứ?</legend>
+        <label class="chon"><input type="radio" name="den" value="co" checked><span>Có, giữ chỗ cho tôi</span></label>
+        <label class="chon"><input type="radio" name="den" value="khong"><span>Tiếc là không bay được</span></label>
+      </fieldset>
+      <label class="dong">Số hành khách<select name="so"><option>1 người</option><option>2 người</option><option>3 người</option><option>4 người</option></select></label>
+      <button type="submit" class="nut-gui">Xác nhận</button>
+      <p class="da-gui" id="da-gui" role="status"></p>
+    </form>
+  </section>
+
+  <!-- Nhìn qua cửa sổ: ảnh cưới, trời đổi màu theo cuộn -->
+  <section class="bay" id="bay" aria-label="Ảnh cưới">
+    <p class="do-cao" aria-hidden="true">Độ cao <b id="do-cao">0</b> m</p>
+    <figure class="cua-so"><img src="../../demo-ve-may-bay/images/anh1.jpg" alt="Ảnh cưới 1" loading="lazy"></figure>
+    <figure class="cua-so phai"><img src="../../demo-ve-may-bay/images/anh2.jpg" alt="Ảnh cưới 2" loading="lazy"></figure>
+    <figure class="cua-so"><img src="../../demo-ve-may-bay/images/anh3.jpg" alt="Ảnh cưới 3" loading="lazy"></figure>
+    <figure class="cua-so phai"><img src="../../demo-ve-may-bay/images/anh4.jpg" alt="Ảnh cưới 4" loading="lazy"></figure>
+    <figure class="cua-so"><img src="../../demo-ve-may-bay/images/anh5.jpg" alt="Ảnh cưới 5" loading="lazy"></figure>
+    <i class="may" aria-hidden="true"></i><i class="may m2" aria-hidden="true"></i><i class="may m3" aria-hidden="true"></i>
+  </section>
+
+  <!-- Lịch trình -->
+  <section class="lich-trinh" aria-labelledby="td-lt">
+    <h2 id="td-lt">Lịch trình</h2>
+    <ol class="chang">
+      <li>
+        <p class="gio">9:00</p>
+        <div><p class="ten-chang">Lễ thành hôn</p><p>Tư gia nhà gái, phường Kim Long, Huế</p><a href="https://maps.google.com/?q=Kim+Long+Hue" target="_blank" rel="noopener">Chỉ đường</a></div>
+      </li>
+      <li>
+        <p class="gio">17:30</p>
+        <div><p class="ten-chang">Tiệc cưới</p><p>Nhà hàng Bên Sông, 12 Lê Lợi, Huế</p><a href="https://maps.google.com/?q=Le+Loi+Hue" target="_blank" rel="noopener">Chỉ đường</a></div>
+      </li>
+    </ol>
+    <div class="hai-nha">
+      <div><p class="nha">Nhà trai</p><p>Ông Đoàn Quang Hải<br>Bà Tôn Nữ Minh Tâm</p></div>
+      <div><p class="nha">Nhà gái</p><p>Ông Huỳnh Văn Phước<br>Bà Lê Thị Ngọc Lan</p></div>
+    </div>
+  </section>
+
+  <footer class="ha-canh">
+    <img src="../../demo-ve-may-bay/images/anh6.jpg" alt="" loading="lazy">
+    <p class="hc-chu">Hẹn gặp <span class="ten-khach">bạn</span> ở Huế</p>
+    <p class="hc-nho">Nhật Minh và Thanh Trúc</p>
+  </footer>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
