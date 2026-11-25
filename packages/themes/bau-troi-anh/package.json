@@ -2,7 +2,7 @@
   "name": "@sayhello/theme-bau-troi-anh",
   "version": "1.0.0",
   "private": true,
-  "description": "Mẫu Bầu Trời Ảnh: vòm sao kỷ niệm 3D với 4 bầu trời tùy chọn, bản đồ chòm sao động, hội tụ trái tim/chữ lồng và thắp sao RSVP.",
+  "description": "Mẫu Bầu Trời Ảnh: vòm sao kỷ niệm 3D với 3 bầu trời tùy chọn, bản đồ chòm sao động, hội tụ trái tim/chữ lồng và thắp sao RSVP.",
   "type": "module",
   "exports": {
     ".": "./theme.js",

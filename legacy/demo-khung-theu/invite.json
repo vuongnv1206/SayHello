@@ -2,58 +2,60 @@
   "theme": "khung-theu",
   "slug": "demo-khung-theu",
   "groom": {
-    "short": "Hoàng Nam",
-    "full": "Nguyễn Hoàng Nam",
-    "bio": "Kỹ sư thích cà phê sáng và những chuyến đi xa."
+    "short": "Gia Huy",
+    "full": "Lê Gia Huy",
+    "bio": "Kiến trúc sư mê phố cổ Hội An và những bản phác thảo bằng bút chì."
   },
   "bride": {
-    "short": "Bảo Ngọc",
-    "full": "Trần Bảo Ngọc",
-    "bio": "Cô giáo nhỏ yêu sách cũ và hoa cúc họa mi."
+    "short": "Thảo Nguyên",
+    "full": "Phạm Thảo Nguyên",
+    "bio": "Thợ thêu tay thích màu chỉ mộc, nắng chiều sông Thu Bồn và trà sen."
   },
   "order": "groom-first",
-  "city": "Sài Gòn",
-  "date": "2027-03-14T17:30:00+07:00",
-  "themeColor": "#7b4a3a",
+  "city": "Hội An",
+  "date": "2027-05-22T17:00:00+07:00",
+  "themeColor": "#B84A39",
   "families": [
     {
       "side": "Nhà trai",
-      "father": "Nguyễn Văn Hải",
-      "mother": "Võ Thị Mai",
-      "address": "Phường Bến Thành,\nTP. Hồ Chí Minh"
+      "father": "Lê Quang Minh",
+      "mother": "Trần Ngọc Lan",
+      "address": "Phường Hải Châu,\nThành phố Đà Nẵng"
     },
     {
       "side": "Nhà gái",
-      "father": "Trần Quốc Tuấn",
-      "mother": "Đỗ Thị Hằng",
-      "address": "Phường Phú Hội,\nThành phố Huế"
+      "father": "Phạm Văn Thành",
+      "mother": "Ngô Thu Thủy",
+      "address": "Phường Minh An,\nThành phố Hội An"
     }
   ],
   "events": [
     {
       "title": "Lễ Vu Quy",
-      "date": "2027-03-13T09:00:00+07:00",
+      "date": "2027-05-21T09:00:00+07:00",
+      "lunar": "Tức ngày 16 tháng 4 năm Đinh Mùi",
       "venue": "Tư gia nhà gái",
-      "address": "Số 8 đường Ví Dụ, Phường Phú Hội, Huế"
+      "address": "Số 24 đường Bạch Đằng, Phường Minh An, Hội An"
     },
     {
       "title": "Tiệc Cưới",
-      "date": "2027-03-14T17:30:00+07:00",
-      "venue": "Sảnh Hoa Ngà, Nhà hàng Ví Dụ",
-      "address": "Số 99 đường Ví Dụ, Phường Bến Thành, TP. Hồ Chí Minh",
+      "date": "2027-05-22T17:00:00+07:00",
+      "lunar": "Tức ngày 17 tháng 4 năm Đinh Mùi",
+      "venue": "Sảnh Vườn Lanh, Khu nghỉ dưỡng Ven Sông",
+      "address": "Số 108 đường Võ Nguyên Giáp, Phường Mỹ An, Đà Nẵng",
       "main": true
     }
   ],
   "places": [
     {
-      "label": "Tiệc cưới · Sài Gòn",
-      "address": "Số 99 đường Ví Dụ, Phường Bến Thành, TP. Hồ Chí Minh",
-      "coords": "10.7721,106.6983"
+      "label": "Tiệc cưới tại Đà Nẵng",
+      "address": "Số 108 đường Võ Nguyên Giáp, Phường Mỹ An, Đà Nẵng",
+      "coords": "16.0471,108.2485"
     },
     {
-      "label": "Lễ vu quy · Huế",
-      "address": "Số 8 đường Ví Dụ, Phường Phú Hội, Huế",
-      "coords": "16.4637,107.5909"
+      "label": "Lễ vu quy tại Hội An",
+      "address": "Số 24 đường Bạch Đằng, Phường Minh An, Hội An",
+      "coords": "15.8770,108.3279"
     }
   ],
   "images": {
@@ -65,34 +67,36 @@
       "images/anh2.jpg",
       "images/anh3.jpg",
       "images/anh1.jpg",
+      "images/anh4.jpg",
       "images/anh5.jpg",
-      "images/anh4.jpg"
+      "images/anh6.jpg"
     ],
     "captions": [
-      "Lần đầu gặp",
-      "Đà Lạt 2024",
-      "Ngày cầu hôn",
-      "Mùa hoa",
-      "Chụp ảnh cưới"
+      "Nắng chiều phố Hội",
+      "Đường chỉ đầu tiên",
+      "Bên hiên nhà cổ",
+      "Góc xưởng lanh mộc",
+      "Nhành hoa cúc thêu",
+      "Lời hẹn trăm năm"
     ],
     "preview": "images/xem-truoc.jpg"
   },
-  "music": "../assets/music/dao-buoc.mp3",
+  "music": "../assets/music/hop-nhac.mp3",
   "sheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
   "accounts": [
     {
       "who": "Chú rể",
-      "bank": "MB Bank",
-      "bankCode": "MB",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
       "number": "0000000000",
-      "name": "NGUYEN HOANG NAM"
+      "name": "LE GIA HUY"
     },
     {
       "who": "Cô dâu",
-      "bank": "ACB",
-      "bankCode": "ACB",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
       "number": "0000000000",
-      "name": "TRAN BAO NGOC"
+      "name": "PHAM THAO NGUYEN"
     }
   ]
 }

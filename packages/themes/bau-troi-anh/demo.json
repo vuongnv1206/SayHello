@@ -59,31 +59,27 @@
   "images": {
     "album": [
       "/_e/themes/bau-troi-anh/images/anh1.jpg",
-      "/demo-ve-may-bay/images/anh3.jpg",
-      "/demo-den-long/images/anh2.jpg",
+      "/_e/themes/bau-troi-anh/images/anh2.jpg",
+      "/_e/themes/bau-troi-anh/images/anh3.jpg",
       "/_e/themes/bau-troi-anh/images/anh4.jpg",
-      "/demo-tin-nhan/images/anh4.jpg",
-      "/demo-ca-phe-phin/images/anh3.jpg",
+      "/_e/themes/bau-troi-anh/images/anh5.jpg",
+      "/_e/themes/bau-troi-anh/images/anh6.jpg",
       "/_e/themes/bau-troi-anh/images/anh7.jpg",
-      "/demo-khoa-tinh/images/anh5.jpg",
-      "/demo-song-hy/images/anh6.jpg",
+      "/_e/themes/bau-troi-anh/images/anh8.jpg",
       "/_e/themes/bau-troi-anh/images/anh9.jpg",
-      "/demo-den-long/images/anh6.jpg",
-      "/demo-ve-may-bay/images/anh6.jpg"
+      "/_e/themes/bau-troi-anh/images/anh10.jpg"
     ],
     "captions": [
       "Đêm đầu tiên ngắm sao",
-      "",
-      "Phố lồng đèn",
-      "",
-      "Tin nhắn lúc nửa đêm",
-      "",
+      "Ánh sao đường chân trời",
+      "Dưới dải Ngân Hà",
+      "Hai bóng dáng giữa đêm",
+      "Ánh trăng đầu tháng",
+      "Ngọn đồi gió thổi",
       "Đỉnh đồi tháng Chạp",
-      "",
-      "",
-      "",
-      "",
-      ""
+      "Chòm sao hai đứa",
+      "Đom đóm bên triền cỏ",
+      "Khoảnh khắc bình minh"
     ],
     "preview": "/_e/themes/bau-troi-anh/images/xem-truoc.jpg"
   },

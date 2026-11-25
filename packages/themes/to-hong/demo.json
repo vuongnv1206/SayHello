@@ -1,0 +1,134 @@
+{
+  "slug": "demo-to-hong-v2",
+  "groom": {
+    "short": "Nhật Minh",
+    "full": "Đoàn Nhật Minh",
+    "bio": "Kiến trúc sư phục dựng nhà rường, kiên nhẫn nối từng mộng gỗ cũ."
+  },
+  "bride": {
+    "short": "Thanh Trúc",
+    "full": "Huỳnh Thanh Trúc",
+    "bio": "Nghệ nhân nhuộm lụa tơ tằm bên bờ sông Hương, mê sắc đỏ son tự nhiên."
+  },
+  "order": "groom-first",
+  "city": "Huế",
+  "date": "2027-10-24T17:30:00+07:00",
+  "themeColor": "#EEF1F4",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Đoàn Quang Hải",
+      "mother": "Tôn Nữ Minh Tâm",
+      "address": "Phường Thuận Hóa,\nThành phố Huế"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Huỳnh Văn Phước",
+      "mother": "Lê Thị Ngọc Lan",
+      "address": "Phường Kim Long,\nThành phố Huế"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ Vu Quy",
+      "date": "2027-10-24T08:30:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Số 26 đường Kim Long, Phường Kim Long, Huế",
+      "lunar": "Nhằm ngày 25 tháng 9 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc Cưới Sông Hương",
+      "date": "2027-10-24T17:30:00+07:00",
+      "venue": "Vườn Lụa Kim Long",
+      "address": "Số 72 đường Lê Lợi, Phường Phú Hội, Huế",
+      "lunar": "Đón khách lúc 17 giờ 30 bên bến sông Hương",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Vườn Lụa Kim Long",
+      "address": "Số 72 đường Lê Lợi, Phường Phú Hội, Huế",
+      "coords": "16.4698,107.5905"
+    },
+    {
+      "label": "Tư gia nhà gái",
+      "address": "Số 26 đường Kim Long, Phường Kim Long, Huế",
+      "coords": "16.4589,107.5512"
+    }
+  ],
+  "images": {
+    "album": [
+      "images/anh1.jpg",
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh4.jpg",
+      "images/anh5.jpg",
+      "images/anh6.jpg",
+      "images/anh7.jpg",
+      "images/anh8.jpg",
+      "images/anh9.jpg",
+      "images/anh10.jpg",
+      "images/anh11.jpg",
+      "images/anh12.jpg"
+    ],
+    "captions": [
+      "Sương sớm trên bến Kim Long",
+      "Ống chỉ tơ đỏ vừa nhuộm xong nắng đầu ngày",
+      "Tay nắm chặt một đầu sợi tơ",
+      "Hiên nhà rường qua làn sương mỏng",
+      "Áo dài lụa và bó sen trắng",
+      "Con đò sớm ngang sông Hương",
+      "",
+      "Hai bóng nhỏ trên cầu lúc hoàng hôn",
+      "Dải lụa bay trong gió chiều",
+      "",
+      "Nút thắt đồng tâm trên giấy dó",
+      "Đèn hoa đăng dọc bến nước"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/dao-buoc.mp3",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "VietinBank",
+      "bankCode": "ICB",
+      "number": "0000000000",
+      "name": "DOAN NHAT MINH"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "ACB",
+      "bankCode": "ACB",
+      "number": "0000000000",
+      "name": "HUYNH THANH TRUC"
+    }
+  ],
+  "story": [
+    {
+      "year": "2021",
+      "title": "Khung cửi bên bến đò",
+      "text": "Lần đầu Minh ghé xưởng nhuộm ở Kim Long để đo lại bộ vì kèo gỗ lim, bắt gặp Trúc đang phơi những con tơ đỏ thẫm ngoài hiên nắng sớm."
+    },
+    {
+      "year": "2024",
+      "title": "Sợi chỉ đỏ ở phố cổ",
+      "text": "Một mùa mưa dầm xứ Huế, hai đứa ngồi trú dưới mái hiên cũ nghe tiếng mưa rơi trên ngói liệt, chia nhau ly trà sen nóng."
+    },
+    {
+      "year": "2027",
+      "title": "Buộc một mối duyên",
+      "text": "Từ hai bờ sông Hương, sợi tơ mảnh đã kéo hai gia đình xích lại gần nhau trong một ngày thu lặng gió."
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời họ nhà gái",
+      "events": [0],
+      "note": "Xe đón họ nhà gái xuất phát lúc 07:30 tại cổng đường Kim Long"
+    }
+  ]
+}

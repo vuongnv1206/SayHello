@@ -28,23 +28,22 @@
   ],
   "images": {
     "album": [
-      "demo-cuon-phim/images/anh3.jpg",
-      "demo-den-long/images/anh1.jpg",
-      "demo-tin-nhan/images/anh2.jpg",
-      "demo-cuon-phim/images/anh5.jpg",
-      "demo-den-long/images/anh4.jpg",
-      "demo-tin-nhan/images/anh1.jpg",
-      "demo-cuon-phim/images/anh2.jpg",
-      "demo-den-long/images/anh3.jpg",
-      "demo-tin-nhan/images/anh6.jpg",
-      "demo-cuon-phim/images/anh4.jpg",
-      "demo-den-long/images/anh5.jpg",
-      "demo-tin-nhan/images/anh3.jpg",
-      "demo-ve-may-bay/images/anh1.jpg",
-      "demo-khoa-tinh/images/anh2.jpg"
+      "/_e/themes/phong-trien-lam/images/anh-01.jpg",
+      "/_e/themes/phong-trien-lam/images/anh-02.jpg",
+      "/_e/themes/phong-trien-lam/images/anh-03.jpg",
+      "/_e/themes/phong-trien-lam/images/anh-04.jpg",
+      "/_e/themes/phong-trien-lam/images/anh-05.jpg",
+      "/_e/themes/phong-trien-lam/images/anh-06.jpg"
     ],
-    "captions": ["Trăng tháng Mười", "Chiều Hồ Tây", "Phố lên đèn", "Biển Quy Nhơn", "", "Hoàng hôn đầu tiên", "", "Mùa hoa sữa", "", "Dây đèn ban công", "", "", "", "Sáng hôm sau"],
-    "preview": "demo-cuon-phim/images/xem-truoc.jpg"
+    "captions": [
+      "Dưới vòm đá cổ",
+      "Cầu đá bến hồ lên đèn",
+      "Áo dài bên khung cửa sáng",
+      "Khoảnh khắc giữa hành lang",
+      "Thủy đình chiều chạng vạng",
+      "Bó hoa trắng trước giờ lễ"
+    ],
+    "preview": "/_e/themes/phong-trien-lam/images/anh-01.jpg"
   },
   "music": "/assets/music/dao-buoc.mp3",
   "accounts": [

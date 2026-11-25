@@ -54,8 +54,11 @@ export default defineTheme({
   fonts: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,900&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',
   libs: ['three-post'],
   gateMs: 1600,
-  features: { when: 'required', where: 'required', rsvp: 'required', map: 'optional', album: 'optional', gift: 'optional', guestbook: 'optional', story: 'off' },
-  slots: { images: { album: { min: 6, ideal: 12, max: 30, label: 'Mỗi ảnh là một ngôi sao. Ảnh đầu tiên là ngôi sao sáng nhất, ở hướng Bắc.' } } },
+  features: { when: 'required', where: 'required', rsvp: 'required', map: 'optional', album: 'optional', story: 'optional', gift: 'optional', guestbook: 'optional' },
+  slots: {
+    images: { album: { min: 6, ideal: 12, max: 30, label: 'Mỗi ảnh là một ngôi sao. Ảnh đầu tiên là ngôi sao sáng nhất, ở hướng Bắc.' } },
+    story: { optional: true, maxItems: 6 },
+  },
   palettes: [
     { id: 'gio-xanh', name: 'Giờ xanh', swatch: ['#142a3b', '#d8f26b'],
       preset: { zenith: '#142a3b', haze: '#6f9aa6', band: '#c9d4b8', ridge: '#0b1512', accent: '#d8f26b', ink: '#eef2ec', nightZenith: '#070f18', nightHaze: '#1d3440', nightBand: '#3a5650', bloom: .55, exposure: 1 } },
@@ -63,7 +66,13 @@ export default defineTheme({
       vars: { '--zenith': '#0a1620', '--haze': '#2e4a52' },
       preset: { zenith: '#0a1620', haze: '#2e4a52', band: '#4f6b5a', ridge: '#050b09', accent: '#d8f26b', ink: '#eef2ec', nightZenith: '#03080d', nightHaze: '#12232a', nightBand: '#24352f', bloom: .6, exposure: 1 } },
     { id: 'suong-som', name: 'Sương sớm', swatch: ['#dce3e6', '#2f6f5e'],
-      vars: { '--zenith': '#3c4a63', '--haze': '#dce3e6', '--ink': '#13202a', '--accent': '#2f6f5e' },
+      vars: {
+        '--zenith': '#3c4a63', '--haze': '#dce3e6', '--ridge': '#dfe6e9', '--hill': '#1e2a33',
+        '--ink': '#13202a', '--sky-ink': '#eef2ec', '--accent': '#2f6f5e', '--paper': '#eef3f5',
+        '--sh-panel': '#eef3f5', '--sh-ink': '#13202a', '--sh-accent-ink': '#ffffff', '--sh-soft': 'rgba(19, 32, 42, .22)',
+        '--compass-bg': 'rgba(244, 247, 248, .94)', '--quick-btn-bg': 'rgba(244, 247, 248, .92)',
+        '--up-bg': 'rgba(20, 42, 59, .68)', '--troi-mid': '#2b364a', '--troi-end': '#1e2838', '--input-bg': 'rgba(255, 255, 255, .65)',
+      },
       preset: { zenith: '#3c4a63', haze: '#dce3e6', band: '#f0e6d8', ridge: '#1e2a33', accent: '#2f6f5e', ink: '#13202a', nightZenith: '#1c2638', nightHaze: '#6c7a88', nightBand: '#a59c94', bloom: .3, exposure: 1 } },
   ],
   defaults: { texts: {} },
@@ -182,6 +191,23 @@ export default defineTheme({
         async standard(el, ctx) { await start(el, ctx, 'standard'); },
         lite() {},
       },
+    },
+
+    /* ===== Chuyện hai người (tùy chọn: chỉ hiện khi cặp đôi nhập chuyện tình) ===== */
+    {
+      id: 'chuyen', label: 'Chuyện hai người', provides: ['story'],
+      when: ctx => ctx.has('story'),
+      render: ctx => html`
+        <div class="bt-story-wrap">
+          <h2>Chuyện hai người</h2>
+          <ol class="bt-story-list">
+            ${ctx.story.map(s => html`<li class="bt-story-item">
+              ${s.year ? html`<p class="bt-story-year">${s.year}</p>` : ''}
+              ${s.title ? html`<h3>${s.title}</h3>` : ''}
+              <p>${s.text || ''}</p>
+            </li>`)}
+          </ol>
+        </div>`,
     },
 
     /* ===== Bãi cỏ: giữ chỗ (đom đóm), quà mừng, sổ sao ===== */

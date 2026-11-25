@@ -117,7 +117,7 @@ html.ptl-3d .ptl-stop > * { opacity: 0; } /* bản gốc vẫn ở đây cho tr�
 .ptl-veil p { font-size: 15px; opacity: .6; }
 html.ptl-ready .ptl-veil { opacity: 0; pointer-events: none; }
 .ptl-hint3d { position: absolute; left: 50%; bottom: max(76px, calc(env(safe-area-inset-bottom) + 64px)); transform: translateX(-50%); width: min(360px, calc(100% - 32px)); text-align: center;
-  font-size: 14px; line-height: 1.45; padding: 10px 14px; background: rgba(11, 14, 14, .62); opacity: 0; transition: opacity .4s; pointer-events: none; }
+  font-size: 14px; line-height: 1.45; padding: 10px 14px; background: var(--hint-bg, rgba(11, 14, 14, .62)); opacity: 0; transition: opacity .4s; pointer-events: none; }
 #phong.show-hint .ptl-hint3d { opacity: 1; }
 .ptl-rail { position: absolute; left: 14px; top: 50%; height: 30vh; width: 2px; transform: translateY(-50%); background: rgba(233, 230, 223, .18); }
 .ptl-rail i { position: absolute; inset: 0; background: var(--ink-on-wall); transform-origin: top; transform: scaleY(0); }
@@ -130,7 +130,7 @@ html.ptl-inside .ptl-rail, html.ptl-cc .ptl-rail { opacity: 0; transition: opaci
 html.ptl-inside, html.ptl-cc { overflow: hidden; }
 
 /* Chữ trên tường (bản sao trong CSS3D). 400px = 1 mét. */
-.ptl-c { color: #e4e0d8; font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 300; }
+.ptl-c { color: var(--ink-on-wall); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 300; }
 /* Chữ dán tường dịu đi ở ngoài vệt đèn, như được chính đèn rọi chiếu vào */
 .ptl-c-title, .ptl-c-info, .ptl-c-text { -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, #000 55%, rgba(0, 0, 0, .55)); mask-image: radial-gradient(ellipse 75% 65% at 50% 38%, #000 55%, rgba(0, 0, 0, .55)); }
 .ptl-c .ptl-names { font-weight: 300; letter-spacing: -.01em; line-height: .95; }
@@ -146,15 +146,16 @@ html.ptl-inside, html.ptl-cc { overflow: hidden; }
 .ptl-c-work .ptl-label { width: 220px; font-size: 16px; padding: 14px 16px; background: #efece6; box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); }
 .ptl-c-work .ptl-label small { font-size: 14px; }
 .ptl-c-info .ptl-wall, .ptl-c-text .ptl-wall { width: 780px; max-width: none; padding: 0; }
+.ptl-c-text .ptl-story p:last-child { font-size: 22px; }
 .ptl-c-info .ptl-evs { grid-template-columns: 1fr 1fr; gap: 40px; }
 .ptl-c-info h2 { font-size: 64px; font-weight: 300; }
 .ptl-c-info .ptl-evs li { font-size: 21px; }
 .ptl-c-info .ptl-evs b { font-size: 26px; }
 .ptl-c-info .ptl-time { font-size: 56px; font-weight: 300; }
-.ptl-c-info a { text-decoration-color: rgba(228, 224, 216, .45); }
+.ptl-c-info a { text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); }
 .ptl-c-info .ptl-maps { font-size: 21px; }
 /* Bảng đứng trên bục cuối phòng */
-.ptl-c-finale .ptl-end { width: 520px; padding: 26px 28px 22px; background: rgba(11, 14, 14, .55); }
+.ptl-c-finale .ptl-end { width: 520px; padding: 26px 28px 22px; background: rgba(11, 14, 14, .55); color: #e9e6df; }
 .ptl-c-finale .ptl-end h2 { font-size: 40px; }
 .ptl-c-finale .ptl-kind { font-size: 20px; }
 .ptl-c-finale .ptl-allon { font-size: 22px; min-height: 64px; }
@@ -165,6 +166,7 @@ html.ptl-portrait .ptl-c-title .ptl-names { font-size: 96px; }
 html.ptl-portrait .ptl-c-work .ptl-label { width: 340px; font-size: 25px; padding: 18px 20px; }
 html.ptl-portrait .ptl-c-work .ptl-label small { font-size: 21px; }
 html.ptl-portrait .ptl-c-info .ptl-wall, html.ptl-portrait .ptl-c-text .ptl-wall { width: 540px; }
+html.ptl-portrait .ptl-c-text .ptl-story p:last-child { font-size: 27px; }
 html.ptl-portrait .ptl-c-info .ptl-evs { grid-template-columns: 1fr; gap: 28px; }
 html.ptl-portrait .ptl-c-info h2 { font-size: 60px; }
 html.ptl-portrait .ptl-c-info .ptl-evs li, html.ptl-portrait .ptl-c-info .ptl-maps { font-size: 27px; }

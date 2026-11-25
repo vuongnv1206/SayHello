@@ -436,6 +436,7 @@ export async function runLake(el, ctx, opts) {
     for (const b of stillBtns) {
       life.listen(b, 'pointerdown', e => { e.stopPropagation(); calm.holding = true; dirty = true; });
       for (const t of ['pointerup', 'pointerleave', 'pointercancel']) life.listen(b, t, () => { calm.holding = false; });
+      life.listen(b, 'click', e => { if (e.detail === 0) stillNow(); }); // bàn phím, trình đọc màn hình
     }
     const stillNow = () => { if (calm.t < 0) { calm.t = 0; root.classList.add('hg-still'); dropSound(.6); } };
     ctx.on('still', () => life.alive && stillNow());

@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-to-hong",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Mẫu Tơ Hồng 2.0: sợi chỉ đỏ PBR trong không gian 3D sương sớm, gảy tơ mở thiệp, soi nghiêng từng khung ảnh và thắt nút đồng tâm giữ chỗ.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

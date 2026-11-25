@@ -55,7 +55,7 @@ Làm từng bước nhỏ, xong bước nào đánh dấu `[x]` và ghi vào [PR
 - [x] Tên miền riêng cho gói Riêng: `publicUrl`/`assetBase`, CORS trong `vercel.json`.
 - [x] Màn hình lời chúc tại tiệc `?wall=1`; xếp bàn và check-in.
 - [x] `/dat-thiep/`: báo trùng đường dẫn, tra cứu trạng thái mã đơn.
-- [x] 5 ý tưởng mẫu mới: Thiệp Gấp Pop-up, Khung Thêu, Cà Phê Phin, Bình Gốm Kintsugi, Kính Vạn Hoa.
+- [x] 3 ý tưởng mẫu mới (đã giữ lại): Thiệp Gấp Pop-up, Khung Thêu, Cà Phê Phin *(2 mẫu còn lại đã xóa theo R1)*.
 
 ## Đã xong
 Xem [PROGRESS.md](PROGRESS.md).

@@ -138,7 +138,7 @@ export default defineTheme({
       vars: { '--wall': '#3f2433', '--void': '#0a0507' },
       preset: { wall: '#3f2433', floor: '#151012', void: '#0a0507', fogColor: '#1a1016', wash: '#9d93ad', light: '#ffeedc', frame: '#2b1b12', mat: '#e8e1d8', fog: .034, exposure: 1.02, bloom: .35, env: .12 } },
     { id: 'thach-cao', name: 'Thạch cao trắng', swatch: ['#e7e3dc', '#c7362a'],
-      vars: { '--wall': '#e7e3dc', '--void': '#cfcac1', '--ink-on-wall': '#1c1f22', '--label': '#ffffff' },
+      vars: { '--wall': '#e7e3dc', '--void': '#cfcac1', '--ink-on-wall': '#1c1f22', '--label': '#ffffff', '--sh-panel': '#f4f2ed', '--sh-soft': 'rgba(28, 31, 34, .22)', '--hint-bg': 'rgba(244, 242, 237, .9)' },
       preset: { wall: '#e4e0d9', floor: '#8a857c', void: '#cdc8bf', fogColor: '#d6d1c8', wash: '#eef2f5', light: '#fff1de', frame: '#f4f2ed', mat: '#ffffff', fog: .022, exposure: .8, bloom: .2, env: .55 } },
     // Men lam: xanh men gốm Chu Đậu, khung sơn trắng; ánh đèn ấm trên tường chàm thành xanh đá sạch, tôn màu da
     { id: 'men-lam', name: 'Men lam', swatch: ['#22304a', '#d23a2a'],
@@ -302,6 +302,6 @@ async function start(el, ctx, tier) {
     await runGallery(el, ctx, { tier, palettes: ctx.theme.palettes, clickSound });
   } catch (e) {
     console.warn('[phòng tranh] dùng bản phẳng:', e?.message || e);
-    document.documentElement.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-portrait');
+    document.documentElement.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-cc', 'ptl-portrait');
   }
 }

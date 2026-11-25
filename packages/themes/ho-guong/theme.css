@@ -9,7 +9,8 @@
   --lantern: #e2522b;
   --bamboo: #9a8a63;
   --paper: #eef1ee;
-  --sh-bg: var(--mist); --sh-ink: var(--ink); --sh-accent: var(--lantern); --sh-accent-ink: #fff;
+  --water-ink: var(--paper);
+  --sh-bg: var(--mist); --sh-ink: var(--ink); --sh-accent: #b83916; --sh-accent-ink: #fff;
   --sh-panel: var(--paper); --sh-soft: rgba(19, 32, 32, .22);
 }
 body.theme-ho-guong { font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: var(--mist); color: var(--ink); }
@@ -18,7 +19,7 @@ body.theme-ho-guong { font-family: 'Be Vietnam Pro', system-ui, sans-serif; back
 
 /* ============ Bìa: mặt nước lặng ============ */
 #mat-nuoc { background: var(--mist); color: var(--ink); }
-.hg-gsky { position: absolute; inset: 0 0 46% 0; background: linear-gradient(#c3cdcb, var(--mist)); }
+.hg-gsky { position: absolute; inset: 0 0 46% 0; background: linear-gradient(var(--sky-top, #c3cdcb), var(--mist)); }
 .hg-gwater { position: absolute; inset: 54% 0 0 0; background: linear-gradient(var(--water), var(--deep)); overflow: hidden; cursor: pointer; }
 .hg-gwater::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: rgba(255, 255, 255, .5); }
 /* Tên chỉ là bóng dưới nước: lật ngược, mờ, rung rất nhẹ */
@@ -35,11 +36,11 @@ body.theme-ho-guong { font-family: 'Be Vietnam Pro', system-ui, sans-serif; back
 .hg-to { font-size: 17px; font-weight: 500; }
 .hg-gname { margin-top: 8px; font-size: clamp(24px, 3.4vw, 40px); font-weight: 300; line-height: 1.15; max-width: 18em; }
 .hg-touch { position: absolute; right: clamp(20px, 7vw, 120px); bottom: max(32px, env(safe-area-inset-bottom)); min-height: 48px; padding: 10px 0; border: 0; border-bottom: 1px solid rgba(238, 241, 238, .7);
-  background: none; color: var(--paper); font: 500 17px/1.2 'Be Vietnam Pro', sans-serif; cursor: pointer; }
+  background: none; color: var(--water-ink); font: 500 17px/1.2 'Be Vietnam Pro', sans-serif; cursor: pointer; }
 .hg-touch:focus-visible { outline: 3px solid var(--lantern); outline-offset: 4px; }
 
 /* ============ Bản phẳng (lite, hoặc trước khi 3D sẵn sàng) ============ */
-#ho { background: linear-gradient(var(--mist) 0, #c9d2cf 30vh, var(--water) 120vh, var(--water)); color: var(--ink); overflow-x: clip; }
+#ho { background: linear-gradient(var(--mist) 0, color-mix(in srgb, var(--mist) 85%, var(--water)) 30vh, var(--water) 120vh, var(--water)); color: var(--ink); overflow-x: clip; }
 .hg-stage { display: none; }
 .hg-track { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(80px, 16vh, 180px); padding: 16vh 0 20vh; }
 .hg-stop { position: relative; min-width: 0; }
@@ -57,10 +58,10 @@ body.theme-ho-guong { font-family: 'Be Vietnam Pro', system-ui, sans-serif; back
 .hg-photo img:first-child { aspect-ratio: auto; background: var(--water); }
 .hg-photo .hg-refl { transform: scaleY(-1); opacity: .35; filter: blur(2px) saturate(.6); -webkit-mask-image: linear-gradient(to top, #000, transparent 55%); mask-image: linear-gradient(to top, #000, transparent 55%);
   max-height: 40%; object-fit: cover; object-position: bottom; pointer-events: none; }
-.hg-cap { padding: 0 clamp(20px, 7vw, 120px); font-size: 15px; color: var(--paper); text-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
+.hg-cap { padding: 0 clamp(20px, 7vw, 120px); font-size: 15px; color: var(--water-ink); text-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
 .hg-s-work:nth-child(odd) .hg-cap { text-align: right; }
 /* Cọc đo nước: mực nước (--fill) dâng theo số ngày còn lại */
-.hg-gauge { position: relative; padding: 0 clamp(20px, 7vw, 120px) 0 calc(clamp(20px, 7vw, 120px) + 34px); color: var(--paper); }
+.hg-gauge { position: relative; padding: 0 clamp(20px, 7vw, 120px) 0 calc(clamp(20px, 7vw, 120px) + 34px); color: var(--water-ink); }
 .hg-gauge::before { content: ''; position: absolute; left: clamp(20px, 7vw, 120px); top: -20px; bottom: -20px; width: 10px; background: repeating-linear-gradient(var(--bamboo) 0 22px, #6e6247 22px 24px); }
 .hg-gauge::after { content: ''; position: absolute; left: clamp(14px, calc(7vw - 6px), 114px); bottom: -20px; width: 22px; height: calc(var(--fill, .3) * (100% + 40px)); background: rgba(19, 32, 32, .35); }
 .hg-g-day { font-size: clamp(120px, 26vw, 260px); font-weight: 300; line-height: .85; letter-spacing: -.04em; }
@@ -76,11 +77,11 @@ body.theme-ho-guong { font-family: 'Be Vietnam Pro', system-ui, sans-serif; back
 .hg-dim { opacity: .7; }
 .hg-evs a, .hg-maps a { color: inherit; justify-self: start; padding: 6px 0; text-underline-offset: 4px; }
 .hg-maps { display: grid; gap: 4px; margin-top: 18px; font-size: 17px; }
-.hg-note { padding: 0 clamp(20px, 7vw, 120px); max-width: 760px; color: var(--paper); }
+.hg-note { padding: 0 clamp(20px, 7vw, 120px); max-width: 760px; color: var(--water-ink); }
 .hg-year { font-size: clamp(64px, 12vw, 130px); font-weight: 300; line-height: 1; }
 .hg-note h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 500; margin: 8px 0 12px; }
 .hg-note p:last-child { font-size: 18px; line-height: 1.6; }
-.hg-end { padding: 0 clamp(20px, 7vw, 120px); color: var(--paper); }
+.hg-end { padding: 0 clamp(20px, 7vw, 120px); color: var(--water-ink); }
 .hg-end h2 { font-size: clamp(40px, 8vw, 96px); font-weight: 300; line-height: 1; letter-spacing: -.03em; }
 .hg-end p { margin: 14px 0 22px; font-size: 18px; }
 .hg-still { display: inline-flex; align-items: center; gap: 14px; min-height: 56px; padding: 10px 20px 10px 12px; border: 1px solid currentColor; border-radius: 2px; background: transparent; color: inherit;
@@ -92,14 +93,14 @@ body.theme-ho-guong { font-family: 'Be Vietnam Pro', system-ui, sans-serif; back
 [data-ev][hidden] { display: none !important; }
 
 /* Xem ảnh toàn màn hình: ảnh ở trên, bóng gợn sóng ở dưới */
-.hg-view { width: 100vw; height: 100svh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--deep); color: var(--paper); overflow: hidden; }
+.hg-view { width: 100vw; height: 100svh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--deep); color: var(--water-ink); overflow: hidden; }
 .hg-view::backdrop { background: var(--deep); }
 .hg-view figure { position: absolute; inset: 0 0 auto; height: 100%; display: grid; grid-template-rows: 62% 38%; justify-items: center; }
 .hg-view img:first-child { max-width: 100%; max-height: 100%; object-fit: contain; align-self: end; }
 .hg-view .hg-refl { transform: scaleY(-1); opacity: .32; filter: blur(3px); max-width: 100%; height: 100%; object-fit: contain; object-position: top;
   -webkit-mask-image: linear-gradient(#000, transparent 70%); mask-image: linear-gradient(#000, transparent 70%); animation: hg-wave 5s ease-in-out infinite alternate; }
 @keyframes hg-wave { to { transform: scaleY(-1) skewX(2deg) scaleX(1.02); } }
-.hg-view button { position: absolute; min-width: 48px; min-height: 48px; border: 0; background: rgba(19, 32, 32, .45); color: var(--paper); font: 500 16px/1 'Be Vietnam Pro', sans-serif; cursor: pointer; }
+.hg-view button { position: absolute; min-width: 48px; min-height: 48px; border: 0; background: rgba(19, 32, 32, .45); color: var(--water-ink); font: 500 16px/1 'Be Vietnam Pro', sans-serif; cursor: pointer; }
 .hg-v-prev { left: 8px; top: 31%; font-size: 30px !important; }
 .hg-v-next { right: 8px; top: 31%; font-size: 30px !important; }
 .hg-v-close { left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 0 20px; border: 1px solid rgba(238, 241, 238, .5) !important; }
@@ -117,14 +118,14 @@ html.hg-3d .hg-stop > * { opacity: 0; }
 .hg-veil p { font-size: 15px; opacity: .6; }
 html.hg-ready .hg-veil { opacity: 0; pointer-events: none; }
 .hg-hint3d { position: absolute; left: 50%; bottom: max(76px, calc(env(safe-area-inset-bottom) + 64px)); transform: translateX(-50%); width: min(380px, calc(100% - 32px)); text-align: center;
-  font-size: 14px; line-height: 1.45; padding: 10px 14px; background: rgba(238, 241, 238, .78); color: var(--ink); opacity: 0; transition: opacity .4s; pointer-events: none; }
+  font-size: 14px; line-height: 1.45; padding: 10px 14px; background: var(--hint-bg, rgba(238, 241, 238, .78)); color: var(--ink); opacity: 0; transition: opacity .4s; pointer-events: none; }
 #ho.show-hint .hg-hint3d { opacity: 1; }
 
 /* Chữ trong không gian (bản sao HTML). 400px = 1 mét. */
 .hg-c { font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--ink); }
 .hg-c a, .hg-c button { pointer-events: inherit; }
-.hg-c-welcome .hg-welcome { width: 900px; text-align: center; font-size: 46px; font-weight: 500; color: var(--paper); text-shadow: 0 2px 18px rgba(19, 32, 32, .5); }
-.hg-c-work .hg-cap { width: 640px; padding: 0; font-size: 36px; color: var(--paper); text-align: left !important; text-shadow: 0 2px 14px rgba(19, 32, 32, .6); }
+.hg-c-welcome .hg-welcome { width: 900px; text-align: center; font-size: 46px; font-weight: 500; color: var(--water-ink); text-shadow: 0 2px 18px rgba(19, 32, 32, .5); }
+.hg-c-work .hg-cap { width: 640px; padding: 0; font-size: 36px; color: var(--water-ink); text-align: left !important; text-shadow: 0 2px 14px rgba(19, 32, 32, .6); }
 .hg-c-gauge .hg-gauge { width: 560px; padding: 0; color: var(--ink); }
 .hg-c-gauge .hg-gauge::before, .hg-c-gauge .hg-gauge::after { display: none; }
 .hg-c-gauge .hg-g-day { font-size: 300px; }
@@ -172,7 +173,7 @@ html[data-palette=dem-trang] .hg-c, html[data-palette=dem-trang] .hg-c-gauge .hg
 .hg-desk .sh-form { margin-top: 24px; max-width: 560px; min-width: 0; }
 .hg-desk .sh-form select { max-width: 100%; min-width: 0; }
 .hg-desk .sh-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
-.hg-desk .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) { border-radius: 2px; background: #fff; }
+.hg-desk .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) { border-radius: 2px; background: var(--input-bg, #fff); }
 .hg-desk :is(.sh-choice span, .sh-pick span) { border-radius: 2px; }
 .hg-desk .sh-btn { border-radius: 2px; justify-self: start; }
 .hg-accs { display: grid; gap: 22px; }
@@ -195,7 +196,7 @@ html[data-palette=dem-trang] .hg-c, html[data-palette=dem-trang] .hg-c-gauge .hg
 .theme-ho-guong .sh-quick-btn.is-away { transform: translateY(calc(-100% - 24px)); }
 .theme-ho-guong .sh-quick { border-radius: 0; background: var(--paper); color: var(--ink); }
 .theme-ho-guong .sh-quick .sh-btn { border-radius: 2px; }
-.theme-ho-guong .sh-quick-events li { background: rgba(19, 32, 32, .06); border-radius: 2px; }
+.theme-ho-guong .sh-quick-events li { background: color-mix(in srgb, var(--ink) 6%, transparent); border-radius: 2px; }
 .theme-ho-guong .sh-music { z-index: 40; }
 
 @media (prefers-reduced-motion: reduce) {

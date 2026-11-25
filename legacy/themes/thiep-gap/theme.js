@@ -1,36 +1,43 @@
-// Mẫu "Thiệp Gấp": tấm thiệp giấy gấp kiểu pop-up (kirigami). Mở nắp thiệp, các lớp giấy cắt (cổng hoa, hai người, hoa lá)
-// dựng đứng lên từng lớp. Bên trong là những tờ giấy xếp chồng, ngăn kéo giấy đựng hộp mừng cưới.
-// Ảnh dùng: images.hero, images.groom, images.bride, images.thanks, images.album[]
-import { html, br, fmt, parts } from '../../core/util.js';
+// Mẫu "Thiệp Gấp": sách pop-up kiến trúc 2 mặt trên desktop và lật nếp gấp 3D trên di động.
+// Ảnh dùng: images.hero, images.groom, images.bride, images.couple, images.thanks, images.album[]
+import { $, $$, html, br, fmt, parts, reduced, replay } from '../../core/util.js';
 
 const initial = s => (s || '').trim().split(/\s+/).pop()?.[0] || '';
+const dotDate = iso => { const p = parts(iso); return p ? `${p.dd}.${p.mm}.${p.y}` : ''; };
+const fullDate = iso => { const p = parts(iso); return p ? `${p.weekday}, ${p.d} tháng ${p.mo} năm ${p.y}` : ''; };
 
 export default {
   palettes: [
-    { id: 'san-ho', name: 'San hô & ngọc', swatch: ['#e8705b', '#2f8f83'] },
-    { id: 'tim-vang', name: 'Tím & vàng', swatch: ['#7a58b8', '#f0b84a'], vars: { '--p1': '#7a58b8', '--p2': '#f0b84a', '--p3': '#3d7fb8', '--p4': '#ef8fb0' } },
-    { id: 'xanh-bien', name: 'Xanh biển', swatch: ['#2f6fb8', '#f4a259'], vars: { '--p1': '#2f6fb8', '--p2': '#f4a259', '--p3': '#79c2d0', '--p4': '#e8705b' } },
+    { id: 'san-ho', name: 'San hô & ngọc', swatch: ['#E0634C', '#2F8F83'], vars: { '--p1': '#E0634C', '--p2': '#E9B44C', '--p3': '#2F8F83', '--p4': '#C97D6E' } },
+    { id: 'tim-vang', name: 'Tím & vàng', swatch: ['#7A58B8', '#E9B44C'], vars: { '--p1': '#7A58B8', '--p2': '#E9B44C', '--p3': '#3D7FB8', '--p4': '#C6749B' } },
+    { id: 'xanh-bien', name: 'Xanh biển', swatch: ['#2F6FB8', '#E9B44C'], vars: { '--p1': '#2F6FB8', '--p2': '#E9B44C', '--p3': '#2F8F83', '--p4': '#E0634C' } },
   ],
   id: 'thiep-gap',
   name: 'Thiệp Gấp',
-  fonts: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap',
-  coverMs: 2600,
+  layout: 'wide',
+  bodyClass: 'rv-custom',
+  fonts: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',
+  coverMs: 2500,
   cheersButton: 'btn',
   defaults: {
-    effects: { ambient: ['sparkles', 'petals'], colors: { petals: ['#e8705b', '#f0b84a', '#2f8f83', '#ef8fb0', '#fff'], sparkles: ['#fff', '#f0b84a'], confetti: ['#e8705b', '#2f8f83', '#f0b84a', '#ef8fb0', '#3d7fb8'], fireworks: ['#e8705b', '#f0b84a', '#2f8f83', '#fff'] }, density: .7 },
-    sections: ['hero', 'couple', 'families', 'events', 'countdown', 'album', 'map', 'rsvp', 'guestbook', 'gift', 'thanks'],
+    effects: {
+      ambient: ['petals'],
+      colors: { petals: ['#E0634C', '#2F8F83', '#E9B44C', '#FFFAF1'] },
+      density: .35,
+    },
+    sections: ['hero', 'couple', 'families', 'story', 'events', 'countdown', 'album', 'map', 'rsvp', 'guestbook', 'gift', 'thanks'],
     texts: {
-      coverTitle: 'Một tấm thiệp gấp',
-      coverHint: 'Chạm để mở thiệp',
-      kicker: 'trân trọng kính mời',
+      coverTitle: 'Sách Pop-Up Kiến Trúc',
+      coverHint: 'Chạm mở nếp gấp để dựng khung ảnh 3D',
+      kicker: 'Trân trọng kính mời',
       invite: 'Chúng mình gấp từng lớp giấy nhỏ để kể chuyện đôi mình, và muốn mở nó ra trước mặt bạn trong ngày vui.',
       coupleTitle: 'Hai mảnh giấy, một cánh cổng',
       eventsTitle: 'Những trang trong thiệp',
-      albumTitle: 'Khung ảnh dựng đứng',
-      rsvpTitle: 'Báo tin cho chúng mình',
+      albumTitle: 'Sân khấu ảnh dựng nổi',
+      rsvpTitle: 'Phiếu hồi âm gấp mép',
       rsvpLead: 'Bạn nhớ cho chúng mình biết bạn có đến không nhé.',
-      guestbookTitle: 'Tờ giấy nhắn',
-      giftTitle: 'Ngăn kéo quà mừng',
+      guestbookTitle: 'Tờ giấy nhắn ghim góc',
+      giftTitle: 'Ngăn kéo giấy mừng cưới',
       thanks: 'Cảm ơn bạn đã mở từng lớp giấy này cùng chúng mình.',
       closing: 'Hẹn gặp bạn,',
     },
@@ -39,84 +46,394 @@ export default {
   render(ctx) {
     const { data: d, names: n, widgets: W } = ctx, t = d.texts, has = s => ctx.has(s);
     const guest = ctx.guest || 'bạn thân mến';
-    const dp = parts(d.date), mono = `${initial(n.first)}&${initial(n.second)}`;
+    const dp = parts(d.date);
+    const mono = `${initial(n.first)}&${initial(n.second)}`;
+    const pic = (slot, i = 0) => ctx.img(slot, i) || (ctx.album.length ? ctx.album[i % ctx.album.length] : '') || ctx.img('hero', 0) || '';
+    const captions = Array.isArray(d.images?.captions) ? d.images.captions : [];
 
     const cover = html`
       <div class="gap-stage">
         <p class="gap-top">${t.coverTitle}</p>
         <div class="gap-card">
-          <div class="gap-inside" aria-hidden="true">
-            <i class="l l1"><svg viewBox="0 0 200 220"><path d="M20 220V90C20 45 55 12 100 12s80 33 80 78v130z"/><path class="in" d="M44 220V96c0-34 24-58 56-58s56 24 56 58v124z"/></svg></i>
-            <i class="l l2"><svg viewBox="0 0 200 120"><path d="M0 120c20-50 50-70 100-70s80 20 100 70z"/></svg></i>
-            <i class="l l3"><svg viewBox="0 0 200 150"><circle cx="72" cy="34" r="17"/><path d="M50 150c0-52 8-92 22-92s22 40 22 92z"/><circle cx="130" cy="42" r="15"/><path d="M110 150c0-48 7-84 20-84s20 36 20 84z"/><path class="veil" d="M115 58c14-14 30-10 34 4-14 4-26 4-34-4z"/></svg></i>
-            <i class="l l4"><svg viewBox="0 0 200 70"><g><circle cx="22" cy="44" r="9"/><circle cx="14" cy="34" r="7"/><circle cx="30" cy="34" r="7"/><path d="M22 52v18"/></g><g><circle cx="176" cy="40" r="10"/><circle cx="168" cy="29" r="7"/><circle cx="185" cy="30" r="7"/><path d="M176 50v20"/></g></svg></i>
-            <p class="ribbon">${n.first} <b>&amp;</b> ${n.second}</p>
+          <div class="gap-inside">
+            <div class="pop-layer l-arch" aria-hidden="true"></div>
+            <figure class="pop-layer l-photo">
+              <img src="${pic('hero', 0)}" alt="${n.pair}">
+            </figure>
+            <div class="pop-layer l-ribbon">
+              <span class="rib-names">${n.first} &amp; ${n.second}</span>
+              <span class="rib-date">${dotDate(d.date)}</span>
+            </div>
           </div>
           <div class="gap-front">
             <div class="front-face">
-              <span class="mono">${initial(n.first)}<i>&amp;</i>${initial(n.second)}</span>
+              <span class="mono">${initial(n.first)}<span>&amp;</span>${initial(n.second)}</span>
               <p class="to">Gửi <b>${guest}</b></p>
-              <h1>${n.first}<em>&amp;</em>${n.second}</h1>
-              <p class="date">${fmt.dots(d.date)}</p>
+              <div class="cover-names">
+                <span class="cn-a">${n.first}</span>
+                <span class="cn-amp">&amp;</span>
+                <span class="cn-b">${n.second}</span>
+              </div>
+              <p class="date">${dotDate(d.date)}</p>
             </div>
           </div>
         </div>
-        <button class="gap-open" data-open>Mở thiệp</button>
+        <button type="button" class="gap-open" data-open>Mở trang thiệp</button>
         <p class="gap-hint">${t.coverHint}</p>
       </div>`;
 
-    const sheet = (cls, body) => html`<section class="sheet ${cls}"><div class="paper">${body}</div></section>`;
-    const sections = {
-      hero: () => sheet('hero', html`
-        <p class="kicker" data-rv="blur">${t.kicker}</p>
-        <figure class="cutout" data-rv="zoom"><img data-zoom src="${ctx.img('hero', 0)}" alt="${n.pair}" loading="lazy"></figure>
-        <h2 class="names" data-rv="up">${n.first}<em>&amp;</em>${n.second}</h2>
-        <p class="when" data-rv="up">${fmt.long(d.date)}</p>
-        <p class="invite" data-type="24">${t.invite}</p>`),
+    const showHero = has('hero');
+    const showCouple = has('couple');
+    const showFamilies = has('families') && (d.families || []).length > 0;
+    const storyItems = Array.isArray(d.story) ? d.story : (typeof d.story === 'string' && d.story.trim() ? [{ text: d.story.trim() }] : []);
+    const showStory = has('story') && storyItems.length > 0;
+    const showSpread2 = showCouple || showFamilies || showStory;
 
-      couple: () => sheet('couple', html`
-        <h2 data-rv="up">${t.coupleTitle}</h2>
-        <div class="duo">
-          <div data-rv="drop"><i class="scallop"><img data-zoom src="${ctx.img('groom', 3)}" alt="${n.groom}" loading="lazy"></i><h3>${n.groom}</h3>${d.groom.bio ? html`<p>${d.groom.bio}</p>` : ''}</div>
-          <div data-rv="drop" style="transition-delay:.15s"><i class="scallop b"><img data-zoom src="${ctx.img('bride', 4)}" alt="${n.bride}" loading="lazy"></i><h3>${n.bride}</h3>${d.bride.bio ? html`<p>${d.bride.bio}</p>` : ''}</div>
-        </div>`),
+    const showEvents = has('events') && (d.events || []).length > 0;
+    const showCountdown = has('countdown');
+    const showMap = has('map') && (d.places || []).length > 0;
+    const showSpread3 = showEvents || showCountdown || showMap;
 
-      families: () => (d.families || []).length ? sheet('families', html`
-        ${(d.families || []).map((f, i) => html`<div data-rv="${i ? 'right' : 'left'}"><h3>${f.side}</h3>${f.father ? html`<p>Ông ${f.father}</p>` : ''}${f.mother ? html`<p>Bà ${f.mother}</p>` : ''}<small>${br(f.address)}</small></div>`)}`) : '',
+    const showAlbum = has('album') && ctx.album.length > 0;
 
-      events: () => sheet('events', html`
-        <h2 data-rv="up">${t.eventsTitle}</h2>
-        ${(d.events || []).map((e, i) => { const p = parts(e.date); return html`
-          <article class="page ${e.main ? 'main' : ''}" data-rv="${i % 2 ? 'right' : 'left'}">
-            <div class="fold"><span>${p.weekday}</span><b>${p.dd}</b><span>T${p.mo}</span></div>
-            <div><h3>${e.title}</h3><p>${fmt.time(e.date)} · ${e.venue}</p><p class="addr">${e.address}</p>${e.lunar ? html`<p class="lunar">${e.lunar}</p>` : ''}</div>
-          </article>`; })}`),
+    const showRsvp = has('rsvp');
+    const showGuestbook = has('guestbook');
+    const showGift = has('gift');
+    const showThanks = has('thanks');
+    const showSpread5 = showRsvp || showGuestbook || showGift || showThanks;
 
-      countdown: () => sheet('count', html`<div data-rv="zoom">${W.countdown()}</div><a class="btn ghost" href="${W.gcalUrl()}" target="_blank" rel="noopener">Lưu vào lịch</a>`),
+    const navItems = [
+      showHero && ['#spread-1', 'Bìa trong'],
+      showSpread2 && ['#spread-2', 'Đôi uyên ương'],
+      showSpread3 && ['#spread-3', 'Lịch & Bản đồ'],
+      showAlbum && ['#spread-4', 'Sân khấu ảnh'],
+      showSpread5 && ['#spread-rsvp', 'Hồi âm & Quà'],
+    ].filter(Boolean);
 
-      album: () => ctx.album.length ? sheet('album', html`<h2 data-rv="up">${t.albumTitle}</h2><div class="frame" data-rv="zoom">${W.gallery()}</div>`) : '',
+    const spread1 = showHero ? html`
+      <section id="spread-1" class="spread spread-hero is-folded-open">
+        <div class="page-pane hero-stage-page">
+          <div class="popup-stage" data-stage-tilt>
+            <div class="stage-backdrop" aria-hidden="true">
+              <span class="arch-back"></span>
+              <span class="arch-mid"></span>
+              <span class="tab-corner"></span>
+            </div>
+            <div class="stage-easel fold-pop">
+              <figure class="cutout-frame">
+                <img data-zoom src="${pic('hero', 0)}" alt="${n.pair}">
+              </figure>
+              <span class="easel-crease" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+        <div class="page-pane hero-title-page">
+          <div class="colophon-bar">
+            <span class="kicker-tag">${t.kicker}</span>
+            ${d.city ? html`<span class="city-tag">${d.city}</span>` : ''}
+          </div>
+          <div class="hero-date-block">
+            <span class="hero-day" aria-hidden="true">${dp ? dp.dd : ''}</span>
+            <div class="hero-month-year">
+              <span>${dp ? `Tháng ${dp.mo}` : ''}</span>
+              <strong>${dp ? dp.y : ''}</strong>
+            </div>
+          </div>
+          <h1 class="hero-names">
+            <span class="name-a">${n.first}</span>
+            <span class="name-amp" aria-hidden="true">&amp;</span>
+            <span class="name-b">${n.second}</span>
+          </h1>
+          <p class="when">${fullDate(d.date)}</p>
+          <p class="invite">${t.invite}</p>
+          ${showSpread5 ? html`<div class="hero-actions"><a class="btn hero-rsvp-link" href="#spread-rsvp">Gửi hồi âm</a></div>` : ''}
+        </div>
+      </section>` : '';
 
-      map: () => sheet('map-sec', html`<h2 data-rv="up">Đường đến</h2><div data-rv="up">${W.map({ btn: 'btn' })}</div>`),
+    const spread2 = showSpread2 ? html`
+      <section id="spread-2" class="spread spread-duo ${!(showFamilies || showStory) ? 'spread-single' : ''}">
+        ${showCouple ? html`
+          <div class="page-pane couple-page">
+            <h2>${t.coupleTitle}</h2>
+            <div class="duo-cards">
+              <article class="duo-card fold-pop">
+                <div class="arch-window">
+                  <img data-zoom src="${pic('groom', 1)}" alt="${n.groom}" loading="lazy">
+                </div>
+                <div class="duo-meta">
+                  <span class="role-badge">Chú rể</span>
+                  <h3>${n.groom}</h3>
+                  ${d.groom?.bio ? html`<p>${d.groom.bio}</p>` : ''}
+                </div>
+              </article>
+              <article class="duo-card duo-card-b fold-pop">
+                <div class="arch-window arch-b">
+                  <img data-zoom src="${pic('bride', 2)}" alt="${n.bride}" loading="lazy">
+                </div>
+                <div class="duo-meta">
+                  <span class="role-badge badge-jade">Cô dâu</span>
+                  <h3>${n.bride}</h3>
+                  ${d.bride?.bio ? html`<p>${d.bride.bio}</p>` : ''}
+                </div>
+              </article>
+            </div>
+          </div>` : ''}
+        ${(showFamilies || showStory) ? html`
+          <div class="page-pane families-page">
+            ${showFamilies ? html`
+              <div class="fam-block">
+                <h2>Hai gia đình</h2>
+                <div class="fam-folds">
+                  ${(d.families || []).map((f, i) => html`
+                    <article class="fam-folio fold-pop ${i ? 'fam-bride' : 'fam-groom'}">
+                      <h3>${f.side}</h3>
+                      ${f.father ? html`<p>Ông ${f.father}</p>` : ''}
+                      ${f.mother ? html`<p>Bà ${f.mother}</p>` : ''}
+                      <p class="fam-addr">${br(f.address)}</p>
+                    </article>`)}
+                </div>
+              </div>` : ''}
+            ${showStory ? html`
+              <div class="story-insert fold-pop">
+                <h2>Chuyện chúng mình</h2>
+                <div class="story-list">
+                  ${storyItems.map(item => html`
+                    <article class="story-item">
+                      ${item.year ? html`<span class="story-year">${item.year}</span>` : ''}
+                      ${item.title ? html`<h3>${item.title}</h3>` : ''}
+                      <p>${item.text || item}</p>
+                    </article>`)}
+                </div>
+              </div>` : ''}
+          </div>` : ''}
+      </section>` : '';
 
-      rsvp: () => sheet('reply', html`<h2 data-rv="up">${t.rsvpTitle}</h2><p class="lead">${t.rsvpLead}</p>${W.rsvp({ btn: 'btn', yes: 'Mình sẽ đến', no: 'Tiếc quá, mình bận' })}`),
+    const spread3 = showSpread3 ? html`
+      <section id="spread-3" class="spread spread-ceremony ${!(showEvents || showCountdown) || !showMap ? 'spread-single' : ''}">
+        ${(showEvents || showCountdown) ? html`
+          <div class="page-pane events-page">
+            ${showEvents ? html`
+              <h2>${t.eventsTitle}</h2>
+              <div class="event-tabs">
+                ${(d.events || []).map(e => {
+                  const p = parts(e.date);
+                  return html`
+                    <article class="page fold-pop ${e.main ? 'main' : ''}">
+                      <div class="fold">
+                        <span>${p ? p.weekday : ''}</span>
+                        <b>${p ? p.dd : ''}</b>
+                        <span>${p ? `Tháng ${p.mo}` : ''}</span>
+                      </div>
+                      <div class="page-info">
+                        <h3>${e.title || ''}</h3>
+                        ${e.date ? html`<p class="ev-time">${fmt.time(e.date)}</p>` : ''}
+                        ${e.venue ? html`<p class="ev-venue">${e.venue}</p>` : ''}
+                        ${e.address ? html`<p class="addr">${e.address}</p>` : ''}
+                        ${e.lunar ? html`<p class="lunar">${e.lunar}</p>` : ''}
+                      </div>
+                    </article>`;
+                })}
+              </div>` : ''}
+            ${showCountdown ? html`
+              <div class="count-strip fold-pop">
+                ${W.countdown()}
+                <a class="btn ghost gcal-btn" href="${W.gcalUrl()}" target="_blank" rel="noopener">Lưu vào lịch</a>
+              </div>` : ''}
+          </div>` : ''}
+        ${showMap ? html`
+          <div class="page-pane map-page">
+            <h2>Đường đến ngày vui</h2>
+            <div class="map-sleeve fold-pop">${W.map({ btn: 'btn' })}</div>
+          </div>` : ''}
+      </section>` : '';
 
-      guestbook: () => sheet('book', html`<h2 data-rv="up">${t.guestbookTitle}</h2>${W.guestbook({ btn: 'btn', placeholder: 'Viết đôi dòng gửi tới hai bạn...' })}`),
+    const spread4 = showAlbum ? html`
+      <section id="spread-4" class="spread spread-stage">
+        <div class="tg-stage">
+          <div class="tg-stage-head">
+            <div>
+              <h2>${t.albumTitle}</h2>
+              <p class="stage-sub">Chạm vào khung ảnh dựng nổi để xem toàn màn hình</p>
+            </div>
+            <div class="stage-controls">
+              <button type="button" class="stage-nav tg-prev" aria-label="Ảnh trước">Trang trước</button>
+              <span class="stage-counter" aria-live="polite">1 / ${ctx.album.length}</span>
+              <button type="button" class="stage-nav tg-next" aria-label="Ảnh tiếp theo">Trang sau</button>
+            </div>
+          </div>
+          <div class="tg-stage-body">
+            <div class="tg-stage-viewport">
+              <div class="stage-wings fold-pop">
+                <span class="wing-back" aria-hidden="true"></span>
+                <figure class="wing-photo">
+                  <img data-zoom src="${ctx.album[0]}" alt="${captions[0] || `Ảnh cưới 1`}">
+                  <figcaption class="stage-caption">${captions[0] || `Khung ảnh 1`}</figcaption>
+                </figure>
+                <span class="wing-front" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="tg-stage-tabs" role="tablist" aria-label="Chọn khung ảnh pop-up">
+              ${ctx.album.map((src, i) => html`
+                <button type="button" class="tg-tab ${i === 0 ? 'on' : ''}" role="tab" aria-selected="${i === 0 ? 'true' : 'false'}" data-stage-i="${i}" data-src="${src}" data-cap="${captions[i] || `Khung ảnh ${i + 1}`}">
+                  <img src="${src}" alt="" loading="lazy">
+                  <span>${captions[i] || `Khung ${i + 1}`}</span>
+                </button>`)}
+            </div>
+          </div>
+        </div>
+      </section>` : '';
 
-      gift: () => sheet('gift', html`<h2 data-rv="up">${t.giftTitle}</h2>${W.gift({ btn: 'btn ghost', hint: 'Kéo ngăn tủ ra (chạm)', box: html`<i class="dr-body"></i><i class="dr-paper">❤</i><i class="dr-front"></i>` })}`),
+    const spread5 = showSpread5 ? html`
+      <section id="spread-rsvp" class="spread spread-closing ${!(showRsvp || showGuestbook) || !(showGift || showThanks) ? 'spread-single' : ''}">
+        ${(showRsvp || showGuestbook) ? html`
+          <div class="page-pane reply-page">
+            ${showRsvp ? html`
+              <div class="reply-slip fold-pop">
+                <h2>${t.rsvpTitle}</h2>
+                <p class="lead">${t.rsvpLead}</p>
+                ${W.rsvp({ btn: 'btn', yes: 'Mình sẽ đến', no: 'Tiếc quá, mình bận' })}
+              </div>` : ''}
+            ${showGuestbook ? html`
+              <div class="guestbook-notes fold-pop">
+                <h2>${t.guestbookTitle}</h2>
+                ${W.guestbook({ btn: 'btn', placeholder: 'Viết đôi dòng gửi tới hai bạn...' })}
+              </div>` : ''}
+          </div>` : ''}
+        ${(showGift || showThanks) ? html`
+          <div class="page-pane drawer-page">
+            ${showGift ? html`
+              <div class="drawer-box fold-pop">
+                <h2>${t.giftTitle}</h2>
+                ${W.gift({
+                  btn: 'btn ghost',
+                  hint: 'Chạm để kéo ngăn giấy mừng cưới',
+                  box: html`<i class="dr-sleeve"></i><i class="dr-tray"><span class="dr-tray-label">Kéo ngăn giấy</span></i><i class="dr-pocket"></i>`,
+                })}
+              </div>` : ''}
+            ${showThanks ? html`
+              <div class="thanks-folio fold-pop">
+                <figure class="thanks-frame">
+                  <img data-zoom src="${pic('thanks', Math.max(0, ctx.album.length - 1))}" alt="${n.pair}" loading="lazy">
+                </figure>
+                <p class="invite">${t.thanks}</p>
+                <p class="closing">${t.closing}</p>
+                <p class="sign">${n.first} &amp; ${n.second}</p>
+              </div>` : ''}
+          </div>` : ''}
+      </section>` : '';
 
-      thanks: () => sheet('thanks', html`
-        <figure class="cutout" data-rv="zoom"><img data-zoom src="${ctx.img('thanks', 5)}" alt="${n.pair}" loading="lazy"></figure>
-        <p class="invite" data-rv="up">${t.thanks}</p><p class="closing">${t.closing}</p>
-        <p class="sign">${n.first} &amp; ${n.second}</p>`),
-    };
+    const main = html`
+      ${navItems.length > 1 ? html`
+        <nav class="book-nav" aria-label="Mục lục thiệp gấp">
+          ${navItems.map(([href, label], i) => html`<a class="book-tab ${i === 0 ? 'on' : ''}" href="${href}">${label}</a>`)}
+        </nav>` : ''}
+      <div class="book-stack">
+        ${spread1}
+        ${spread2}
+        ${spread3}
+        ${spread4}
+        ${spread5}
+      </div>
+      <footer class="book-colophon">
+        <span>${mono}</span>
+        <span>${dotDate(d.date)}</span>
+      </footer>`;
 
-    const main = html`${(d.sections || []).filter(has).map(s => sections[s]?.() || '')}<footer>${mono} · ${fmt.short(d.date)}</footer>`;
     return { cover, main };
   },
 
+  mounted(ctx, { main }) {
+    const spreads = $$('.spread', main);
+    const panes = $$('.page-pane', main);
+    const foldPops = $$('.fold-pop', main);
+
+    // 1. Fold-hinge reveal (IntersectionObserver driving --fold: 0 -> 1)
+    if (reduced || typeof IntersectionObserver !== 'function') {
+      spreads.forEach(s => s.classList.add('is-folded-open'));
+      panes.forEach(p => p.classList.add('is-folded-open'));
+      foldPops.forEach(el => el.classList.add('is-folded-open'));
+    } else {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-folded-open');
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.06, rootMargin: '0px 0px -24px 0px' });
+      spreads.forEach(s => io.observe(s));
+      panes.forEach(p => io.observe(p));
+      foldPops.forEach(el => io.observe(el));
+    }
+
+    // 2. Book nav active highlight
+    const navLinks = $$('.book-tab', main);
+    if (navLinks.length && typeof IntersectionObserver === 'function') {
+      const navIo = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const id = '#' + entry.target.id;
+          navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === id));
+        });
+      }, { rootMargin: '-35% 0px -45% 0px', threshold: 0 });
+      spreads.forEach(s => s.id && navIo.observe(s));
+    }
+
+    // 3. Hero 3D Pop-Up Stage pointer parallax (hover devices, non-reduced)
+    const tiltStage = $('[data-stage-tilt]', main);
+    if (tiltStage && !reduced && matchMedia('(hover: hover)').matches) {
+      tiltStage.addEventListener('pointermove', e => {
+        const r = tiltStage.getBoundingClientRect();
+        const px = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        const py = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        tiltStage.style.setProperty('--px', px.toFixed(3));
+        tiltStage.style.setProperty('--py', py.toFixed(3));
+      });
+      tiltStage.addEventListener('pointerleave', () => {
+        tiltStage.style.setProperty('--px', '0');
+        tiltStage.style.setProperty('--py', '0');
+      });
+    }
+
+    // 4. Spread 4 interactive 3D Pop-Up Photo Stage
+    const stage = $('.tg-stage', main);
+    if (stage) {
+      const tabs = $$('.tg-tab', stage);
+      const wing = $('.stage-wings', stage);
+      const photo = $('.wing-photo img', stage);
+      const capEl = $('.stage-caption', stage);
+      const counter = $('.stage-counter', stage);
+      const prevBtn = $('.tg-prev', stage);
+      const nextBtn = $('.tg-next', stage);
+      let current = 0;
+
+      const selectSlide = idx => {
+        if (!tabs.length || !photo) return;
+        current = (idx + tabs.length) % tabs.length;
+        const tab = tabs[current];
+        const src = tab.dataset.src || '';
+        const cap = tab.dataset.cap || `Khung ảnh ${current + 1}`;
+        photo.setAttribute('src', src);
+        photo.setAttribute('alt', cap);
+        if (capEl) capEl.textContent = cap;
+        if (counter) counter.textContent = `${current + 1} / ${tabs.length}`;
+        tabs.forEach((b, k) => {
+          const on = k === current;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        if (!reduced && wing) replay(wing, 'is-popping');
+      };
+
+      tabs.forEach((b, i) => b.addEventListener('click', () => selectSlide(i)));
+      prevBtn?.addEventListener('click', () => selectSlide(current - 1));
+      nextBtn?.addEventListener('click', () => selectSlide(current + 1));
+    }
+  },
+
   opened(ctx, instant) {
+    const heroSpread = $('#spread-1');
+    if (heroSpread) heroSpread.classList.add('is-folded-open');
+    $$('.spread-hero .page-pane, .spread-hero .fold-pop').forEach(el => el.classList.add('is-folded-open'));
     if (instant) return;
-    const { fx } = ctx;
-    setTimeout(() => fx.burst(fx.width / 2, fx.height * .42, 90, { hearts: true }), 1700);
   },
 };

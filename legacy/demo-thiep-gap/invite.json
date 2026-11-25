@@ -2,58 +2,58 @@
   "theme": "thiep-gap",
   "slug": "demo-thiep-gap",
   "groom": {
-    "short": "Hoàng Nam",
-    "full": "Nguyễn Hoàng Nam",
-    "bio": "Kỹ sư thích cà phê sáng và những chuyến đi xa."
+    "short": "Minh Triết",
+    "full": "Lê Minh Triết",
+    "bio": "Kiến trúc sư mê mô hình giấy và những buổi sáng sương mù trên đồi thông."
   },
   "bride": {
-    "short": "Bảo Ngọc",
-    "full": "Trần Bảo Ngọc",
-    "bio": "Cô giáo nhỏ yêu sách cũ và hoa cúc họa mi."
+    "short": "Khánh Linh",
+    "full": "Phạm Khánh Linh",
+    "bio": "Biên tập viên sách ảnh yêu màu giấy kraft và hương trà atisô."
   },
   "order": "groom-first",
-  "city": "Sài Gòn",
-  "date": "2027-03-14T17:30:00+07:00",
-  "themeColor": "#e8705b",
+  "city": "Đà Lạt",
+  "date": "2027-05-22T11:00:00+07:00",
+  "themeColor": "#E0634C",
   "families": [
     {
       "side": "Nhà trai",
-      "father": "Nguyễn Văn Hải",
-      "mother": "Võ Thị Mai",
-      "address": "Phường Bến Thành,\nTP. Hồ Chí Minh"
+      "father": "Lê Văn Quang",
+      "mother": "Trần Thị Thu Hà",
+      "address": "Phường 3,\nThành phố Đà Lạt"
     },
     {
       "side": "Nhà gái",
-      "father": "Trần Quốc Tuấn",
-      "mother": "Đỗ Thị Hằng",
-      "address": "Phường Phú Hội,\nThành phố Huế"
+      "father": "Phạm Hữu Tín",
+      "mother": "Nguyễn Ngọc Mai",
+      "address": "Phường Lộc Thọ,\nThành phố Nha Trang"
     }
   ],
   "events": [
     {
-      "title": "Lễ Vu Quy",
-      "date": "2027-03-13T09:00:00+07:00",
+      "title": "Lễ Đón Dâu",
+      "date": "2027-05-21T08:30:00+07:00",
       "venue": "Tư gia nhà gái",
-      "address": "Số 8 đường Ví Dụ, Phường Phú Hội, Huế"
+      "address": "Số 18 đường Trần Phú, Phường Lộc Thọ, Nha Trang"
     },
     {
-      "title": "Tiệc Cưới",
-      "date": "2027-03-14T17:30:00+07:00",
-      "venue": "Sảnh Hoa Ngà, Nhà hàng Ví Dụ",
-      "address": "Số 99 đường Ví Dụ, Phường Bến Thành, TP. Hồ Chí Minh",
+      "title": "Tiệc Cưới Khu Vườn Thông",
+      "date": "2027-05-22T11:00:00+07:00",
+      "venue": "Vườn Thông Mơ",
+      "address": "Số 26 đường Mimosa, Phường 10, Thành phố Đà Lạt",
       "main": true
     }
   ],
   "places": [
     {
-      "label": "Tiệc cưới · Sài Gòn",
-      "address": "Số 99 đường Ví Dụ, Phường Bến Thành, TP. Hồ Chí Minh",
-      "coords": "10.7721,106.6983"
+      "label": "Tiệc cưới tại Đà Lạt",
+      "address": "Số 26 đường Mimosa, Phường 10, Thành phố Đà Lạt",
+      "coords": "11.9195,108.4583"
     },
     {
-      "label": "Lễ vu quy · Huế",
-      "address": "Số 8 đường Ví Dụ, Phường Phú Hội, Huế",
-      "coords": "16.4637,107.5909"
+      "label": "Lễ đón dâu tại Nha Trang",
+      "address": "Số 18 đường Trần Phú, Phường Lộc Thọ, Nha Trang",
+      "coords": "12.2388,109.1967"
     }
   ],
   "images": {
@@ -62,37 +62,39 @@
     "bride": "images/anh5.jpg",
     "thanks": "images/anh6.jpg",
     "album": [
+      "images/anh1.jpg",
       "images/anh2.jpg",
       "images/anh3.jpg",
-      "images/anh1.jpg",
+      "images/anh4.jpg",
       "images/anh5.jpg",
-      "images/anh4.jpg"
+      "images/anh6.jpg"
     ],
     "captions": [
-      "Lần đầu gặp",
-      "Đà Lạt 2024",
-      "Ngày cầu hôn",
-      "Mùa hoa",
-      "Chụp ảnh cưới"
+      "Cổng giấy trên đồi thông",
+      "Chiều sương hồ Tuyền Lâm",
+      "Nếp gấp lời hẹn ước",
+      "Chú rể Minh Triết",
+      "Cô dâu Khánh Linh",
+      "Trang kết khu vườn hoa"
     ],
     "preview": "images/xem-truoc.jpg"
   },
-  "music": "../assets/music/dao-buoc.mp3",
+  "music": "../assets/music/binh-minh.mp3",
   "sheetUrl": "https://script.google.com/macros/s/AKfycbyRBpGqZilCbtkPyp354qVpcOd6Q2lX6cpCjPtdkSjgjrsgBpJZHZrpq-uvFOnL7QoS/exec",
   "accounts": [
     {
       "who": "Chú rể",
-      "bank": "MB Bank",
-      "bankCode": "MB",
+      "bank": "VietinBank",
+      "bankCode": "ICB",
       "number": "0000000000",
-      "name": "NGUYEN HOANG NAM"
+      "name": "LE MINH TRIET"
     },
     {
       "who": "Cô dâu",
-      "bank": "ACB",
-      "bankCode": "ACB",
+      "bank": "BIDV",
+      "bankCode": "BIDV",
       "number": "0000000000",
-      "name": "TRAN BAO NGOC"
+      "name": "PHAM KHANH LINH"
     }
   ]
 }

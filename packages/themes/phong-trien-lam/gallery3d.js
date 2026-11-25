@@ -519,7 +519,7 @@ export async function runGallery(el, ctx, opts) {
           return { image: bmp, w, h, flipY: false };
         } catch {}
       }
-      const im = new Image(); im.decoding = 'async'; im.src = src; await im.decode();
+      const im = new Image(); im.crossOrigin = 'anonymous'; im.decoding = 'async'; im.src = src; await im.decode();
       const s = Math.min(1, MAXT / Math.max(im.naturalWidth, im.naturalHeight));
       const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
       c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
@@ -956,6 +956,7 @@ export async function runGallery(el, ctx, opts) {
     off.forEach(f => f());
     el.querySelector('.ptl-css')?.replaceChildren();
     renderer.dispose();
+    root.classList.remove('ptl-3d', 'ptl-ready', 'ptl-inside', 'ptl-cc', 'ptl-portrait');
     throw err;
   }
 }

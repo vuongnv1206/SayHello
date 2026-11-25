@@ -1,71 +1,1248 @@
 :root {
-  --linen: #f2ead9; --linen-2: #e8dcc2; --wood: #b98a58; --wood-dk: #8a6234;
-  --thread: #c4573a; --thread-2: #d9a441; --sage: #7a9a7e; --ink: #3b2d24; --ink-soft: #7b6a5c;
-  --f-hand: 'Charm', 'Times New Roman', serif; --f-sans: 'Be Vietnam Pro', system-ui, sans-serif;
-  --c-bg: var(--linen); --c-paper: var(--linen); --c-ink: var(--ink); --c-accent: var(--thread); --c-accent-ink: #fff; --c-soft: rgba(59, 45, 36, .16);
+  --linen: #EFE7DA;
+  --linen-2: #E0D3BC;
+  --cloth: #FAF4EA;
+  --wood: #B88753;
+  --wood-dk: #7C5328;
+  --thread: #B84A39;
+  --thread-2: #C8963E;
+  --sage: #557A65;
+  --ink: #4A3525;
+  --ink-soft: #6D5643;
+  --f-hand: 'Charm', 'Times New Roman', serif;
+  --f-serif: 'Lora', 'Times New Roman', serif;
+  --f-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+  --c-bg: var(--linen);
+  --c-paper: var(--linen);
+  --c-ink: var(--ink);
+  --c-accent: var(--thread);
+  --c-accent-ink: #FFFDF9;
+  --c-soft: rgba(74, 53, 37, .18);
+  --radius: 8px;
 }
-/* Vân vải lanh: sợi dọc và sợi ngang mờ */
-body, .cover, .th-stage { background-color: var(--linen); background-image: repeating-linear-gradient(0deg, rgba(120, 90, 50, .06) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(120, 90, 50, .05) 0 1px, transparent 1px 4px); }
-body { font-family: var(--f-sans); color: var(--ink); }
-main { max-width: 520px; background: transparent; overflow: visible; }
-h2.ttl { font: 700 34px/1.15 var(--f-hand); text-align: center; color: var(--thread); margin-bottom: 22px; padding-bottom: 12px; background: repeating-linear-gradient(90deg, var(--thread-2) 0 8px, transparent 8px 14px) bottom / 100% 2px no-repeat; }
-h3 { font: 700 22px/1.25 var(--f-hand); }
-.btn { background: var(--thread); color: #fff; font-weight: 600; border-radius: 6px; box-shadow: 0 0 0 2px var(--linen), 0 0 0 3.5px var(--thread); }
-.btn.ghost { background: transparent; color: var(--thread); box-shadow: 0 0 0 2px var(--linen), 0 0 0 3.5px var(--thread); }
 
-/* ---- Bìa: khung thêu ---- */
-.th-stage { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; text-align: center; user-select: none; -webkit-user-select: none; }
-.th-top { font: 700 28px var(--f-hand); color: var(--thread); }
-.th-hoop { position: relative; width: min(80vw, 330px); aspect-ratio: 1; touch-action: none; cursor: grab; transition: transform 1s cubic-bezier(.4, 0, .2, 1), opacity .8s .4s; filter: drop-shadow(0 16px 22px rgba(70, 40, 10, .3)); }
-.th-art { position: absolute; inset: 0; width: 100%; height: 100%; --p: 0; }
-.th-art .cloth { fill: #f7f0e0; }
-.th-art path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.th-art .ghost path { stroke: rgba(120, 90, 50, .35); stroke-width: 2.4; stroke-dasharray: 2 4; stroke-dashoffset: 0; }
-.th-art .stitch path { stroke: var(--thread); stroke-width: 3.2; stroke-dasharray: .03 .012; }
-.th-art .stitch path:nth-child(odd) { stroke: var(--thread-2); }
-.th-art .reveal path { stroke: #fff; stroke-width: 12; stroke-dasharray: calc(var(--p) * 1.02) 2; }
-.th-art .mono-t { font: 700 44px var(--f-hand); fill: var(--thread); opacity: calc(.25 + var(--p) * .75); } .th-art .mono-t.sm { font-size: 26px; }
-.th-ring { position: absolute; inset: 0; border-radius: 50%; border: 18px solid var(--wood); box-shadow: inset 0 0 0 3px var(--wood-dk), inset 0 4px 8px rgba(0, 0, 0, .35), 0 0 0 2px var(--wood-dk); pointer-events: none; background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .06) 0 3px, transparent 3px 8px); -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.5%); mask: radial-gradient(circle, transparent 66%, #000 66.5%); }
-.th-screw { position: absolute; top: -14px; left: 50%; width: 36px; height: 26px; margin-left: -18px; border-radius: 6px 6px 3px 3px; background: linear-gradient(#d3a468, var(--wood-dk)); box-shadow: 0 2px 4px rgba(0, 0, 0, .35); pointer-events: none; }
-.th-needle { position: absolute; left: 50%; top: 52%; width: 130px; height: 6px; margin-left: -20px; background: linear-gradient(90deg, transparent, #c9ced4 40%, #8e949b); border-radius: 3px; transform-origin: 0 50%; transform: rotate(calc(-35deg + var(--p, 0) * 20deg)) translateX(calc(var(--p, 0) * 40px)); pointer-events: none; box-shadow: 0 3px 4px rgba(0, 0, 0, .25); --p: 0; }
-.th-needle::after { content: ''; position: absolute; right: 8px; top: 1px; width: 14px; height: 4px; border-radius: 3px; border: 1px solid var(--thread); background: var(--linen); }
-#cover.open .th-hoop { transform: scale(1.5); opacity: 0; }
-#cover.open .th-stage > :not(.th-hoop) { opacity: 0; transition: opacity .5s; }
-.th-to { font-size: 14px; color: var(--ink-soft); } .th-hint { font-size: 13px; color: var(--ink-soft); }
-.th-skip { font-size: 13px; color: var(--thread); text-decoration: underline; text-underline-offset: 3px; padding: 6px 12px; }
+/* Vân vải lanh mộc (sợi dọc & sợi ngang tự nhiên) */
+body,
+.cover,
+.th-stage {
+  background-color: var(--linen);
+  background-image:
+    radial-gradient(circle at 22% 18%, rgba(250, 244, 234, .65), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(74, 53, 37, .048) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(74, 53, 37, .042) 0 1px, transparent 1px 5px);
+}
 
-/* ---- Nội dung ---- */
-.sheet { padding: 40px 20px; text-align: center; position: relative; }
-.kicker { font: 700 22px var(--f-hand); color: var(--thread-2); margin-bottom: 14px; }
-.hoop { position: relative; width: 62%; margin: 0 auto 14px; aspect-ratio: 1; border-radius: 50%; border: 12px solid var(--wood); box-shadow: inset 0 0 0 2px var(--wood-dk), inset 0 6px 10px rgba(0, 0, 0, .3), 0 0 0 2px var(--wood-dk), 0 10px 18px rgba(70, 40, 10, .3); overflow: hidden; background: #f7f0e0; }
-.hoop::after { content: ''; position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 0 3px var(--linen); }
-.hoop img { height: 100%; object-fit: cover; }
-.hoop.big { width: 86%; } .hoop.b { border-color: #a8734a; }
-.names { font: 700 42px/1.1 var(--f-hand); color: var(--ink); } .names em { color: var(--thread); font-weight: 400; }
-.when { margin: 8px 0 14px; color: var(--ink-soft); letter-spacing: .05em; }
-.invite { max-width: 34ch; margin: 0 auto; color: var(--ink-soft); }
-.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .duo .hoop { width: 100%; } .duo p { font-size: 13.5px; color: var(--ink-soft); margin-top: 4px; }
-.label { display: inline-block; margin: 6px; padding: 16px 22px; background: #fff9ea; border: 2px dashed var(--thread); border-radius: 4px; box-shadow: 0 0 0 5px #fff9ea, 0 0 0 7px var(--thread-2); } .label h3 { color: var(--thread); } .label small { display: block; color: var(--ink-soft); margin-top: 4px; }
-.cloth-patch { position: relative; text-align: left; margin: 0 6px 22px; padding: 20px 20px 18px; border-radius: 4px; transform: rotate(-.8deg); box-shadow: 0 5px 10px rgba(70, 40, 10, .2); background: #e8c9b8; outline: 2px dashed rgba(255, 255, 255, .85); outline-offset: -8px; }
-.cloth-patch.c1 { background: #cfdcc6; transform: rotate(.9deg); } .cloth-patch.c2 { background: #f0dca0; transform: rotate(-.4deg); }
-.cloth-patch small { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); } .cloth-patch p { font-size: 14px; } .cloth-patch .addr { font-size: 13px; color: var(--ink-soft); } .cloth-patch .lunar { font-style: italic; }
-.cloth-patch.main::before { content: '❤'; position: absolute; right: 14px; top: 10px; color: var(--thread); }
-.count .cd { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
-.count .cd .u { min-width: 62px; padding: 10px 6px; background: #fff9ea; border: 2px dashed var(--thread-2); border-radius: 4px; } .count .cd b { font: 700 30px var(--f-hand); color: var(--thread); }
-.hoop-show .show { aspect-ratio: 1; width: 86%; margin: 0 auto; border-radius: 50%; border: 14px solid var(--wood); box-shadow: inset 0 0 0 2px var(--wood-dk), 0 0 0 2px var(--wood-dk), 0 12px 20px rgba(70, 40, 10, .3); } .hoop-show .thumbs img { border-radius: 50%; }
-.tag { position: relative; background: #fff9ea; margin: 0 6px; padding: 34px 20px 24px; border: 2px dashed var(--thread-2); border-radius: 6px; box-shadow: 0 8px 16px rgba(70, 40, 10, .18); }
-.tag::before { content: ''; position: absolute; top: 10px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--linen); box-shadow: inset 0 2px 3px rgba(0, 0, 0, .3); }
-.tag .ttl { font-size: 28px; } .lead { color: var(--ink-soft); margin-bottom: 12px; }
-.form input:not([type=radio]), .form textarea, .form select { background: #fffdf6; border: 2px dashed var(--thread-2); border-radius: 4px; }
-.choice input:checked + span { background: var(--thread); border-color: var(--thread); }
-.wish-item { background: #fff9ea; border: 2px dashed var(--thread-2); border-radius: 4px; }
-.giftbox { position: relative; width: 210px; height: 190px; margin-top: 8px; }
-.bag-back { position: absolute; left: 20px; right: 20px; top: 10px; height: 60px; border-radius: 30px 30px 0 0; background: var(--thread-2); }
-.bag-card { position: absolute; left: 50px; right: 50px; top: 26px; height: 80px; background: #fff; display: grid; place-items: center; color: var(--thread); font-size: 28px; border-radius: 3px; transition: transform .7s .2s; }
-.bag { position: absolute; left: 0; right: 0; bottom: 0; height: 140px; border-radius: 22px 22px 70px 70px / 22px 22px 40px 40px; background: var(--thread); outline: 2px dashed rgba(255, 255, 255, .7); outline-offset: -9px; box-shadow: 0 10px 18px rgba(70, 40, 10, .3); }
-.bag-cord { position: absolute; left: 30px; right: 30px; top: 58px; height: 8px; border-radius: 4px; background: var(--thread-2); box-shadow: 0 2px 3px rgba(0, 0, 0, .3); transition: transform .6s; }
-.giftbox.open .bag-card { transform: translateY(-36px) rotate(-4deg); } .giftbox.open .bag-cord { transform: scaleX(1.25) translateY(-6px); }
-.hint { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
-.thanks .sign { font: 700 34px var(--f-hand); color: var(--thread); margin-top: 6px; } .closing { margin-top: 12px; }
-footer { padding: 26px 0 46px; text-align: center; font: 700 20px var(--f-hand); color: var(--ink-soft); }
-@media (prefers-reduced-motion: reduce) { .th-art { --p: 1; } }
+body {
+  font-family: var(--f-sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+  overflow-x: clip;
+}
+
+main {
+  position: relative;
+  max-width: var(--card-max, 1180px);
+  margin: 0 auto;
+  background: transparent;
+  overflow: clip;
+  padding: 0 20px 44px;
+}
+
+/* Giữ mọi chữ nhãn dùng chung >= 13px */
+.love b,
+.group-note a {
+  font-size: 13px;
+}
+
+h2.ttl {
+  font: 700 clamp(28px, 3.2vw, 38px) / 1.18 var(--f-hand);
+  color: var(--thread);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  background: repeating-linear-gradient(90deg, var(--thread-2) 0 10px, transparent 10px 17px) bottom / 100% 2px no-repeat;
+}
+
+h3 {
+  font: 700 22px / 1.25 var(--f-hand);
+  color: var(--ink);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 26px;
+  background: var(--thread);
+  color: #FFFDF9;
+  font-family: var(--f-sans);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  box-shadow: 0 0 0 2px var(--linen), 0 0 0 3.5px var(--thread);
+  transition: transform .2s ease, background-color .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn.ghost {
+  background: var(--cloth);
+  color: var(--thread);
+  box-shadow: 0 0 0 2px var(--linen), 0 0 0 3.5px var(--thread);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2.5px solid var(--thread);
+  outline-offset: 3px;
+}
+
+/* ---- Bìa: Khung thêu tay tương tác (khach.mjs contract) ---- */
+.th-stage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.th-top {
+  font: 700 clamp(26px, 4vw, 34px) / 1.2 var(--f-hand);
+  color: var(--thread);
+}
+
+.th-hoop {
+  position: relative;
+  width: min(76vw, 330px);
+  aspect-ratio: 1;
+  touch-action: none;
+  cursor: grab;
+  transition: transform 1s cubic-bezier(.4, 0, .2, 1), opacity .8s .35s;
+  filter: drop-shadow(0 18px 26px rgba(74, 53, 37, .28));
+}
+
+.th-hoop:active {
+  cursor: grabbing;
+}
+
+.th-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  --p: 0;
+}
+
+.th-art .cloth {
+  fill: var(--cloth);
+}
+
+.th-art .cloth-stitch {
+  fill: none;
+  stroke: rgba(184, 74, 57, .22);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+}
+
+.th-art path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.th-art .ghost path {
+  stroke: rgba(74, 53, 37, .32);
+  stroke-width: 2.4;
+  stroke-dasharray: 2 5;
+}
+
+.th-art .stitch path {
+  stroke: var(--thread);
+  stroke-width: 3.4;
+  stroke-dasharray: .03 .012;
+}
+
+.th-art .stitch path:nth-child(odd) {
+  stroke: var(--thread-2);
+}
+
+.th-art .reveal path {
+  stroke: #fff;
+  stroke-width: 12;
+  stroke-dasharray: calc(var(--p) * 1.02) 2;
+}
+
+.th-art .mono-t {
+  font: 700 44px var(--f-hand);
+  fill: var(--thread);
+  opacity: calc(.28 + var(--p) * .72);
+}
+
+.th-art .mono-t.sm {
+  font-size: 26px;
+}
+
+.th-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 18px solid var(--wood);
+  box-shadow: inset 0 0 0 3px var(--wood-dk), inset 0 4px 8px rgba(0, 0, 0, .32), 0 0 0 2px var(--wood-dk);
+  pointer-events: none;
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .07) 0 3px, transparent 3px 8px);
+  -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.5%);
+  mask: radial-gradient(circle, transparent 66%, #000 66.5%);
+}
+
+.th-screw {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 36px;
+  height: 26px;
+  margin-left: -18px;
+  border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(var(--thread-2), var(--wood-dk));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35);
+  pointer-events: none;
+}
+
+.th-needle {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 130px;
+  height: 6px;
+  margin-left: -20px;
+  background: linear-gradient(90deg, transparent, #c9ced4 40%, #8e949b);
+  border-radius: 3px;
+  transform-origin: 0 50%;
+  transform: rotate(calc(-35deg + var(--p, 0) * 20deg)) translateX(calc(var(--p, 0) * 40px));
+  pointer-events: none;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, .25);
+  --p: 0;
+}
+
+.th-needle::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 1px;
+  width: 14px;
+  height: 4px;
+  border-radius: 3px;
+  border: 1px solid var(--thread);
+  background: var(--linen);
+}
+
+#cover.open .th-hoop {
+  transform: scale(1.45);
+  opacity: 0;
+}
+
+#cover.open .th-stage > :not(.th-hoop) {
+  opacity: 0;
+  transition: opacity .5s;
+}
+
+.th-to {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.th-hint {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.th-skip {
+  min-height: 44px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--thread);
+  border: 1.5px dashed var(--thread);
+  border-radius: 999px;
+  background: rgba(250, 244, 234, .82);
+  text-decoration: none;
+}
+
+/* ---- Đường chỉ chạy SVG liên tục theo cuộn ---- */
+.kt-thread-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.kt-thread-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.kt-thread-guide {
+  stroke: rgba(74, 53, 37, .12);
+  stroke-width: 1.8;
+  stroke-dasharray: 4 7;
+}
+
+.kt-thread-line {
+  stroke: var(--thread);
+  stroke-width: 2.6;
+  stroke-dasharray: 10 8;
+  stroke-linecap: round;
+  opacity: .58;
+}
+
+.kt-tapestry {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 54px;
+  padding-top: 30px;
+}
+
+.kt-zone {
+  position: relative;
+}
+
+.kt-head {
+  text-align: left;
+  max-width: 480px;
+}
+
+/* ---- Khung thêu gỗ nhiều kích cỡ ---- */
+.hoop-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hoop {
+  position: relative;
+  width: min(100%, var(--hoop-size, 240px));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: var(--hoop-rim, 12px) solid var(--wood);
+  background: var(--cloth);
+  box-shadow:
+    inset 0 0 0 2px var(--wood-dk),
+    inset 0 6px 12px rgba(0, 0, 0, .28),
+    0 0 0 2px var(--wood-dk),
+    0 14px 26px rgba(74, 53, 37, .22);
+  transition: transform .7s cubic-bezier(.2, .8, .2, 1);
+}
+
+.hoop::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  border: 2px dashed var(--thread-2);
+  opacity: .18;
+  transform: scale(.94) rotate(-6deg);
+  transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1);
+  pointer-events: none;
+}
+
+.hoop-card.stitched .hoop::before {
+  opacity: .72;
+  transform: scale(1) rotate(0deg);
+}
+
+.hoop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--linen);
+  pointer-events: none;
+}
+
+.hoop img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.hoop-screw {
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  width: 26px;
+  height: 18px;
+  margin-left: -13px;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(var(--thread-2), var(--wood-dk));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+  pointer-events: none;
+}
+
+.hoop-walnut .hoop {
+  border-color: #93643B;
+}
+
+.h-380 { --hoop-size: 380px; --hoop-rim: 16px; }
+.h-320 { --hoop-size: 320px; --hoop-rim: 14px; }
+.h-300 { --hoop-size: 300px; --hoop-rim: 13px; }
+.h-260 { --hoop-size: 260px; --hoop-rim: 12px; }
+.h-240 { --hoop-size: 240px; --hoop-rim: 12px; }
+.h-220 { --hoop-size: 220px; --hoop-rim: 11px; }
+.h-180 { --hoop-size: 180px; --hoop-rim: 10px; }
+
+.hoop-cap {
+  padding: 5px 14px;
+  background: var(--cloth);
+  border: 1.5px dashed var(--thread-2);
+  border-radius: 4px;
+  font-family: var(--f-serif);
+  font-size: 14px;
+  color: var(--ink);
+  text-align: center;
+}
+
+/* ---- Zone 1: Hero Tapestry ---- */
+.kt-hero {
+  display: grid;
+  gap: 28px;
+  align-items: center;
+  padding: 16px 0 8px;
+}
+
+.kt-hero-hoop {
+  display: flex;
+  justify-content: center;
+}
+
+.kt-hero-copy {
+  text-align: left;
+}
+
+.kt-salute {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--linen-2);
+  border: 1.5px dashed var(--thread);
+  border-radius: 4px;
+  font-family: var(--f-serif);
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font: 700 clamp(50px, 11vw, 108px) / 1.02 var(--f-hand);
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+
+.names .name-amp {
+  font-size: clamp(32px, 5vw, 52px);
+  color: var(--thread);
+  line-height: 1;
+  margin: 2px 0 2px 18px;
+}
+
+.kt-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.kt-crest {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--thread);
+}
+
+.kt-crest-svg {
+  position: absolute;
+  inset: 0;
+}
+
+.kt-crest span {
+  font: 700 20px / 1 var(--f-hand);
+  color: var(--thread);
+}
+
+.kt-crest i {
+  font-style: normal;
+  font-size: 14px;
+  margin: 0 2px;
+  color: var(--sage);
+}
+
+.kt-date-block .when {
+  font-family: var(--f-serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.kt-date-block .city {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.invite {
+  font-family: var(--f-serif);
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.75;
+  color: var(--ink);
+  max-width: 44ch;
+}
+
+/* ---- Zone 2: Couple, Optional Story & Families ---- */
+.kt-weave {
+  display: grid;
+  gap: 32px;
+}
+
+.duo {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+.person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.person-info h3 {
+  font-size: 28px;
+  color: var(--thread);
+}
+
+.person-info .bio {
+  font-family: var(--f-serif);
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 30ch;
+  margin: 4px auto 0;
+}
+
+.story-patch {
+  padding: 24px 22px;
+  background: var(--cloth);
+  border: 2px dashed var(--sage);
+  border-radius: 6px;
+  box-shadow: 0 10px 22px rgba(74, 53, 37, .12);
+}
+
+.story-patch h3 {
+  color: var(--sage);
+  margin-bottom: 8px;
+}
+
+.story-patch p {
+  font-family: var(--f-serif);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.kt-story-list {
+  list-style: none;
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+  text-align: left;
+}
+
+.kt-story-item {
+  padding-left: 12px;
+  border-left: 2px dashed var(--thread-2);
+}
+
+.kt-story-year {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--thread);
+  margin-bottom: 2px;
+}
+
+.kt-story-item h4 {
+  font-family: var(--f-serif);
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.families-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.label {
+  padding: 20px 22px;
+  background: var(--cloth);
+  border: 2px dashed var(--thread);
+  border-radius: 4px;
+  box-shadow: 0 0 0 5px var(--cloth), 0 0 0 7px var(--thread-2), 0 10px 20px rgba(74, 53, 37, .12);
+  text-align: left;
+}
+
+.label h3 {
+  color: var(--thread);
+  margin-bottom: 4px;
+}
+
+.label p {
+  font-family: var(--f-serif);
+  font-size: 15.5px;
+}
+
+.label small {
+  display: block;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+/* ---- Zone 3: Zig-Zag Hoops Album ---- */
+.hoop-tapestry {
+  display: grid;
+  gap: 28px;
+  align-items: center;
+}
+
+.hoop-tapestry .zig-l {
+  justify-self: start;
+  margin-left: 4px;
+}
+
+.hoop-tapestry .zig-r {
+  justify-self: end;
+  margin-right: 4px;
+}
+
+/* ---- Zone 4: Events, Countdown & Map Workbench ---- */
+.kt-craft {
+  display: grid;
+  gap: 32px;
+  align-items: start;
+}
+
+.patches-stack {
+  display: grid;
+  gap: 20px;
+}
+
+.cloth-patch {
+  position: relative;
+  text-align: left;
+  padding: 22px 22px 20px;
+  border-radius: 5px;
+  background: #ECD4C6;
+  outline: 2px dashed rgba(255, 253, 249, .9);
+  outline-offset: -9px;
+  box-shadow: 0 8px 18px rgba(74, 53, 37, .16);
+  transform: rotate(-.8deg);
+  transition: transform .5s ease;
+}
+
+.cloth-patch.c1 {
+  background: #D8E3D6;
+  transform: rotate(.9deg);
+}
+
+.cloth-patch.c2 {
+  background: #EFE0BE;
+  transform: rotate(-.5deg);
+}
+
+.cloth-patch.stitched {
+  transform: rotate(0deg);
+}
+
+.cloth-patch.c1.stitched {
+  transform: rotate(.6deg);
+}
+
+.cloth-patch.main::before {
+  content: '❤';
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  font-size: 18px;
+  color: var(--thread);
+}
+
+.cloth-patch .patch-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+  padding-right: 24px;
+}
+
+.cloth-patch .patch-time {
+  color: var(--thread);
+}
+
+.cloth-patch h3 {
+  font-size: 26px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.cloth-patch .venue {
+  font-family: var(--f-serif);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.cloth-patch .addr {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.cloth-patch .lunar {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+/* Stitched linen ruler countdown (distinct from 4 isolated cards) */
+.kt-ruler {
+  margin-top: 24px;
+  padding: 20px 16px;
+  background: var(--cloth);
+  border-top: 3px dashed var(--thread);
+  border-bottom: 3px dashed var(--thread);
+  border-radius: 4px;
+  box-shadow: 0 8px 18px rgba(74, 53, 37, .12);
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+}
+
+.kt-ruler .cd {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  text-align: center;
+}
+
+.kt-ruler .cd .u {
+  padding: 6px 4px;
+  border-right: 1.5px dashed var(--thread-2);
+}
+
+.kt-ruler .cd .u:last-child {
+  border-right: 0;
+}
+
+.kt-ruler .cd b {
+  display: block;
+  font: 700 clamp(28px, 3vw, 36px) / 1.1 var(--f-hand);
+  color: var(--thread);
+}
+
+.kt-ruler .cd span {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--ink-soft);
+}
+
+.cd-done {
+  font-family: var(--f-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--thread);
+}
+
+.kt-map-mat {
+  padding: 18px;
+  background: var(--cloth);
+  border: 2px dashed var(--sage);
+  border-radius: 8px;
+  box-shadow: 0 0 0 5px var(--cloth), 0 0 0 7px var(--linen-2), 0 12px 24px rgba(74, 53, 37, .14);
+}
+
+.kt-map-mat .tabs {
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.kt-map-mat .tabs button {
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: 1.5px dashed var(--sage);
+  color: var(--ink);
+  background: var(--linen);
+}
+
+.kt-map-mat .tabs button.on {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #FFFDF9;
+}
+
+.kt-map-mat .addr {
+  font-family: var(--f-serif);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.kt-map-mat .map {
+  border: 2px solid var(--linen-2);
+  border-radius: 6px;
+}
+
+/* ---- Zone 5: Woven Label RSVP, Guestbook & Brocade Gift ---- */
+.kt-reply {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+.tag {
+  position: relative;
+  background: var(--cloth);
+  padding: 38px 22px 26px;
+  border: 2px dashed var(--thread-2);
+  border-radius: 8px;
+  box-shadow: 0 12px 24px rgba(74, 53, 37, .15);
+}
+
+.tag::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--linen);
+  border: 2px solid var(--thread-2);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, .26);
+}
+
+.lead {
+  font-family: var(--f-serif);
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+.form input:not([type=radio]):not([type=checkbox]),
+.form textarea,
+.form select {
+  background: #FFFDF8;
+  border: 1.5px dashed var(--thread-2);
+  border-radius: 5px;
+  color: var(--ink);
+  font-size: 15px;
+  min-height: 44px;
+}
+
+/* Cross-stitch (×) feedback on woven RSVP label */
+.choice label {
+  position: relative;
+}
+
+.choice span {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1.5px dashed var(--thread-2);
+  background: #FFFDF8;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.choice span::before {
+  content: '';
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1.5px dashed var(--thread-2);
+  background: var(--linen);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  color: transparent;
+  transition: transform .22s cubic-bezier(.2, .9, .3, 1.3), background-color .2s ease;
+}
+
+.choice input:checked + span {
+  background: var(--thread);
+  border-style: solid;
+  border-color: var(--thread);
+  color: #FFFDF9;
+}
+
+.choice input:checked + span::before {
+  content: '×';
+  color: #FFFDF9;
+  border-color: rgba(255, 253, 249, .85);
+  background: rgba(74, 53, 37, .24);
+  transform: scale(1.08);
+}
+
+.choice input:focus-visible + span {
+  outline: 2.5px solid var(--thread);
+  outline-offset: 2px;
+}
+
+.form fieldset.pick legend,
+.form .pick span {
+  font-size: 14px;
+}
+
+.form .msg {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--thread);
+}
+
+.kt-book-gift-col {
+  display: grid;
+  gap: 26px;
+}
+
+.kt-guestbook-patch {
+  padding: 24px 20px;
+  background: var(--cloth);
+  border: 2px dashed var(--sage);
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(74, 53, 37, .12);
+}
+
+.wishes {
+  max-height: 360px;
+}
+
+.wish-item {
+  background: #FFFDF8;
+  border: 1.5px dashed var(--thread-2);
+  border-radius: 5px;
+  font-size: 14.5px;
+}
+
+.wish-item b {
+  color: var(--thread);
+  font-size: 15px;
+}
+
+.kt-gift-pouch {
+  padding: 24px 20px;
+  background: var(--linen-2);
+  border: 2px dashed var(--thread-2);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.giftbox {
+  position: relative;
+  width: 210px;
+  height: 190px;
+  margin-top: 8px;
+}
+
+.bag-back {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 10px;
+  height: 60px;
+  border-radius: 30px 30px 0 0;
+  background: var(--thread-2);
+}
+
+.bag-card {
+  position: absolute;
+  left: 50px;
+  right: 50px;
+  top: 26px;
+  height: 80px;
+  background: #FFFDF8;
+  display: grid;
+  place-items: center;
+  color: var(--thread);
+  font-size: 28px;
+  border-radius: 4px;
+  border: 1.5px dashed var(--thread-2);
+  transition: transform .7s .15s;
+}
+
+.bag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 140px;
+  border-radius: 22px 22px 70px 70px / 22px 22px 40px 40px;
+  background-color: var(--thread);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255, 253, 249, .12) 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(-45deg, rgba(200, 150, 62, .16) 0 8px, transparent 8px 16px);
+  outline: 2px dashed rgba(255, 253, 249, .78);
+  outline-offset: -9px;
+  box-shadow: 0 10px 18px rgba(74, 53, 37, .28);
+}
+
+.bag-cord {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  top: 58px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--thread-2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+  transition: transform .6s;
+}
+
+.giftbox.open .bag-card {
+  transform: translateY(-36px) rotate(-4deg);
+}
+
+.giftbox.open .bag-cord {
+  transform: scaleX(1.22) translateY(-6px);
+}
+
+.hint {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+
+.acc {
+  background: var(--cloth);
+  border: 1.5px dashed var(--thread-2);
+  border-radius: 8px;
+}
+
+.acc p {
+  font-size: 14px;
+}
+
+/* ---- Zone 6: Closing & Footer ---- */
+.kt-thanks {
+  display: grid;
+  gap: 24px;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.kt-thanks-copy {
+  text-align: left;
+}
+
+.kt-thanks-copy .closing {
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.kt-thanks-copy .sign {
+  font: 700 clamp(32px, 4vw, 44px) / 1.15 var(--f-hand);
+  color: var(--thread);
+  margin-top: 4px;
+}
+
+.kt-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 44px;
+  padding: 24px 0 36px;
+  border-top: 2px dashed var(--thread-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-family: var(--f-hand);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.kt-foot-stitch {
+  width: 36px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--thread) 0 6px, transparent 6px 10px);
+}
+
+/* ---- Responsive: Mobile 390px vs Desktop 1440px ---- */
+@media (max-width: 799px) {
+  .kt-hero-copy,
+  .kt-thanks-copy {
+    text-align: left;
+  }
+
+  .h-380 { --hoop-size: min(74vw, 290px); --hoop-rim: 14px; }
+  .h-320 { --hoop-size: min(68vw, 260px); --hoop-rim: 13px; }
+  .h-300 { --hoop-size: min(66vw, 250px); --hoop-rim: 12px; }
+  .h-260 { --hoop-size: min(62vw, 240px); --hoop-rim: 12px; }
+  .h-240 { --hoop-size: min(56vw, 210px); --hoop-rim: 11px; }
+  .h-220 { --hoop-size: min(54vw, 200px); --hoop-rim: 10px; }
+  .h-180 { --hoop-size: min(46vw, 175px); --hoop-rim: 10px; }
+}
+
+@media (min-width: 800px) {
+  main {
+    padding: 0 36px 64px;
+  }
+
+  .kt-tapestry {
+    gap: 88px;
+    padding-top: 48px;
+  }
+
+  /* Hero asymmetrical 2-col: oversized 380px hoop offset against wide hand-lettered invitation */
+  .kt-hero {
+    grid-template-columns: 5fr 7fr;
+    gap: 52px;
+    min-height: min(78vh, 660px);
+  }
+
+  .kt-hero.no-hoop,
+  .kt-thanks.no-hoop {
+    grid-template-columns: 1fr;
+  }
+
+  .kt-hero-hoop {
+    justify-content: flex-start;
+    margin-left: -18px;
+  }
+
+  /* Couple & Optional Story staggered weaving */
+  .duo {
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+
+  .duo.has-story {
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 32px;
+  }
+
+  .duo .person-b {
+    margin-top: 56px;
+  }
+
+  .families-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 12px;
+  }
+
+  .families-grid .fam-1 {
+    margin-top: 26px;
+  }
+
+  /* Staggered 3-col weaving album hoops */
+  .hoop-tapestry {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 42px 32px;
+  }
+
+  .hoop-tapestry .zig-l,
+  .hoop-tapestry .zig-r {
+    justify-self: center;
+    margin: 0;
+  }
+
+  .hoop-tapestry .tap-1 {
+    margin-top: 64px;
+  }
+
+  .hoop-tapestry .tap-2 {
+    margin-top: 22px;
+  }
+
+  /* Events + Countdown | Map workbench */
+  .kt-craft.two-col {
+    grid-template-columns: 5fr 7fr;
+    gap: 48px;
+  }
+
+  /* RSVP | Guestbook + Gift */
+  .kt-reply.two-col {
+    grid-template-columns: 6fr 6fr;
+    gap: 48px;
+  }
+
+  /* Closing spread */
+  .kt-thanks {
+    grid-template-columns: 4fr 8fr;
+    gap: 44px;
+  }
+
+  .kt-thanks-hoop {
+    justify-self: end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .th-art {
+    --p: 1;
+  }
+
+  .hoop::before {
+    opacity: .65;
+    transform: none;
+  }
+
+  .cloth-patch,
+  .cloth-patch.c1,
+  .cloth-patch.stitched,
+  .cloth-patch.c1.stitched {
+    transform: none;
+  }
+}

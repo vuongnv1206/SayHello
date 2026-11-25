@@ -125,7 +125,7 @@ export default defineTheme({
       vars: { '--mist': '#aab5b2', '--water': '#46585a', '--deep': '#18211f' },
       preset: { zenith: '#8b9696', horizon: '#b8c1be', sun: '#eef0ea', water: '#46585a', deep: '#18211f', fog: '#a9b3b0', fogD: .036, lantern: '#e2522b', bamboo: '#857857', wind: 1.1, boost: 1.0, bloom: .22, exposure: .95, night: 0 } },
     { id: 'dem-trang', name: 'Đêm trăng', swatch: ['#132a3c', '#ff7a3d'],
-      vars: { '--mist': '#0f1c2e', '--water': '#132a3c', '--deep': '#08121c', '--ink': '#e8eef2', '--paper': '#16283a' },
+      vars: { '--mist': '#0f1c2e', '--water': '#132a3c', '--deep': '#08121c', '--ink': '#e8eef2', '--paper': '#16283a', '--water-ink': '#e8eef2', '--sh-accent': '#ff7a3d', '--sh-accent-ink': '#08121c', '--sh-soft': 'rgba(232, 238, 242, .24)', '--sky-top': '#081220', '--input-bg': '#102030', '--hint-bg': 'rgba(8, 18, 32, .82)' },
       preset: { zenith: '#070f1c', horizon: '#1c3048', sun: '#e8eef2', water: '#132a3c', deep: '#08121c', fog: '#132236', fogD: .03, lantern: '#ff7a3d', bamboo: '#5c5440', wind: .5, boost: 1.25, bloom: .45, exposure: 1.05, night: 1 } },
   ],
   defaults: { texts: {} },
@@ -206,8 +206,8 @@ export default defineTheme({
         dlg.addEventListener('pointerdown', e => { x0 = e.clientX; });
         dlg.addEventListener('pointerup', e => { if (x0 != null && Math.abs(e.clientX - x0) > 50) show(cur + (e.clientX < x0 ? 1 : -1)); x0 = null; });
         dlg.addEventListener('keydown', e => { if (e.key === 'ArrowRight') show(cur + 1); if (e.key === 'ArrowLeft') show(cur - 1); });
-        // Bản phẳng: nút "giữ tay" làm mặt nước lặng ngay
-        el.querySelector('.hg-track [data-sh-still]')?.addEventListener('click', () => { el.classList.add('is-still'); ctx.emit('still'); });
+        // Bản phẳng: nút "giữ tay" làm mặt nước lặng ngay (hoặc kích hoạt qua bàn phím ở 3D)
+        el.querySelector('.hg-track [data-sh-still]')?.addEventListener('click', e => { if (e.detail === 0 || !document.documentElement.classList.contains('hg-3d')) { el.classList.add('is-still'); ctx.emit('still'); } });
       },
       motion: {
         async cinematic(el, ctx) { await start(el, ctx, 'cinematic'); },

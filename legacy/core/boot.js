@@ -93,6 +93,8 @@ async function boot() {
     note.append(txt, all, x); document.body.append(note);
   }
   document.body.classList.add('locked', 'theme-' + themeId);
+  if (theme.layout) document.body.dataset.layout = theme.layout;
+  if (theme.bodyClass) document.body.classList.add(...[].concat(theme.bodyClass));
   ctx.widgets.bind(cover); ctx.widgets.bind(main);
   // Mở khóa nhạc ở lần chạm đầu tiên (xem chrome.unlockMusic)
   ['pointerdown', 'touchend', 'click'].forEach(t => document.addEventListener(t, () => chrome.unlockMusic(), { capture: true, once: true }));
