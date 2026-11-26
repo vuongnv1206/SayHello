@@ -44,7 +44,7 @@ npm run test:e2e                  # bộ Playwright đầy đủ
 
 Supabase cục bộ (cần Docker Desktop): `npm run db:start`, `npm run db:stop`, `npm run db:reset`.
 
-Triển khai Vercel: đặt **Root Directory** là `apps/web`.
+Triển khai Vercel: `vercel.json` ở gốc repo đã cấu hình sẵn, để **Root Directory** là thư mục gốc.
 
 ## Tài liệu (`docs/`)
 

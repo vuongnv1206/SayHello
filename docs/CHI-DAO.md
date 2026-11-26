@@ -25,7 +25,7 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 - **Photobooth**: đã duyệt ("tạm ổn"), đã đạt chuẩn kiểm thử. Giữ đếm 3-2-1; nút "Xem thiệp ngay" mở trong `<= 900ms` (ngoại lệ chủ dự án đồng ý ngày 26/11/2026).
 - **Thẻ Lên Máy Bay**, **Album Nhạc**: bản thử ở `prototypes/` (mở thẳng `index.html`), đang chờ chủ dự án duyệt.
 - **Trailer Phim**: chưa đạt, đã bỏ bản thử.
-- Vercel: `sayhello-wheat.vercel.app` trả 404 trước khi cấu trúc lại. Cần đặt Root Directory là `apps/web`.
+- Vercel: triển khai từ thư mục gốc theo `vercel.json`. Trước đó trang trả 404 vì Vercel phục vụ cả repo như file tĩnh.
 
 ## Việc được giao
 

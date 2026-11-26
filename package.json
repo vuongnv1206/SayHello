@@ -21,6 +21,7 @@
     "db:reset": "supabase db reset"
   },
   "devDependencies": {
+    "next": "16.4.6",
     "playwright": "^1.63.0",
     "supabase": "^2.0.0"
   }

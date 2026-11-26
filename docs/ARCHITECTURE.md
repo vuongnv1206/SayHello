@@ -58,5 +58,5 @@ Hồi âm và lời chúc: `client/backend.js` gửi tới `sheetUrl` (Google Ap
 ## 4. Định tuyến và CI
 
 - `/` — bộ sưu tập; `/demo/<mẫu>/` và `/demo/<mẫu>/<chủ đề>/` — thiệp mẫu (`?k=`, `?n=`, `?tier=`, `?topic=`).
-- Triển khai Vercel với Root Directory `apps/web`.
+- Triển khai Vercel từ thư mục gốc theo `vercel.json`: `npm ci`, `npm run build`, chép `apps/web/public` ra `public/`, đầu ra `apps/web/.next`. `next` khai thêm ở `package.json` gốc để Vercel nhận ra khung Next.js; giữ cùng phiên bản với `apps/web`.
 - `.github/workflows/check.yml` (push và pull request vào `main`, Node 22): `npm test`, build, lint, typecheck, smoke test.
