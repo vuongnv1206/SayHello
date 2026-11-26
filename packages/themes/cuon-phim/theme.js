@@ -44,6 +44,7 @@ export default defineTheme({
   layout: 'scroll',
   voice: 'than-mat',
   themeColor: '#15120f',
+  tagline: 'Đám cưới như một suất chiếu riêng: vé mời, chọn ghế và thước phim ảnh cưới.',
   fonts: 'https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800&family=Playfair+Display:ital,wght@0,500;1,400;1,700&family=Space+Mono:wght@400;700&family=Be+Vietnam+Pro:wght@400;500;600&display=swap',
   libs: ['scroll'],
   gateMs: 450,
@@ -254,7 +255,7 @@ export default defineTheme({
               </button>
             </article>`)}
         </div>
-        <div class="leader-cd"><p>Phim khởi chiếu sau</p>${countdown(ctx, { done: 'Phim đã khởi chiếu, cảm ơn bạn đã tới xem ♥' })}</div>`;
+        <div class="leader-cd"><p>Phim khởi chiếu sau</p>${countdown(ctx, { done: 'Phim đã khởi chiếu, cảm ơn bạn đã tới xem' })}</div>`;
       },
       mount(el, ctx) {
         el.querySelectorAll('.ticket').forEach(tk => tk.querySelector('.tk-stub').addEventListener('click', e => {

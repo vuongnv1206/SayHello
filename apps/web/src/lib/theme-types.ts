@@ -26,6 +26,7 @@ export type ThemeSpec = {
   tier?: string;
   gateMs?: number;
   tagline?: string;
+  voice?: string;
   moment?: ThemeMoment;
   topics?: readonly ThemeTopic[];
   palettes?: readonly ThemeTopic[];

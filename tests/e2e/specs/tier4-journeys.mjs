@@ -5,6 +5,7 @@ import {
 import {
   createSafeContext,
   openGate,
+  runGateRitual,
   ensureQuickOpenVisible,
   saveFailureShot,
 } from '../lib/browser.mjs';
@@ -183,6 +184,24 @@ export async function runTier4Journeys({ browser, webUrl, shotsDir, record }) {
     });
   }
 
+  // Nghi thức mở dài: đi hết đường chính (không bấm bỏ qua) vẫn phải mở được thiệp
+  for (const theme of themes.filter(t => t.ritual)) {
+    await record('tier4', 'journeys', `${theme.id}: full opening ritual reaches the invitation`, async () => {
+      const session = await createSafeContext(browser, { webUrl, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+      try {
+        const { page, tracker } = await session.newTrackedPage();
+        await page.goto(`${webUrl}/demo/${theme.id}/?tier=standard`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await runGateRitual(page);
+        tracker.assertClean(`${theme.id} ritual`);
+      } catch (err) {
+        await saveFailureShot(session.ctx, shotsDir, `tier4-ritual-${theme.id}`, err);
+        throw err;
+      } finally {
+        await session.ctx.close();
+      }
+    });
+  }
+
   // Journey: trang bộ sưu tập (máy tính và điện thoại)
   await record('tier4', 'journeys', 'Journey (Desktop + Mobile): / showcase browsing', async () => {
     const session = await createSafeContext(browser, {
@@ -195,6 +214,13 @@ export async function runTier4Journeys({ browser, webUrl, shotsDir, record }) {
       await assertNoHorizontalOverflow(page, '/ desktop');
       await page.setViewportSize({ width: 390, height: 844 });
       await assertNoHorizontalOverflow(page, '/ mobile');
+      const visibleCards = () => page.locator('main article:visible').count();
+      const total = await visibleCards();
+      await page.getByText('Trang trọng, mời hai họ').click();
+      const formal = await visibleCards();
+      await page.getByText('Thân mật, mời bạn bè').click();
+      const casual = await visibleCards();
+      assert.ok(formal > 0 && casual > 0 && formal + casual === total, `tone filter: ${formal} + ${casual} != ${total}`);
       tracker.assertClean('Journey showcase');
     } catch (err) {
       await saveFailureShot(session.ctx, shotsDir, 'tier4-journey-showcase', err);

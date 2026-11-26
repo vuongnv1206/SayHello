@@ -118,6 +118,7 @@ export default defineTheme({
   layout: 'stage',
   voice: 'than-mat',
   themeColor: '#0b0e0e',
+  tagline: 'Ảnh cưới treo trong phòng tranh, khách đi dọc từng bức đến bàn tiệc.',
   fonts: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200;300;400;600&display=swap',
   libs: ['three-post'],
   gateMs: 450,

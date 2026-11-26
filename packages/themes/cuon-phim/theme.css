@@ -164,7 +164,7 @@ html.sh-open[data-motion=lite] .curtain { transition: transform 1.2s var(--sh-ea
 .hall .row b { width: 16px; font: 13px/1 var(--f-mono); opacity: .5; }
 .seat { width: 26px; height: 22px; border-radius: 6px 6px 3px 3px; background: #3a302a; }
 .seat:nth-child(5) { margin-right: 12px; }
-.seat.mine { background: var(--amber); box-shadow: 0 0 14px #e8a33d88; animation: pulse 1.8s infinite; }
+.seat.mine { background: var(--amber); box-shadow: 0 0 14px #e8a33d88; animation: pulse 1.8s 3; }
 .hall.booked .seat.mine { background: var(--sub); animation: none; }
 .hall small { margin-top: 8px; font-size: 13px; opacity: .8; text-align: center; }
 @keyframes pulse { 50% { box-shadow: 0 0 2px #e8a33d44; } }

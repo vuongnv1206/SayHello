@@ -352,7 +352,10 @@ try {
       assert.match(await s.page.locator('.th-view-count').textContent() || '', /^2 \//);
       await s.page.locator('.th-v-close').click();
 
-      // Quick Info drawer check (at top and bottom)
+      // Quick Info drawer check (at top and bottom). Nút tự lẩn khi cuộn xuống, cuộn lên đầu thì hiện lại.
+      await s.page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await s.page.waitForFunction(() => !document.querySelector('.sh-quick-btn')?.classList.contains('is-away'), null, { timeout: 3000 });
+      await s.page.waitForTimeout(360);
       await s.page.locator('[data-sh="quick-open"]').click();
       await s.page.locator('#sh-quick[open]').waitFor({ state: 'visible', timeout: 3000 });
       assert.ok((await s.page.locator('#sh-quick .sh-quick-events li').count()) >= 2);

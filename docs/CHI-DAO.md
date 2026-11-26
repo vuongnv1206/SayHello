@@ -22,7 +22,7 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 
 - Một bộ mã duy nhất trên `main`: `apps/web`, `packages/engine`, `packages/themes` (8 mẫu).
 - Site tĩnh cũ (10 mẫu, studio, đặt thiệp, bán hàng, Apps Script) đã xoá; còn trong lịch sử git trước lần cấu trúc lại.
-- **Photobooth**: đã duyệt ("tạm ổn"). Còn lệch chuẩn mở bìa `<= 900ms` do đếm 3-2-1 (smoke test và E2E báo lỗi ở mẫu này).
+- **Photobooth**: đã duyệt ("tạm ổn"), đã đạt chuẩn kiểm thử. Giữ đếm 3-2-1; nút "Xem thiệp ngay" mở trong `<= 900ms` (ngoại lệ chủ dự án đồng ý ngày 26/11/2026).
 - **Thẻ Lên Máy Bay**, **Album Nhạc**: bản thử ở `prototypes/` (mở thẳng `index.html`), đang chờ chủ dự án duyệt.
 - **Trailer Phim**: chưa đạt, đã bỏ bản thử.
 - Vercel: `sayhello-wheat.vercel.app` trả 404 trước khi cấu trúc lại. Cần đặt Root Directory là `apps/web`.
@@ -47,3 +47,13 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 - Kết quả sau khi cấu trúc lại: test engine 38/38, hợp đồng mẫu 30/30, build, lint và kiểm tra kiểu đạt. Smoke và E2E chỉ còn lỗi ở Photobooth (bìa lâu hơn `900ms`, lớp lấp lánh `infinite`, tương phản chữ `.dai-dau`, form hồi âm không có ô lời chúc mà E2E mong đợi).
 - `packages/themes/to-hong/test/e2e.mjs` (chạy riêng) lỗi ở nút "Thông tin nhanh" nằm ngoài khung nhìn; lỗi đã có từ `b3ebf11`.
 - `docs/DESIGN-BRIEF.md` và `docs/CLAUDE-HANDOFF.md` agy đang sửa nên Claude chưa commit. Hai tệp này còn nhắc nhánh `redesign` và `docs/archive/`, cần agy cập nhật.
+
+### 26/11/2026: nâng cấp sau khi cấu trúc lại
+
+- Photobooth: ngoại lệ `data-ritual` + `data-skip`, lấp lánh chạy một lần, chữ vàng trên giấy đậm hơn (đạt AA), QR mừng cưới mang tên khách, nút bỏ qua thấy được ở `320×568`, thêm `test/contract.test.js`.
+- Trang `/`: link chủ đề trỏ thẳng `/demo/<mẫu>/<chủ đề>/`, sơ đồ bộ khung trên mỗi thẻ, bộ lọc giọng lời mời (thuần CSS), bỏ nhãn `cinematic`/`premium`.
+- Dọn: bỏ emoji trong lời văn mặc định, `.seat.mine` ở Cuộn Phim hết nhấp nháy vô hạn, sửa test riêng của Tơ Hồng.
+- Kết quả: engine 38/38, hợp đồng mẫu 35/35, smoke 8/8 mẫu, E2E 157/157, lint, kiểu dữ liệu và build đạt.
+
+**Chưa làm từ `docs/DESIGN-BRIEF.md`, cần chủ dự án duyệt hướng trước:** dựng Thẻ Lên Máy Bay và Album Nhạc thành mẫu, 8 mẫu mới, làm topic khác nhau về cấu trúc ở 4 mẫu hiện có. Phần 4.2 của bản đề xuất còn yêu cầu ảnh MD5 duy nhất, luật này đã bỏ.
+
