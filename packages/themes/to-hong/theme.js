@@ -1,4 +1,4 @@
-// Mẫu "Tơ Hồng" bản 2.0: sợi chỉ đỏ PBR trong không gian 3D sương sớm.
+// Mẫu "Tơ Hồng": sợi chỉ đỏ PBR trong không gian 3D sương sớm.
 //   Bìa (#bia-to-hong): sợi chỉ đỏ căng ngang — kéo/gảy sợi tơ để tạo sóng hài + tiếng đàn tơ, mở thiệp.
 //   Đường tơ (#duong-to):
 //     - cinematic: Three.js r170 qua @sayhello/engine/client/stage3d.js (RoomEnvironment, hậu kỳ Bloom/Grain,

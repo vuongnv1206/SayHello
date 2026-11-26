@@ -1,4 +1,4 @@
-// Mẫu "Cuộn Phim" bản 2: thiệp là một suất chiếu đặc biệt, mỗi phần là một cảnh toàn màn hình.
+// Mẫu "Cuộn Phim": thiệp là một suất chiếu đặc biệt, mỗi phần là một cảnh toàn màn hình.
 //   Phòng chiếu (bìa): kéo cần máy chiếu, đèn bật, cuộn phim quay, phim đầu đếm 3-2-1.
 //   Mở màn: cảnh ghim, cuộn để kéo rèm nhung, ảnh cưới thu về khung, tên hiện từng chữ.
 //   Diễn viên chính, Những cảnh phim (tua ngang, clapper đập), Vé mời (xé cuống vé hiện chỉ đường),

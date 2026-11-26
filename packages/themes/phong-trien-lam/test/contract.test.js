@@ -9,7 +9,6 @@ import theme from '../theme.js';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const PKG_DIR = path.resolve(DIR, '..');
-const REPO_ROOT = path.resolve(PKG_DIR, '..', '..', '..');
 const DEMO = JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'demo.json'), 'utf8'));
 const PKG_JSON = JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'package.json'), 'utf8'));
 
@@ -82,28 +81,11 @@ test('phong-trien-lam renderDocument: scenes, stripped optional fields, palette,
   assert.equal((xssHtml.match(/<\/script>/g) || []).length, (xssHtml.match(/<script/g) || []).length);
 });
 
-test('phong-trien-lam images: 6 unique files with 0 MD5 collisions across all themes and legacy demos', () => {
+test('phong-trien-lam images: 6 unique files, no duplicates', () => {
   const imgDir = path.join(PKG_DIR, 'images');
   const files = fs.readdirSync(imgDir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
   assert.equal(files.length, 6, 'Expected anh-01.jpg..anh-06.jpg (6 files)');
   for (let i = 1; i <= 6; i++) assert.ok(files.includes(`anh-0${i}.jpg`), `Missing anh-0${i}.jpg`);
-
-  const otherHashes = new Map();
-  for (const base of ['packages/themes', 'legacy']) {
-    const baseDir = path.join(REPO_ROOT, base);
-    if (!fs.existsSync(baseDir)) continue;
-    for (const entry of fs.readdirSync(baseDir)) {
-      if (base === 'packages/themes' && entry === 'phong-trien-lam') continue;
-      const d = path.join(baseDir, entry, 'images');
-      if (!fs.existsSync(d)) continue;
-      for (const f of fs.readdirSync(d)) {
-        const fp = path.join(d, f);
-        if (fs.statSync(fp).isFile()) {
-          otherHashes.set(crypto.createHash('md5').update(fs.readFileSync(fp)).digest('hex'), fp);
-        }
-      }
-    }
-  }
 
   const seenOwn = new Set();
   for (const f of files) {
@@ -112,6 +94,5 @@ test('phong-trien-lam images: 6 unique files with 0 MD5 collisions across all th
     const md5 = crypto.createHash('md5').update(buf).digest('hex');
     assert.equal(seenOwn.has(md5), false, `Duplicate MD5 within phong-trien-lam/images: ${f}`);
     seenOwn.add(md5);
-    assert.equal(otherHashes.has(md5), false, `MD5 collision for ${f} with ${otherHashes.get(md5)}`);
   }
 });

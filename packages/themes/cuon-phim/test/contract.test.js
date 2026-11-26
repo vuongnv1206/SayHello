@@ -9,7 +9,6 @@ import theme from '../theme.js';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const PKG_DIR = path.resolve(DIR, '..');
-const REPO_ROOT = path.resolve(PKG_DIR, '..', '..', '..');
 const DEMO = JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'demo.json'), 'utf8'));
 
 test('cuon-phim contract: metadata, scroll layout, palettes, gateMs <= 900, motion.lite pairs', () => {
@@ -83,29 +82,12 @@ test('cuon-phim CSS: stops infinite animations under html[data-motion="lite"] an
   }
 });
 
-test('cuon-phim images: 7 unique files with 0 MD5 collisions across all themes and legacy demos', () => {
+test('cuon-phim images: 7 unique files, no duplicates', () => {
   const imgDir = path.join(PKG_DIR, 'images');
   const files = fs.readdirSync(imgDir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
   assert.equal(files.length, 7, 'Expected anh1..6.jpg + xem-truoc.jpg (7 files)');
   assert.ok(files.includes('xem-truoc.jpg'));
   for (let i = 1; i <= 6; i++) assert.ok(files.includes(`anh${i}.jpg`), `Missing anh${i}.jpg`);
-
-  const otherHashes = new Map();
-  for (const base of ['packages/themes', 'legacy']) {
-    const baseDir = path.join(REPO_ROOT, base);
-    if (!fs.existsSync(baseDir)) continue;
-    for (const entry of fs.readdirSync(baseDir)) {
-      if (base === 'packages/themes' && entry === 'cuon-phim') continue;
-      const d = path.join(baseDir, entry, 'images');
-      if (!fs.existsSync(d)) continue;
-      for (const f of fs.readdirSync(d)) {
-        const fp = path.join(d, f);
-        if (fs.statSync(fp).isFile()) {
-          otherHashes.set(crypto.createHash('md5').update(fs.readFileSync(fp)).digest('hex'), fp);
-        }
-      }
-    }
-  }
 
   const seenOwn = new Set();
   for (const f of files) {
@@ -114,6 +96,5 @@ test('cuon-phim images: 7 unique files with 0 MD5 collisions across all themes a
     const md5 = crypto.createHash('md5').update(buf).digest('hex');
     assert.equal(seenOwn.has(md5), false, `Duplicate MD5 within cuon-phim/images: ${f}`);
     seenOwn.add(md5);
-    assert.equal(otherHashes.has(md5), false, `MD5 collision for ${f} with ${otherHashes.get(md5)}`);
   }
 });

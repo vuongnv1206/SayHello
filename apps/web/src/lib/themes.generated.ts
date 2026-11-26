@@ -9,6 +9,8 @@ import hopKyUcTheme from "../../../../packages/themes/hop-ky-uc/theme.js";
 import hopKyUcDemo from "../../../../packages/themes/hop-ky-uc/demo.json";
 import phongTrienLamTheme from "../../../../packages/themes/phong-trien-lam/theme.js";
 import phongTrienLamDemo from "../../../../packages/themes/phong-trien-lam/demo.json";
+import photoboothTheme from "../../../../packages/themes/photobooth/theme.js";
+import photoboothDemo from "../../../../packages/themes/photobooth/demo.json";
 import songGiaTheme from "../../../../packages/themes/song-gia/theme.js";
 import songGiaDemo from "../../../../packages/themes/song-gia/demo.json";
 import thiepGapDoiTheme from "../../../../packages/themes/thiep-gap-doi/theme.js";
@@ -44,6 +46,13 @@ export const THEMES: Record<string, ThemeRegistryEntry> = {
     demo: phongTrienLamDemo as unknown as ThemeDemoData,
     assetBase: "/_e/themes/phong-trien-lam/",
     preview: "/_e/themes/phong-trien-lam/images/anh-01.jpg",
+  },
+  "photobooth": {
+    id: "photobooth",
+    theme: photoboothTheme as unknown as ThemeSpec,
+    demo: photoboothDemo as unknown as ThemeDemoData,
+    assetBase: "/_e/themes/photobooth/",
+    preview: "/_e/themes/photobooth/images/xem-truoc.jpg",
   },
   "song-gia": {
     id: "song-gia",

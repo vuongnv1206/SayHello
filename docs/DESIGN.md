@@ -1,6 +1,6 @@
-# Hệ Thiết kế · SayHello 2.0 (Card-as-Centerpiece)
+# Hệ Thiết kế · SayHello (Card-as-Centerpiece)
 
-Tài liệu này quy định chuẩn thiết kế thống nhất cho toàn bộ mẫu thiệp v2 trên `@sayhello/engine` (`packages/engine/`) và giao diện trưng bày `/v2/` (`apps/web/src/app/v2/page.tsx`), hợp nhất các cổng hiệu quả H1–H7 và phép thử chống khuôn mẫu từ `docs/archive/KHONG-KHUON-MAU.md`.
+Chuẩn thiết kế chung cho mọi mẫu thiệp trên `@sayhello/engine` (`packages/engine/`) và trang bộ sưu tập (`apps/web/src/app/page.tsx`).
 
 ---
 
@@ -9,9 +9,9 @@ Tài liệu này quy định chuẩn thiết kế thống nhất cho toàn bộ 
 1. **Tấm thiệp là nhân vật chính (Card-as-Centerpiece):** Mọi trải nghiệm bắt đầu và xoay quanh một tấm thiệp cưới có chất liệu rõ ràng (giấy Dó, sơn mài, hộp nhung, men sứ, lookbook biên tập). Ảnh cặp đôi và thông tin lễ là trọng tâm; kỹ thuật 3D/CSS chỉ phục vụ **chất liệu bề mặt** và **chiều sâu 2.5D bên trong khung ảnh**, không dựng thế giới 3D bay camera xa rời tấm thiệp.
 2. **Ba trục tách bạch:**
    - **Layout (`layoutSpec`):** Khung kiến trúc và cách khách đi qua thiệp (`folio`, `lookbook`, `deck`, `split`, `scroll`, `stage`, `pager`, `hub`, `chat`, `custom` trong `packages/engine/src/define-theme.js`).
-   - **Topic (`topics[]`):** Bộ không khí thẩm mỹ hoàn chỉnh gồm bảng màu CSS `--sh-*`, cặp font hỗ trợ `vietnamese`, chất liệu và `swatch`. Một mẫu có 2–3 topic đặc trưng, chuyển đổi qua `/v2/demo/[theme]/[topic]/` hoặc `?topic=<id>`.
+   - **Topic (`topics[]`):** Bộ không khí thẩm mỹ hoàn chỉnh gồm bảng màu CSS `--sh-*`, cặp font hỗ trợ `vietnamese`, chất liệu và `swatch`. Một mẫu có 2–3 topic đặc trưng, chuyển đổi qua `/demo/[theme]/[topic]/` hoặc `?topic=<id>`.
    - **Signature Moment (`moment`):** Đúng **1 động tác chữ ký có tên** (`unseal-gleam`, `optical-push`, `deal-flip`, `seam-converge`), gắn với vật lý mở thiệp hoặc tương tác trọng tâm.
-3. **Trang trưng bày `/v2` (`apps/web/src/app/v2/page.tsx`):** Thoát khỏi khuôn mẫu landing page nền tối điểm vàng cũ; dùng nền giấy sáng `#FAF8F4`, chữ mực `#1C1917`, nhấn son `#8E1B2C`, trình bày minh bạch thẻ *Layout*, *Signature Moment*, các *Topic* kèm vòng màu và nút mở thẳng bản tĩnh `?tier=lite`.
+3. **Trang bộ sưu tập `/` (`apps/web/src/app/page.tsx`):** Thoát khỏi khuôn mẫu landing page nền tối điểm vàng cũ; dùng nền giấy sáng `#FAF8F4`, chữ mực `#1C1917`, nhấn son `#8E1B2C`, trình bày minh bạch thẻ *Layout*, *Signature Moment*, các *Topic* kèm vòng màu và nút mở thẳng bản tĩnh `?tier=lite`.
 
 ---
 
@@ -55,11 +55,11 @@ Toàn bộ bộ chọn mặc định trong `packages/engine/src/base.css` nằm 
 
 ## 4. SLA Mở Bìa, Chống Chóng Mặt & Khả năng Tiếp cận
 
-1. **Thời gian mở bìa (`gateMs`):** Hạn mức tối đa **`<= 900ms`**, mục tiêu chuẩn **`<= 450ms`** (các mẫu M1–M2 dùng `gateMs: 450` với tự mở/bỏ qua `280ms` ở chế độ thường và `80ms` ở `reduced`). Không khóa khách bằng đếm ngược thụ động `2.3s–2.8s`.
+1. **Thời gian mở bìa (`gateMs`):** Hạn mức tối đa **`<= 900ms`**, mục tiêu chuẩn **`<= 450ms`** (đa số mẫu dùng `gateMs: 450` với tự mở/bỏ qua `280ms` ở chế độ thường và `80ms` ở `reduced`). Không khóa khách bằng đếm ngược thụ động `2.3s–2.8s`.
 2. **Chống chóng mặt & An toàn tiền đình:**
    - Cấm bay camera xuyên không gian 3D, cấm rung lắc camera nhàn rỗi, cấm quay camera xoay mặt chữ `CSS3DRenderer`.
    - Mọi góc nghiêng theo chuột/cảm biến (nếu dùng) chỉ tác động lên khung tranh hoặc ánh phản quang trong giới hạn **`<= ±5°`**.
-   - Cấm hiệu ứng `infinite` phủ diện tích lớn (`.lap-lanh` cũ hoặc chớp nháy vô hạn).
+   - Cấm hiệu ứng `infinite` phủ diện tích lớn (lớp lấp lánh, chớp nháy vô hạn).
 3. **Tương tác & Bố cục đáp ứng (`320×568`, `390×844`, `1440×900`):**
    - Vùng chạm tối thiểu `44×44px` (`48px` cho nút `.sh-btn` và ô nhập), hỗ trợ `:focus-visible`, `touch-action: manipulation`.
    - Không tràn ngang (`overflow-x: clip`, `docOverflow === 0` ngay cả ở `320px`, như `.sh-cd` tự xuống dòng dưới `380px`).

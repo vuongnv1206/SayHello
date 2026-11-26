@@ -1,4 +1,4 @@
-/* Cuộn Phim bản 2. Điện thoại trước (360–400px), mỗi cảnh toàn màn hình.
+/* Cuộn Phim. Điện thoại trước (360–400px), mỗi cảnh toàn màn hình.
    html[data-motion=lite] và .is-static: không ghim, rèm mở sẵn, dải phim vuốt tay. */
 :root {
   --bg: #15120f; --film: #0d0b0a; --velvet: #7d1a1d; --velvet-hi: #a8262b; --amber: #e8a33d;

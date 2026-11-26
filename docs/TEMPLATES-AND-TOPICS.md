@@ -1,6 +1,6 @@
 # Kiến trúc 5 Template, Hệ Chủ đề (Topics) & Chuẩn Chống Sến (`Anti-Cringe`)
 
-> **Mục tiêu cốt lõi:** Chấm dứt tình trạng "một khung cột dọc 520px mặc 10 lớp áo" của thế hệ cũ và tình trạng "bay camera 3D chóng mặt" trước M1. Mỗi template trong SayHello 2.0 phải khác biệt thực chất về **bố cục cấu trúc**, **khoảnh khắc tương tác chữ ký (Signature Moment)**, và **bộ chủ đề thẩm mỹ (Topics)** — trong khi luôn giữ **Tấm thiệp cưới làm trung tâm** (*Card-as-Centerpiece*).
+> **Mục tiêu cốt lõi:** Chấm dứt tình trạng "một khung cột dọc 520px mặc 10 lớp áo" và tình trạng "bay camera 3D chóng mặt". Mỗi template trong SayHello phải khác biệt thực chất về **bố cục cấu trúc**, **khoảnh khắc tương tác chữ ký (Signature Moment)**, và **bộ chủ đề thẩm mỹ (Topics)** — trong khi luôn giữ **Tấm thiệp cưới làm trung tâm** (*Card-as-Centerpiece*).
 
 ---
 
@@ -8,7 +8,7 @@
 
 Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉnh trong `packages/themes/` và đăng ký qua `apps/web/scripts/sync-engine.mjs`; **Template thứ 5** là bản thiết kế kiến trúc cho pha kế tiếp.
 
-### Template 1: Thiệp Gấp Đôi (`packages/themes/thiep-gap-doi/`) — Tactile Folio *(Đã triển khai trong M2)*
+### Template 1: Thiệp Gấp Đôi (`packages/themes/thiep-gap-doi/`) — Tactile Folio *(Đã triển khai)*
 
 - **Thông số engine:** `layout: { id: 'folio', spread: '2-leaf', stickyLeft: true }`, `voice: 'trang-trong'`, `gateMs: 450`.
 - **Khoảnh khắc chữ ký (`moment`):** `unseal-gleam` (*Mở niêm phong & ánh nhũ*, `verb: 'unseal'`, `durationMs: 450`, `easing: 'cubic-bezier(0.22, 1, 0.36, 1)'`, `reducedFallback: 'instant-fade'`).
@@ -22,7 +22,7 @@ Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉn
   2. `giay-do` — **Giấy Dó & Triện Mộc:** Giấy Dó sợi ấm (`#F5F0E6`), mực than (`#1F2421`), triện son (`#B22A22`), `Newsreader` + `Be Vietnam Pro`.
   3. `lua-nga` — **Lụa Ngà & Giấy Can:** Giấy bông ngà (`#FAF8F4`), mực than đá (`#2D2926`), vàng sâm panh (`#C6A972`), phong cách *quiet luxury*.
 
-### Template 2: Chiều Sâu (`packages/themes/chieu-sau/`) — Cinema Lookbook *(Đã triển khai trong M2)*
+### Template 2: Chiều Sâu (`packages/themes/chieu-sau/`) — Cinema Lookbook *(Đã triển khai)*
 
 - **Thông số engine:** `layout: { id: 'lookbook', split: '62-38', alternating: true }`, `voice: 'than-mat'`, `gateMs: 450`.
 - **Khoảnh khắc chữ ký (`moment`):** `optical-push` (*Đẩy tiêu cự 2.5D trong khung hình*, `verb: 'push-in'`, `trigger: 'scroll'`, `reducedFallback: 'static-frame'`).
@@ -35,7 +35,7 @@ Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉn
   2. `dem-sai-gon` — **Đêm Sài Gòn 90s:** Nhựa đường đêm (`#121316`), ánh đèn đường hổ phách (`#E2A86B`), tiêu đề `Bricolage Grotesque`.
   3. `chang-vang-bien` — **Chạng Vạng Biển:** Xanh đá ven biển (`#1D2E3A`), cát muối ngà (`#F3F0EA`), đường kẻ chân trời tối giản.
 
-### Template 3: Hộp Ký Ức (`packages/themes/hop-ky-uc/`) — Jewel-Box Deck *(Đã triển khai trong M2)*
+### Template 3: Hộp Ký Ức (`packages/themes/hop-ky-uc/`) — Jewel-Box Deck *(Đã triển khai)*
 
 - **Thông số engine:** `layout: { id: 'deck', tabs: 4, interactiveDeck: true }`, `voice: 'than-mat'`, `gateMs: 450`.
 - **Khoảnh khắc chữ ký (`moment`):** `deal-flip` (*Chia thẻ & lật mặt sau*, `verb: 'deal'`, `trigger: 'click'`, `durationMs: 260`, `reducedFallback: 'instant-swap'`).
@@ -47,7 +47,7 @@ Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉn
   1. `hop-nhung` — **Hộp Nhung Monogram:** Hộp nhung rêu đậm (`#1A2E26`), bộ thẻ bông ngà (`#FBF8F2`), chỉ đồng (`#8D6A32`).
   2. `buu-thiep` — **Bưu Thiếp Hồi Âm:** Xanh hải quân (`#1A2B42`), giấy bưu thiếp răng cưa (`#F4EFE6`), dấu bưu điện đỏ son (`#B84238`) — nâng cấp di sản thiệp du lịch một cách tinh tế, không dùng clip-art bảng điện tử sân bay.
 
-### Template 4: Song Gia (`packages/themes/song-gia/`) — Dual-House Convergence *(Đã triển khai trong M2)*
+### Template 4: Song Gia (`packages/themes/song-gia/`) — Dual-House Convergence *(Đã triển khai)*
 
 - **Thông số engine:** `layout: { id: 'split', ratio: '50-50', dualHouse: true }`, `voice: 'trang-trong'`, `gateMs: 450`.
 - **Khoảnh khắc chữ ký (`moment`):** `seam-converge` (*Hội tụ hai nhà & kết nút tơ*, `verb: 'converge'`, `trigger: 'click'`, `durationMs: 450`, `reducedFallback: 'instant-join'`).
@@ -73,19 +73,19 @@ Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉn
 
 ---
 
-## 2. Quy hoạch các mẫu v2 hiện hữu & 10 mẫu `legacy/`
+## 2. Các mẫu khác đang có
 
-| Nhóm mẫu | Tình trạng hiện tại | Định hướng & Xử lý |
-|---|---|---|
-| **`thiep-gap-doi`, `chieu-sau`, `hop-ky-uc`, `song-gia`** | **4 mẫu chủ lực M2** (đang hoạt động trên `/v2/`) | Bộ khung chuẩn cho Showcase & Studio v2 sắp tới; tiếp tục bổ sung topic khi qua đủ 4 tiêu chí Rubric. |
-| **`cuon-phim`, `phong-trien-lam`, `to-hong`** | **3 mẫu v2 giữ lại** (đã sửa lỗi & khử chóng mặt ở M1) | `cuon-phim` (phân khúc trẻ trung điện ảnh, đã mở bìa `450ms`, ảnh tự chứa); `phong-trien-lam` & `to-hong` (camera phẳng ổn định, sẵn sàng dùng và là nguồn kỹ thuật `stage3d.js` / `polarKnotPath`). |
-| **10 mẫu `legacy/`** (`song-hy`, `thu-tay`, `ve-may-bay`, `khoa-tinh`, `den-long`, `cuon-phim`, `tin-nhan`, `thiep-gap`, `khung-theu`, `ca-phe-phin`) | **Đóng băng trong `legacy/`** | Giữ nguyên phục vụ thiệp v1 đã bán qua fallback proxy `LEGACY_ORIGIN` (`npm test -w @sayhello/legacy` xanh 100%). Không bê nguyên si lên v2; các ý tưởng tốt đã được chắt lọc sang `thiep-gap-doi` (từ `thu-tay`/`song-hy`), `hop-ky-uc` (`buu-thiep` từ `ve-may-bay`), `song-gia` (từ `to-hong`). |
+| Mẫu | Ghi chú |
+|---|---|
+| `photobooth` | Góc chụp tiệc cưới, chủ dự án đã duyệt. Còn lệch chuẩn: đếm 3-2-1 làm bìa mở khoảng 8 giây (chuẩn `<= 900ms`), có lớp lấp lánh `infinite`. |
+| `cuon-phim` | Cuộn điện ảnh, mở bìa `450ms`. |
+| `phong-trien-lam`, `to-hong` | Sân khấu 3D camera phẳng, nguồn kỹ thuật `stage3d.js` / `polarKnotPath`. |
 
 ---
 
 ## 3. Liên kết kỹ năng thiết kế & tham khảo chuyển động vào mã nguồn
 
-Toàn bộ kiến trúc M2 không trích dẫn suông mà ánh xạ trực tiếp từ 3 nguồn tham khảo cốt lõi vào token CSS, hàm hợp đồng `defineTheme` và tiêu chí kiểm thử:
+Toàn bộ kiến trúc không trích dẫn suông mà ánh xạ trực tiếp từ 3 nguồn tham khảo cốt lõi vào token CSS, hàm hợp đồng `defineTheme` và tiêu chí kiểm thử:
 
 1. **`https://mcpservers.org/agent-skills`** (`frontend-design`, `emil-design-eng`, `impeccable`, `frontend-ui-engineering`):
    - *`frontend-design`:* Bám sát vật liệu chủ đề thay vì đổ bóng hộp/gradient chung chung; tách kiến trúc 4 layout thực thụ (`folio`, `lookbook`, `deck`, `split`) với tỷ lệ tương phản chữ biên tập rõ rệt.
@@ -101,7 +101,7 @@ Toàn bộ kiến trúc M2 không trích dẫn suông mà ánh xạ trực tiế
 
 ## 4. Tiêu chí Chống Sến (`Anti-Cringe`) & Rubric Nhị Phân 4 Tiêu Chí
 
-Các quy tắc tinh hoa từ bảng kiểm chống khuôn mẫu (`docs/archive/KHONG-KHUON-MAU.md`) được hợp nhất tại đây thành chuẩn kiểm duyệt bắt buộc:
+Các quy tắc tinh hoa từ bảng kiểm chống khuôn mẫu được hợp nhất tại đây thành chuẩn kiểm duyệt bắt buộc:
 
 ### 4.1 Bộ lọc Chống Sến (Vi phạm bất kỳ mục nào = Chưa đạt)
 

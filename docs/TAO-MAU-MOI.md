@@ -1,6 +1,6 @@
-# Hướng dẫn Tạo Mẫu & Chủ đề mới (v2 trên `@sayhello/engine`)
+# Hướng dẫn tạo mẫu và chủ đề mới (`@sayhello/engine`)
 
-> Mọi mẫu mới phát triển trên nhánh `redesign` dùng bộ máy `@sayhello/engine` (`packages/engine/`) theo mô hình **Card-as-Centerpiece (`Layout × Topic × Moment`)**. Không viết mẫu mới vào `legacy/` (thế hệ 1 đã đóng băng).
+> Mẫu mới dùng bộ máy `@sayhello/engine` (`packages/engine/`) theo mô hình **Card-as-Centerpiece (`Layout × Topic × Moment`)**.
 
 ---
 
@@ -14,7 +14,7 @@
 
 ---
 
-## 2. Cấu trúc một gói mẫu v2 (`packages/themes/<id>/`)
+## 2. Cấu trúc một gói mẫu (`packages/themes/<id>/`)
 
 Nhờ cơ chế tự động quét của `apps/web/scripts/sync-engine.mjs`, bạn **không cần sửa tay 5 tệp đăng ký** ở `apps/web/` nữa. Chỉ cần tạo đúng các tệp sau trong `packages/themes/<id>/`:
 
@@ -26,7 +26,7 @@ packages/themes/<id>/
 ├── demo.json               # Dữ liệu cặp đôi giả lập (tên giả, số 0000000000, có guestGroups)
 ├── images/                 # Ảnh cưới tự chứa (anh1..6.jpg, xem-truoc.jpg, tuỳ chọn *-nguoi.webp)
 └── test/
-    └── contract.test.js    # Kiểm tra hợp đồng, renderDocument, XSS, prototype pollution & MD5 ảnh
+    └── contract.test.js    # Kiểm tra hợp đồng, renderDocument, XSS, prototype pollution & ảnh
 ```
 
 *(Tham khảo triển khai thực tế tại `packages/themes/thiep-gap-doi/`, `packages/themes/chieu-sau/`, `packages/themes/hop-ky-uc/`, `packages/themes/song-gia/`.)*
@@ -101,7 +101,7 @@ export default composeInvitation({
 ```
 
 ### Quy tắc kỹ thuật bắt buộc trong `theme.js` & `theme.css`
-1. **Không đọc `window`/`document` trong `render(ctx)`:** `renderDocument()` chạy trên server Next.js (`apps/web/src/app/v2/demo/[theme]/route.ts`). Mọi tương tác DOM chỉ viết trong `mount(el, ctx)` hoặc `motion.standard/cinematic(el, ctx)`.
+1. **Không đọc `window`/`document` trong `render(ctx)`:** `renderDocument()` chạy trên server Next.js (`apps/web/src/app/demo/[theme]/route.ts`). Mọi tương tác DOM chỉ viết trong `mount(el, ctx)` hoặc `motion.standard/cinematic(el, ctx)`.
 2. **Bảo mật HTML & chữ tiếng Việt:** Luôn dùng `` html`...` `` để tự động escape; chỉ dùng `raw()` cho SVG tĩnh do bạn tự viết. Tách chữ bằng `splitText()` từ `@sayhello/engine`, dùng `plain()` và `qrUrl(account, 'Mung cuoi ' + plain(ctx.guest))` (giữ mã hóa `%20`, không dùng `+`).
 3. **Lớp cắt ảnh 2.5D (`ctx.imgPair`):** Nếu mẫu tách tiền cảnh nhân vật, dùng `ctx.imgPair(slot, i)` trong `packages/engine/src/model.js` và đặt overscan đối xứng (như `--cs-bleed: 10px` trong `packages/themes/chieu-sau/theme.css`) kèm fallback `.no-fg` khi thiếu tệp cutout.
 4. **Sàn chữ & Không tràn ngang:** Mọi nhãn tiếng Việt `>= 13px`, đoạn văn bản `<p>` `>= 16px`, `.sh-scene { overflow-x: clip; }`, không dùng `loading="lazy"` ở ảnh bìa/ảnh đầu, không dùng animation `infinite` trên lớp phủ lớn.
@@ -113,14 +113,15 @@ export default composeInvitation({
 1. Mở `packages/themes/<id>/theme.js`, thêm một phần tử vào mảng `topics` với `id` mới (chữ thường, gạch ngang, không dấu), `name`, `desc`, `swatch`, `themeColor` và đủ bộ biến `--sh-*`.
 2. Nếu topic dùng họ font mới, bổ sung vào chuỗi `fonts` (kiểm tra chắc chắn Google Fonts có subset `vietnamese`).
 3. Kiểm tra tương phản màu chữ `--sh-ink` trên `--sh-bg` / `--sh-surface` đạt `>= 4.5:1` (chuẩn WCAG AA).
-4. Chạy đồng bộ và kiểm thử: `apps/web/scripts/sync-engine.mjs` sẽ tự động đưa topic mới vào `/v2/` và sinh route SSG `/v2/demo/<id>/<topic>/`.
+4. Chạy đồng bộ và kiểm thử: `apps/web/scripts/sync-engine.mjs` sẽ tự động đưa topic mới vào trang `/` và sinh route SSG `/demo/<id>/<topic>/`.
 
 ---
 
-## 5. Chuẩn bị ảnh tự chứa (MD5 duy nhất) bằng `sharp`
+## 5. Ảnh của mẫu
 
-1. **Tự chứa 100%:** Đặt ảnh mẫu trong `packages/themes/<id>/images/`, tuyệt đối không trỏ sang đường dẫn của `legacy/` hay cổng `:3001`.
-2. **MD5 duy nhất:** Không sao chép y nguyên tệp ảnh của mẫu khác hoặc của `legacy/demo-*` (bộ kiểm tra `tests/e2e/specs/tier1-topics.mjs` kiểm tra va chạm MD5 trên toàn repo). Hãy xử lý/tối ưu ảnh riêng bằng `sharp` (`resize`, nén JPEG/WebP chất lượng `80–85`, tỷ lệ khung phù hợp `3:4` hoặc `4:5` dung lượng nhẹ cho 4G).
+1. **Tự chứa:** đặt ảnh trong `packages/themes/<id>/images/`, không trỏ đường dẫn ra ngoài gói mẫu.
+2. **Dùng ảnh minh hoạ mặc định** trong `assets/anh-minh-hoa/` (chép vào `images/` của mẫu). Không tạo ảnh AI, không dùng ảnh thật của cặp đôi. Hai mẫu được phép dùng chung một bộ ảnh.
+3. **Nhẹ cho 4G:** nén JPEG/WebP chất lượng `80–85`, tỷ lệ khung `3:4` hoặc `4:5`; trong một mẫu không để hai tệp trùng nhau.
 
 ---
 
@@ -129,14 +130,13 @@ export default composeInvitation({
 1. Viết `packages/themes/<id>/test/contract.test.js` kiểm tra:
    - Export hợp lệ qua `defineTheme` / `composeInvitation`, có `topics` và `moment`.
    - `renderDocument` chạy sạch ở mọi topic, thoát mã XSS (`<script>`), an toàn trước `?topic=__proto__`.
-   - Không va chạm MD5 ảnh với các mẫu khác trong repo.
+   - Đủ ảnh, trong mẫu không có hai tệp trùng nhau.
 2. Chạy đầy đủ bộ lệnh kiểm tra:
    ```powershell
    npm test -w @sayhello/engine
    node --test packages/themes/<id>/test/contract.test.js
-   npm run sync -w @sayhello/web
    npm run build
-   npm run test:v2
-   node tests/e2e/run.mjs --tier=all
+   npm run test:smoke      # cần `npm run dev` đang chạy
+   npm run test:e2e
    ```
 3. Kiểm tra bằng mắt ảnh chụp Playwright ở `320×568`, `390×844` và `1440×900` dựa trên **Rubric nhị phân 4 tiêu chí** trong `docs/TEMPLATES-AND-TOPICS.md`.

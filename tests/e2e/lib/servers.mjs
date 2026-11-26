@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { createConnection, createServer } from 'node:net';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { createServer } from 'node:net';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from './registries.mjs';
 
@@ -14,22 +14,6 @@ function getFreePort() {
     srv.listen(0, '127.0.0.1', () => {
       const { port } = srv.address();
       srv.close(() => resolve(port));
-    });
-  });
-}
-
-function isPortFree(port) {
-  return new Promise(resolve => {
-    const probe = createConnection({ port, host: '127.0.0.1' });
-    probe.once('connect', () => {
-      probe.destroy();
-      resolve(false);
-    });
-    probe.once('error', () => {
-      const srv = createServer();
-      srv.unref();
-      srv.on('error', () => resolve(false));
-      srv.listen(port, '127.0.0.1', () => srv.close(() => resolve(true)));
     });
   });
 }
@@ -73,19 +57,6 @@ function newestMtime(dir) {
   return max;
 }
 
-function readBakedLegacyOrigin() {
-  const manifestPath = join(ROOT, 'apps', 'web', '.next', 'routes-manifest.json');
-  if (!existsSync(manifestPath)) return null;
-  try {
-    const m = JSON.parse(readFileSync(manifestPath, 'utf8'));
-    const fb = m.rewrites?.fallback?.[0]?.destination;
-    if (!fb) return null;
-    return new URL(fb).origin;
-  } catch {
-    return null;
-  }
-}
-
 function killTree(child) {
   if (!child || child.exitCode !== null || child.killed) return;
   try {
@@ -112,59 +83,28 @@ function runSyncEngine() {
   }
 }
 
-export async function resolveOrStartServers({ mode = 'auto', legacyUrl, webUrl } = {}) {
+/** Dùng server đang chạy nếu có (--web-url hoặc `npm run dev` ở :3000), không thì tự khởi chạy Next.js. */
+export async function resolveOrStartServers({ mode = 'auto', webUrl } = {}) {
   if (!['auto', 'dev', 'start'].includes(mode)) {
     throw new Error(`Invalid mode "${mode}". Expected one of: auto, dev, start.`);
   }
-  const extLegacy = stripSlash(legacyUrl || process.env.LEGACY_URL);
+  const attach = (url, how) => ({ webUrl: url, mode: how, onBeforeStop: () => {}, stop: async () => {} });
+
   const extWeb = stripSlash(webUrl || process.env.WEB_URL);
-  if (Boolean(extLegacy) !== Boolean(extWeb)) {
-    throw new Error('Both --legacy-url (LEGACY_URL) and --web-url (WEB_URL) must be provided together.');
-  }
-  if (extLegacy && extWeb) {
-    await waitForHttp200(`${extLegacy}/themes/index.json`, { timeoutMs: 10000, label: 'external legacy' });
-    await waitForHttp200(`${extWeb}/v2/`, { timeoutMs: 10000, label: 'external web' });
-    return {
-      legacyUrl: extLegacy,
-      webUrl: extWeb,
-      mode: 'external',
-      external: true,
-      onBeforeStop: () => {},
-      stop: async () => {},
-    };
+  if (extWeb) {
+    await waitForHttp200(`${extWeb}/`, { timeoutMs: 10000, label: 'external web' });
+    return attach(extWeb, 'external');
   }
 
-  // If an existing Next.js dev server holds .next/dev/lock, wait briefly in case a concurrent run is finishing;
-  // if :3000 & :3001 are both serving 200, attach to them instead of colliding on .next/dev/lock.
+  // Mỗi thư mục chỉ chạy được một `next dev`: nếu đã có server đang giữ khoá thì dùng luôn nó.
   const devLock = join(ROOT, 'apps', 'web', '.next', 'dev', 'lock');
-  if (existsSync(devLock)) {
-    const deadline = Date.now() + 20000;
-    while (existsSync(devLock) && Date.now() < deadline) {
-      const okWeb = await httpOk('http://127.0.0.1:3000/v2/');
-      const okLeg = await httpOk('http://127.0.0.1:3001/themes/index.json');
-      if (okWeb && okLeg) {
-        return {
-          legacyUrl: 'http://127.0.0.1:3001',
-          webUrl: 'http://127.0.0.1:3000',
-          mode: 'attached',
-          external: true,
-          onBeforeStop: () => {},
-          stop: async () => {},
-        };
-      }
-      await new Promise(r => setTimeout(r, 500));
-    }
-    if (existsSync(devLock)) {
-      throw new Error(
-        'Another next dev instance holds apps/web/.next/dev/lock (and :3000/:3001 are not both serving 200); pass --legacy-url and --web-url or stop it.'
-      );
-    }
+  if (mode !== 'start' && existsSync(devLock) && await httpOk('http://127.0.0.1:3000/', 20000)) {
+    return attach('http://127.0.0.1:3000', 'attached');
   }
 
-  // Decide dev vs start for auto mode
   let resolvedMode = mode;
+  const buildIdPath = join(ROOT, 'apps', 'web', '.next', 'BUILD_ID');
   if (resolvedMode === 'auto') {
-    const buildIdPath = join(ROOT, 'apps', 'web', '.next', 'BUILD_ID');
     const configMtime = ['next.config.ts', 'package.json']
       .map(f => join(ROOT, 'apps', 'web', f))
       .filter(existsSync)
@@ -175,43 +115,17 @@ export async function resolveOrStartServers({ mode = 'auto', legacyUrl, webUrl }
         newestMtime(join(ROOT, 'packages')),
         configMtime
       );
-    const baked = readBakedLegacyOrigin();
-    const bakedHostOk = !baked || ['localhost', '127.0.0.1'].includes(new URL(baked).hostname);
-    const bakedPort = baked ? Number(new URL(baked).port || 3001) : 3001;
-    if (buildFresh && bakedHostOk && !existsSync(devLock) && await isPortFree(3000) && await isPortFree(bakedPort)) {
-      resolvedMode = 'start';
-    } else {
-      resolvedMode = 'dev';
-    }
+    resolvedMode = buildFresh ? 'start' : 'dev';
   }
-
-  let startLegacyPort = 3001;
-  if (resolvedMode === 'start') {
-    const buildIdPath = join(ROOT, 'apps', 'web', '.next', 'BUILD_ID');
-    if (!existsSync(buildIdPath)) {
-      throw new Error('apps/web/.next/BUILD_ID not found; run `npm run build -w @sayhello/web` or use --mode=dev');
-    }
-    const baked = readBakedLegacyOrigin();
-    if (baked) {
-      const bakedHost = new URL(baked).hostname;
-      if (bakedHost !== 'localhost' && bakedHost !== '127.0.0.1') {
-        throw new Error(`Baked LEGACY_ORIGIN (${baked}) is not local; pass --legacy-url and --web-url or use --mode=dev`);
-      }
-      startLegacyPort = Number(new URL(baked).port || 3001);
-    }
-    if (!(await isPortFree(3000))) {
-      throw new Error('Port 3000 is already in use; cannot start Next.js in --mode=start');
-    }
-    if (!(await isPortFree(startLegacyPort))) {
-      throw new Error(`Port ${startLegacyPort} is already in use; cannot start legacy server in --mode=start`);
-    }
+  if (resolvedMode === 'start' && !existsSync(buildIdPath)) {
+    throw new Error('apps/web/.next/BUILD_ID not found; run `npm run build` or use --mode=dev');
   }
 
   runSyncEngine();
 
-  const children = [];
   const logs = [];
   const beforeStopHooks = [];
+  let child = null;
   let stopped = false;
 
   const stop = async () => {
@@ -219,7 +133,7 @@ export async function resolveOrStartServers({ mode = 'auto', legacyUrl, webUrl }
     stopped = true;
     process.off('SIGINT', onSigInt);
     process.off('SIGTERM', onSigTerm);
-    for (const c of [...children].reverse()) killTree(c);
+    killTree(child);
   };
   const handleSignal = async code => {
     for (const fn of [...beforeStopHooks].reverse()) {
@@ -234,72 +148,32 @@ export async function resolveOrStartServers({ mode = 'auto', legacyUrl, webUrl }
   process.on('SIGTERM', onSigTerm);
 
   try {
-    let legacyPort;
-    let webPort;
-    let nextArgs;
+    const webPort = await getFreePort();
+    const nextBin = [join(ROOT, 'node_modules'), join(ROOT, 'apps', 'web', 'node_modules')]
+      .map(dir => join(dir, 'next', 'dist', 'bin', 'next'))
+      .find(existsSync);
+    if (!nextBin) throw new Error('Cannot find the next package; run `npm install`');
 
-    if (resolvedMode === 'start') {
-      legacyPort = startLegacyPort;
-      webPort = 3000;
-      nextArgs = ['start', '-p', String(webPort)];
-    } else {
-      legacyPort = await getFreePort();
-      webPort = await getFreePort();
-      while (webPort === legacyPort) webPort = await getFreePort();
-      nextArgs = ['dev', '-p', String(webPort)];
-    }
-
-    const legacyServe = join(ROOT, 'legacy', 'scripts', 'serve.mjs');
-    const legacyProc = spawn(process.execPath, [legacyServe, String(legacyPort)], {
-      cwd: join(ROOT, 'legacy'),
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    children.push(legacyProc);
-    let legacyErr = '';
-    legacyProc.stderr.on('data', d => { legacyErr += d.toString(); });
-    legacyProc.on('exit', code => {
-      if (!stopped && code !== 0) legacyErr ||= `code ${code}`;
-    });
-
-    const targetLegacyUrl = `http://127.0.0.1:${legacyPort}`;
-    await waitForHttp200(`${targetLegacyUrl}/themes/index.json`, {
-      timeoutMs: 15000,
-      label: 'legacy serve.mjs',
-      getExitError: () => (legacyProc.exitCode !== null ? legacyErr || `code ${legacyProc.exitCode}` : null),
-    });
-
-    const nextBin = join(ROOT, 'apps', 'web', 'node_modules', 'next', 'dist', 'bin', 'next');
-    const webProc = spawn(process.execPath, [nextBin, ...nextArgs], {
+    child = spawn(process.execPath, [nextBin, resolvedMode, '-p', String(webPort)], {
       cwd: join(ROOT, 'apps', 'web'),
-      env: { ...process.env, LEGACY_ORIGIN: targetLegacyUrl, PORT: String(webPort) },
+      env: { ...process.env, PORT: String(webPort) },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
-    children.push(webProc);
-    let webErr = '';
-    webProc.stdout.on('data', d => { logs.push(d.toString()); });
-    webProc.stderr.on('data', d => { webErr += d.toString(); logs.push(d.toString()); });
-    webProc.on('exit', code => {
-      if (!stopped && code !== 0) webErr ||= `code ${code}`;
-    });
+    child.stdout.on('data', d => { logs.push(d.toString()); });
+    child.stderr.on('data', d => { logs.push(d.toString()); });
 
     const targetWebUrl = `http://127.0.0.1:${webPort}`;
-    await waitForHttp200(`${targetWebUrl}/v2/`, {
+    await waitForHttp200(`${targetWebUrl}/`, {
       timeoutMs: 60000,
-      label: `next ${nextArgs[0]}`,
-      getExitError: () => (webProc.exitCode !== null ? `${webErr || `code ${webProc.exitCode}`}\n${logs.slice(-10).join('')}` : null),
+      label: `next ${resolvedMode}`,
+      getExitError: () => (child.exitCode !== null ? `code ${child.exitCode}` : null),
     }).catch(e => {
       throw new Error(`${e.message}\nNext logs:\n${logs.slice(-15).join('')}`);
     });
-    await waitForHttp200(`${targetWebUrl}/themes/index.json`, {
-      timeoutMs: 20000,
-      label: 'next fallback proxy -> legacy',
-    });
 
     return {
-      legacyUrl: targetLegacyUrl,
       webUrl: targetWebUrl,
       mode: resolvedMode,
-      external: false,
       onBeforeStop: fn => { if (typeof fn === 'function') beforeStopHooks.push(fn); },
       stop,
     };

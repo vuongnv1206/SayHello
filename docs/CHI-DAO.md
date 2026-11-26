@@ -14,17 +14,18 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 - Nhìn vào mẫu nào cũng phải nhận ra ngay là **thiệp cưới**: lời mời trang trọng, tên cô dâu chú rể là nhân vật chính.
 - **Topic = ý tưởng xuyên suốt** (Photobooth, Thẻ Lên Máy Bay, Album Nhạc…), không phải bảng màu. Mỗi topic một kiểu bố cục và tương tác riêng.
 - Tránh quê mùa, sến, chóng mặt. 3D (nếu có) chỉ để tạo chất liệu, camera không bay trong không gian.
-- Dùng **ảnh minh hoạ mặc định** trong `legacy/demo-*/images`, không tạo ảnh AI.
+- Dùng **ảnh minh hoạ mặc định** trong `assets/anh-minh-hoa/`, không tạo ảnh AI.
+- **Chỉ làm trên nhánh `main`, không chia phiên bản** (không còn site cũ, đường dẫn `/v2`, nhánh `redesign`). Chốt ngày 26/11/2026.
 - Thông tin ngày, giờ, nơi, trả lời phải dễ tìm. Kiểm tra ở khổ 390×844 và 1440×900.
 
-## Hiện trạng (26/11/2026)
+## Hiện trạng (26/11/2026, sau khi cấu trúc lại)
 
-- `main` = `redesign` = `12e291b`, đã đẩy lên GitHub.
-- **Photobooth**: đã duyệt ("tạm ổn"), đã có trên engine v2 ở `packages/themes/photobooth`.
-- **Thẻ Lên Máy Bay**, **Album Nhạc**: bản thử ở `legacy/proto/`, đang chờ chủ dự án duyệt.
-- **Trailer Phim**: chưa đạt.
-- Phần agy làm trong `12e291b` (danh sách mẫu tự sinh, route theo topic, Hộp Ký Ức, Song Gia, Thiệp Gấp Đôi, Chiều Sâu…) được commit nguyên trạng, **chưa soát lại**.
-- Vercel: cần kiểm tra trang đang chạy sau khi đẩy `main`. `vercel.json` ở gốc không còn, trang cũ nằm trong `legacy/`.
+- Một bộ mã duy nhất trên `main`: `apps/web`, `packages/engine`, `packages/themes` (8 mẫu).
+- Site tĩnh cũ (10 mẫu, studio, đặt thiệp, bán hàng, Apps Script) đã xoá; còn trong lịch sử git trước lần cấu trúc lại.
+- **Photobooth**: đã duyệt ("tạm ổn"). Còn lệch chuẩn mở bìa `<= 900ms` do đếm 3-2-1 (smoke test và E2E báo lỗi ở mẫu này).
+- **Thẻ Lên Máy Bay**, **Album Nhạc**: bản thử ở `prototypes/` (mở thẳng `index.html`), đang chờ chủ dự án duyệt.
+- **Trailer Phim**: chưa đạt, đã bỏ bản thử.
+- Vercel: `sayhello-wheat.vercel.app` trả 404 trước khi cấu trúc lại. Cần đặt Root Directory là `apps/web`.
 
 ## Việc được giao
 
@@ -37,10 +38,12 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 
 *(Claude ghi trạng thái, agy góp ý bên dưới)*
 
-### 26/11/2026: soát hiện trạng trước khi nhận việc
+### 26/11/2026: cấu trúc lại theo yêu cầu chủ dự án
 
-- Mục **Việc được giao** đang trống, Claude chưa sửa code.
-- Cây làm việc còn nhiều thay đổi chưa commit sau `12e291b` (sửa từ 01:19 đến 08:22). Claude chờ chủ dự án quyết trước khi làm tiếp trên phần này.
-- Trong đó `packages/themes/photobooth` đã bị xoá, nên dòng "đã có trên engine v2" ở mục Hiện trạng chỉ còn đúng với bản đã commit. Photobooth là mẫu chủ dự án đã duyệt. Claude đề xuất khôi phục từ `HEAD` rồi sửa lỗi tại chỗ.
-- Cần agy xem lại: luật "ảnh phải có MD5 duy nhất, không chép từ `legacy/demo-*`" (`docs/TAO-MAU-MOI.md`) trái với điều chủ dự án đã chốt là dùng ảnh minh hoạ mặc định.
-- Đã chạy trên cây làm việc hiện tại: test engine 38/38, hợp đồng mẫu 30/30. Chưa chạy E2E và build.
+- Phần làm dở sau `12e291b` đã commit (`b3ebf11`), Photobooth được giữ.
+- Đã bỏ luật "ảnh mỗi mẫu phải có MD5 duy nhất toàn repo" vì trái với việc dùng ảnh minh hoạ mặc định.
+- Đã bỏ các kiểm tra theo cột mốc (`R1`, `M1`–`M3`) và tài liệu lịch sử trong `docs/archive/`.
+
+- Kết quả sau khi cấu trúc lại: test engine 38/38, hợp đồng mẫu 30/30, build, lint và kiểm tra kiểu đạt. Smoke và E2E chỉ còn lỗi ở Photobooth (bìa lâu hơn `900ms`, lớp lấp lánh `infinite`, tương phản chữ `.dai-dau`, các bước hồi âm hết thời gian chờ).
+- `packages/themes/to-hong/test/e2e.mjs` (chạy riêng) lỗi ở nút "Thông tin nhanh" nằm ngoài khung nhìn; lỗi đã có từ `b3ebf11`.
+- `docs/DESIGN-BRIEF.md` và `docs/CLAUDE-HANDOFF.md` agy đang sửa nên Claude chưa commit. Hai tệp này còn nhắc nhánh `redesign` và `docs/archive/`, cần agy cập nhật.

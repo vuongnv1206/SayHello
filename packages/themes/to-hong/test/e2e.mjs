@@ -37,7 +37,7 @@ function startServer() {
   const routes = [
     { prefix: '/_e/engine/', dir: path.join(REPO_ROOT, 'packages', 'engine', 'src') },
     { prefix: '/_e/themes/to-hong/', dir: PKG_DIR },
-    { prefix: '/assets/', dir: path.join(REPO_ROOT, 'legacy', 'assets') },
+    { prefix: '/assets/', dir: path.join(REPO_ROOT, 'apps', 'web', 'public', 'assets') },
   ];
 
   const server = http.createServer((req, res) => {

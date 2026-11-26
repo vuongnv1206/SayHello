@@ -1,5 +1,5 @@
-// Gửi và đọc dữ liệu khách (xác nhận, lời chúc). Pha 1: Google Sheets qua Apps Script (cùng định dạng bản 1,
-// nên thiệp v2 dùng chung script đang chạy); Pha 2 thêm Supabase sau cùng giao diện này.
+// Gửi và đọc dữ liệu khách (xác nhận, lời chúc). Hiện gửi tới `sheetUrl` (Google Apps Script) nếu thiệp có khai báo;
+// Supabase sẽ thêm sau, cùng giao diện này.
 // Không có sheetUrl: lưu trên máy khách để thử thiệp, không gửi đi đâu.
 export function createBackend({ sheetUrl = '', slug = 'thiep' } = {}) {
   const LS = 'sayhello:' + slug;

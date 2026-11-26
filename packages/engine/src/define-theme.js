@@ -1,6 +1,6 @@
-// Hợp đồng khai báo một mẫu thiệp v2.
+// Hợp đồng khai báo một mẫu thiệp.
 //
-// Khác bản 1 (chỉ trả về {cover, main}): mẫu tự chọn cách đi qua thiệp (layout), chia thành các cảnh,
+// Mẫu tự chọn cách đi qua thiệp (layout), chia thành các cảnh,
 // mỗi cảnh nói rõ nó hiển thị tính năng nào (provides). Thông tin bắt buộc (ngày, địa điểm, xác nhận)
 // vì thế nằm trong ẩn dụ của mẫu, còn core chỉ kiểm tra đủ hay thiếu.
 

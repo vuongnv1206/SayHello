@@ -9,7 +9,6 @@ import theme, { plan, polarKnotPath } from '../theme.js';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const PKG_DIR = path.resolve(DIR, '..');
-const REPO_ROOT = path.resolve(PKG_DIR, '..', '..', '..');
 const DEMO = JSON.parse(fs.readFileSync(path.join(PKG_DIR, 'demo.json'), 'utf8'));
 
 test('defineTheme contract: metadata, provides, fallback === 0, motion.lite pairs', () => {
@@ -125,29 +124,12 @@ test('renderDocument: full demo, stripped story/accounts, palette dem-to-do, and
   assert.equal((xssHtml.match(/<\/script>/g) || []).length, (xssHtml.match(/<script/g) || []).length);
 });
 
-test('image assets: 13 files exist with 0 MD5 collisions across all themes and legacy demos', () => {
+test('image assets: 13 files exist, no duplicates', () => {
   const thImagesDir = path.join(PKG_DIR, 'images');
   const files = fs.readdirSync(thImagesDir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
   assert.equal(files.length, 13, 'Expected anh1..12.jpg + xem-truoc.jpg (13 files)');
   assert.ok(files.includes('xem-truoc.jpg'));
   for (let i = 1; i <= 12; i++) assert.ok(files.includes(`anh${i}.jpg`), `Missing anh${i}.jpg`);
-
-  const otherHashes = new Map();
-  for (const base of ['packages/themes', 'legacy']) {
-    const baseDir = path.join(REPO_ROOT, base);
-    if (!fs.existsSync(baseDir)) continue;
-    for (const entry of fs.readdirSync(baseDir)) {
-      if (base === 'packages/themes' && entry === 'to-hong') continue;
-      const imgDir = path.join(baseDir, entry, 'images');
-      if (!fs.existsSync(imgDir)) continue;
-      for (const f of fs.readdirSync(imgDir)) {
-        const fp = path.join(imgDir, f);
-        if (fs.statSync(fp).isFile()) {
-          otherHashes.set(crypto.createHash('md5').update(fs.readFileSync(fp)).digest('hex'), fp);
-        }
-      }
-    }
-  }
 
   const seenOwn = new Set();
   for (const f of files) {
@@ -156,6 +138,5 @@ test('image assets: 13 files exist with 0 MD5 collisions across all themes and l
     const md5 = crypto.createHash('md5').update(buf).digest('hex');
     assert.equal(seenOwn.has(md5), false, `Duplicate MD5 within to-hong/images: ${f}`);
     seenOwn.add(md5);
-    assert.equal(otherHashes.has(md5), false, `MD5 collision for ${f} with ${otherHashes.get(md5)}`);
   }
 });

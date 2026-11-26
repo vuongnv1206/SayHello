@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Màu nền ứng dụng (trình sửa, bảng điều khiển), lấy theo Studio bản 1 trong docs/DESIGN.md */
+/* Màu nền ứng dụng (trình sửa, bảng điều khiển), xem docs/DESIGN.md */
 :root {
   --background: #f6f2ec;
   --foreground: #26211d;

@@ -2,7 +2,7 @@
   "name": "@sayhello/engine",
   "version": "0.1.0",
   "private": true,
-  "description": "Bộ máy thiệp v2: mẫu khai báo cảnh, khe nội dung, hạng chuyển động; dựng HTML được cả trên máy chủ.",
+  "description": "Bộ máy thiệp: mẫu khai báo cảnh, khe nội dung, hạng chuyển động; dựng HTML được cả trên máy chủ.",
   "type": "module",
   "exports": {
     ".": "./src/index.js"

@@ -37,7 +37,6 @@ function mockAppsScriptResponse(urlStr, method, postData, capturedPosts) {
 }
 
 export async function createSafeContext(browser, {
-  legacyUrl,
   webUrl,
   viewport = { width: 390, height: 844 },
   isMobile = false,
@@ -56,7 +55,7 @@ export async function createSafeContext(browser, {
 
   const capturedPosts = [];
   const originSet = new Set(
-    [legacyUrl, webUrl]
+    [webUrl]
       .filter(Boolean)
       .map(u => {
         try { return new URL(u).origin; } catch { return ''; }
@@ -81,7 +80,7 @@ export async function createSafeContext(browser, {
     route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Map</title>' })
   );
 
-  // Stub Google Fonts so frozen legacy/core/boot.js never stalls on external font network latency
+  // Chặn Google Fonts để kết quả không phụ thuộc mạng ngoài
   await ctx.route('https://fonts.googleapis.com/**', route =>
     route.fulfill({ status: 200, contentType: 'text/css; charset=utf-8', body: '' })
   );
@@ -182,32 +181,13 @@ export async function saveShot(page, shotsDir, name) {
 }
 
 export async function saveFailureShot(ctx, shotsDir, label, err) {
-  if (!shotsDir || !ctx || err?.pendingMilestone) return null;
+  if (!shotsDir || !ctx) return null;
   const page = ctx.pages().find(p => !p.isClosed());
   if (!page) return null;
   return saveShot(page, shotsDir, `FAIL-${label}`);
 }
 
-export async function openV1Gate(page, { timeout = 8000 } = {}) {
-  await page.waitForFunction(() => document.body.classList.contains('ready'), null, { timeout: 20000 });
-  const isAlreadyGone = await page.$('#cover.gone');
-  if (isAlreadyGone) return;
-  const opener = page.locator('#cover [data-open]').first();
-  await opener.waitFor({ state: 'visible', timeout: 5000 });
-  await opener.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
-  const hitOk = await opener.evaluate(el => {
-    const r = el.getBoundingClientRect();
-    const cx = Math.min(window.innerWidth - 1, Math.max(1, r.left + r.width / 2));
-    const cy = Math.min(window.innerHeight - 1, Math.max(1, r.top + r.height / 2));
-    const hit = document.elementFromPoint(cx, cy);
-    return !!hit && (hit === el || el.contains(hit) || hit.contains(el));
-  });
-  if (!hitOk) throw new Error('v1 gate [data-open] is occluded at center');
-  await opener.click({ force: true, timeout: 5000 });
-  await page.waitForFunction(() => !!document.querySelector('#cover.gone'), null, { timeout });
-}
-
-export async function openV2Gate(page, { timeout = 8000 } = {}) {
+export async function openGate(page, { timeout = 8000 } = {}) {
   await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
   const alreadyOpen = await page.evaluate(() => document.documentElement.classList.contains('sh-open'));
   if (alreadyOpen) {
@@ -230,7 +210,7 @@ export async function openV2Gate(page, { timeout = 8000 } = {}) {
     const hit = document.elementFromPoint(cx, cy);
     return !!hit && (hit === el || el.contains(hit) || hit.contains(el));
   });
-  if (!hitOk) throw new Error('v2 gate CTA is occluded at center');
+  if (!hitOk) throw new Error('gate CTA is occluded at center');
 
   const t0 = Date.now();
   await cta.click({ force: true, timeout: 5000 });

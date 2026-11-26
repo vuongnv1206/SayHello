@@ -518,17 +518,6 @@ export async function assertVisibleImagesLoaded(page, label = '') {
   );
 }
 
-export function assertSelfContainedAssets(trackedRequests, { themeId = '', label = '' } = {}) {
-  const legacyProxyHits = (trackedRequests || [])
-    .map(r => r.url)
-    .filter(u => /\/demo-[a-z0-9-]+\//i.test(u) && !u.includes('/v2/demo/'));
-  assert.equal(
-    legacyProxyHits.length,
-    0,
-    `${label ? label + ': ' : ''}v2 theme "${themeId}" still depends on legacy proxy assets: ${legacyProxyHits.slice(0, 4).join(', ')}`
-  );
-}
-
 export async function measureDesktopLayoutFingerprint(page) {
   return page.evaluate(() => {
     const vw = window.innerWidth;

@@ -1,4 +1,4 @@
-/* Kiểu nền của bộ máy thiệp v2. Mọi bộ chọn nằm trong :where() nên độ ưu tiên bằng 0: mẫu viết đè tự do.
+/* Kiểu nền của bộ máy thiệp. Mọi bộ chọn nằm trong :where() nên độ ưu tiên bằng 0: mẫu viết đè tự do.
    Biến mẫu nên khai báo: --sh-bg, --sh-surface, --sh-ink, --sh-muted, --sh-accent, --sh-accent-ink, --sh-foil, --sh-soft, --sh-panel, --sh-font-display, --sh-font-body, --sh-font-mono, --sh-radius, --sh-ease-tactile, --sh-ease, --sh-dur-ui */
 :where(:root) {
   --sh-bg: #111; --sh-surface: #1c1814; --sh-ink: #f4ede1;

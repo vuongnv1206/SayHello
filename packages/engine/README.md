@@ -1,4 +1,4 @@
-# Bộ máy thiệp v2 (`@sayhello/engine`)
+# Bộ máy thiệp (`@sayhello/engine`)
 
 JS thuần (ES module), không React, không bước build riêng cho từng mẫu. Cùng một tệp mẫu chạy ở hai nơi:
 
@@ -115,9 +115,9 @@ Toàn bộ luật mặc định nằm trong `:where()` (độ ưu tiên `0`) đ�
 ## Kiểm tra
 
 ```bash
-npm test -w @sayhello/engine                              # unit test trên Node (hợp đồng M2, renderDocument, XSS, stage3d)
-node --test packages/themes/<id>/test/contract.test.js    # kiểm tra hợp đồng & MD5 của từng mẫu
+npm test -w @sayhello/engine                              # unit test trên Node (hợp đồng, renderDocument, XSS, stage3d)
+node --test packages/themes/<id>/test/contract.test.js    # kiểm tra hợp đồng của từng mẫu
 npm run sync -w @sayhello/web                             # đồng bộ engine & mẫu sang apps/web/public/_e/
-npm run dev:legacy & npm run dev                          # mở /v2/ hoặc /v2/demo/<id>/?k=Tên+khách&topic=<id>&tier=lite
-npm run test:v2                                           # kiểm tra mọi mẫu v2 ở 3 mức chuyển động trong Chromium
+npm run dev                                               # mở / hoặc /demo/<id>/?k=Tên+khách&topic=<id>&tier=lite
+npm run test:smoke                                        # kiểm tra mọi mẫu ở 3 mức chuyển động trong Chromium
 ```
