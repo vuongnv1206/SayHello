@@ -267,17 +267,26 @@ try {
           // Mở bìa bằng selector theo hợp đồng engine
           const gateCount = await page.locator('.sh-gate').count();
           if (gateCount > 0) {
+            // Nghi thức mở dài (data-ritual): mức standard đi hết nghi thức, các mức khác bấm bỏ qua và đo <= 900ms
+            const ritual = (await page.locator('.sh-gate [data-ritual]').count()) > 0;
+            const fullRitual = ritual && tier === 'standard';
             const explicit = page.locator('.sh-gate [data-open]').first();
-            const cta = (await explicit.count()) > 0
-              ? explicit
-              : page.locator('.sh-gate button, .sh-gate [role="button"], .sh-gate .lever, .sh-gate .ptl-switch, .sh-gate .th-open-btn').first();
+            const cta = ritual
+              ? page.locator(fullRitual ? '.sh-gate [data-ritual]' : '.sh-gate [data-skip]').first()
+              : (await explicit.count()) > 0
+                ? explicit
+                : page.locator('.sh-gate button, .sh-gate [role="button"], .sh-gate .lever, .sh-gate .ptl-switch, .sh-gate .th-open-btn').first();
             await cta.waitFor({ state: 'visible', timeout: 5000 });
+            if (ritual && !(await page.locator('.sh-gate [data-skip]').first().evaluate(el => {
+              const r = el.getBoundingClientRect();
+              return r.top >= 0 && r.bottom <= window.innerHeight + 1;
+            }))) errors.push('nút bỏ qua nghi thức mở không nằm trên màn đầu');
             const t0 = Date.now();
             await cta.click({ force: true });
-            await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout: 8000 })
+            await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout: fullRitual ? 20000 : 8000 })
               .catch(() => errors.push('bìa không mở sau khi kích hoạt CTA'));
             const unlockMs = Date.now() - t0;
-            if (unlockMs > 900) {
+            if (!fullRitual && unlockMs > 900) {
               errors.push(`mở bìa mất ${unlockMs}ms (> 900ms)`);
             }
             await page.waitForFunction(() => {

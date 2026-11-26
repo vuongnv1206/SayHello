@@ -187,6 +187,21 @@ export async function saveFailureShot(ctx, shotsDir, label, err) {
   return saveShot(page, shotsDir, `FAIL-${label}`);
 }
 
+export async function assertOnFirstScreen(locator) {
+  const inView = await locator.evaluate(el => {
+    const r = el.getBoundingClientRect();
+    return r.top >= 0 && r.bottom <= window.innerHeight + 1;
+  });
+  if (!inView) throw new Error('nút bỏ qua nghi thức mở không nằm trên màn đầu');
+}
+
+/** Chạy trọn nghi thức mở (nút data-ritual) và chờ thiệp mở. */
+export async function runGateRitual(page, { timeout = 20000 } = {}) {
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
+  await page.locator('.sh-gate [data-ritual]').first().click();
+  await page.waitForFunction(() => document.documentElement.classList.contains('sh-open'), null, { timeout });
+}
+
 export async function openGate(page, { timeout = 8000 } = {}) {
   await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 15000 });
   const alreadyOpen = await page.evaluate(() => document.documentElement.classList.contains('sh-open'));
@@ -197,11 +212,16 @@ export async function openGate(page, { timeout = 8000 } = {}) {
   if ((await gate.count()) === 0) {
     return { unlockMs: 0, totalHideMs: 0, skippedImmediate: true };
   }
+  // Mẫu có nghi thức mở dài (data-ritual): mốc <= 900ms đo ở nút bỏ qua, và nút đó phải thấy ngay không cần cuộn.
+  const ritual = (await page.locator('.sh-gate [data-ritual]').count()) > 0;
   const explicitOpen = page.locator('.sh-gate [data-open]').first();
-  const cta = (await explicitOpen.count()) > 0
-    ? explicitOpen
-    : page.locator('.sh-gate button, .sh-gate [role="button"], .sh-gate [data-open], .sh-gate .lever, .sh-gate .ptl-switch, .sh-gate .th-open-btn').first();
+  const cta = ritual
+    ? page.locator('.sh-gate [data-skip]').first()
+    : (await explicitOpen.count()) > 0
+      ? explicitOpen
+      : page.locator('.sh-gate button, .sh-gate [role="button"], .sh-gate [data-open], .sh-gate .lever, .sh-gate .ptl-switch, .sh-gate .th-open-btn').first();
   await cta.waitFor({ state: 'visible', timeout: 5000 });
+  if (ritual) await assertOnFirstScreen(cta);
   await cta.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   const hitOk = await cta.evaluate(el => {
     const r = el.getBoundingClientRect();

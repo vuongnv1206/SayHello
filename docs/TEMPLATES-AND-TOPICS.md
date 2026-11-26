@@ -77,7 +77,7 @@ Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉn
 
 | Mẫu | Ghi chú |
 |---|---|
-| `photobooth` | Góc chụp tiệc cưới, chủ dự án đã duyệt. Còn lệch chuẩn: đếm 3-2-1 làm bìa mở khoảng 8 giây (chuẩn `<= 900ms`), có lớp lấp lánh `infinite`. |
+| `photobooth` | Góc chụp tiệc cưới, chủ dự án đã duyệt. Nghi thức đếm 3-2-1 (`data-ritual`) kèm nút "Xem thiệp ngay" (`data-skip`). |
 | `cuon-phim` | Cuộn điện ảnh, mở bìa `450ms`. |
 | `phong-trien-lam`, `to-hong` | Sân khấu 3D camera phẳng, nguồn kỹ thuật `stage3d.js` / `polarKnotPath`. |
 

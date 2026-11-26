@@ -55,7 +55,7 @@ Toàn bộ bộ chọn mặc định trong `packages/engine/src/base.css` nằm 
 
 ## 4. SLA Mở Bìa, Chống Chóng Mặt & Khả năng Tiếp cận
 
-1. **Thời gian mở bìa (`gateMs`):** Hạn mức tối đa **`<= 900ms`**, mục tiêu chuẩn **`<= 450ms`** (đa số mẫu dùng `gateMs: 450` với tự mở/bỏ qua `280ms` ở chế độ thường và `80ms` ở `reduced`). Không khóa khách bằng đếm ngược thụ động `2.3s–2.8s`.
+1. **Thời gian mở bìa (`gateMs`):** Hạn mức tối đa **`<= 900ms`**, mục tiêu chuẩn **`<= 450ms`** (đa số mẫu dùng `gateMs: 450` với tự mở/bỏ qua `280ms` ở chế độ thường và `80ms` ở `reduced`). Không khóa khách bằng đếm ngược thụ động. Nghi thức mở dài chỉ được dùng khi khách tự bấm (`data-ritual`) và luôn có nút `data-skip` thấy ngay trên màn đầu, mở trong `<= 900ms`.
 2. **Chống chóng mặt & An toàn tiền đình:**
    - Cấm bay camera xuyên không gian 3D, cấm rung lắc camera nhàn rỗi, cấm quay camera xoay mặt chữ `CSS3DRenderer`.
    - Mọi góc nghiêng theo chuột/cảm biến (nếu dùng) chỉ tác động lên khung tranh hoặc ánh phản quang trong giới hạn **`<= ±5°`**.

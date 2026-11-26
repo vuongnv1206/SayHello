@@ -8,7 +8,7 @@
 
 Đọc kỹ `docs/DESIGN.md` và `docs/TEMPLATES-AND-TOPICS.md` để chốt trước 4 thông số:
 1. **Kiến trúc bố cục (`layout`):** Một trong các giá trị hợp lệ của `LAYOUTS` trong `packages/engine/src/define-theme.js` (`folio`, `lookbook`, `deck`, `split`, `scroll`, `pager`, `stage`, `hub`, `chat`, `custom`). Tuyệt đối không dùng khung cột đơn hẹp lặp lại mọi mẫu khác.
-2. **Khoảnh khắc chữ ký (`moment`):** Đúng 1 động tác vật lý có tên (`id`, `verb`, `verbLabel`, `trigger`, `durationMs`, `easing`, `reducedFallback`), tôn trọng giới hạn mở bìa **`<= 900ms`** (khuyến nghị `gateMs: 450`).
+2. **Khoảnh khắc chữ ký (`moment`):** Đúng 1 động tác vật lý có tên (`id`, `verb`, `verbLabel`, `trigger`, `durationMs`, `easing`, `reducedFallback`), tôn trọng giới hạn mở bìa **`<= 900ms`** (khuyến nghị `gateMs: 450`). Nghi thức dài hơn: xem ngoại lệ `data-ritual` trong `docs/RULES.md`.
 3. **Danh sách chủ đề (`topics`):** Ít nhất 2 chủ đề tinh tế, chống sến, mỗi chủ đề có `id`, `name`, `desc`, `swatch`, `themeColor`, và bộ biến `vars` (`--sh-bg`, `--sh-surface`, `--sh-ink`, `--sh-accent`, `--sh-accent-ink`, `--sh-foil`, `--sh-soft`, `--sh-panel`, `--sh-font-display`, `--sh-font-body`).
 4. **Kịch bản tĩnh (`?tier=lite` & `prefers-reduced-motion`):** Mọi cảnh dùng chuyển động nặng hoặc WebGL (`motion.cinematic`) bắt buộc khai báo `motion.lite` với đầy đủ thông tin và biểu mẫu RSVP.
 

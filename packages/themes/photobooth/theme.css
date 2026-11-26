@@ -1,7 +1,7 @@
 /* Photobooth: góc chụp tiệc cưới; dải ảnh in ra là tấm thiệp. Bảng màu đổi --dem, --dem-2, --kim. */
 .theme-photobooth {
   --dem: #141b2d; --dem-2: #1c2540;
-  --voan: #f4f2ef; --muc: #1e2740; --mo: #6b7183; --kim: #b79c6b;
+  --voan: #f4f2ef; --muc: #1e2740; --mo: #6b7183; --kim: #b79c6b; --kim-chu: #75623d;
   --sh-accent: var(--kim);
   --f-ten: "Noto Serif Display", "Times New Roman", serif;
   --f-tay: "Pinyon Script", "Noto Serif Display", serif;
@@ -27,8 +27,8 @@
     radial-gradient(50px 50px at 30% 75%, rgba(255,210,150,.07), transparent 70%), radial-gradient(70px 70px at 75% 85%, rgba(255,210,150,.06), transparent 70%);
 }
 .theme-photobooth::before { content: ""; z-index: 0; }
-[data-motion="standard"] .theme-photobooth .lap-lanh, [data-motion="cinematic"] .theme-photobooth .lap-lanh { animation: pb-lap-lanh 5s ease-in-out infinite alternate; }
-@keyframes pb-lap-lanh { from { opacity: .35; } to { opacity: .65; } }
+[data-motion="standard"] .theme-photobooth .lap-lanh, [data-motion="cinematic"] .theme-photobooth .lap-lanh { animation: pb-lap-lanh 6s ease-in-out 1; }
+@keyframes pb-lap-lanh { 0% { opacity: .35; } 55% { opacity: .65; } 100% { opacity: .5; } }
 
 /* ---------- 1. Góc chụp (bìa) ---------- */
 #goc-chup { background: radial-gradient(120% 70% at 50% 0%, var(--dem-2), var(--dem) 60%); transition: opacity .7s ease; overflow-y: auto; }
@@ -87,7 +87,7 @@
 }
 #thiep.in .dai { transform: translateY(0) rotate(-1.2deg); transition: transform 3s cubic-bezier(.3, .1, .3, 1); }
 #thiep.xong .dai { transition: transform .4s ease; }
-.dai-dau { margin: 0; text-align: center; font: 300 22px/1 var(--f-ten); letter-spacing: .12em; color: var(--kim); }
+.dai-dau { margin: 0; text-align: center; font: 300 22px/1 var(--f-ten); letter-spacing: .12em; color: var(--kim-chu); }
 .dai-dau span { font: 400 20px/1 var(--f-tay); letter-spacing: 0; margin: 0 .35em; color: var(--mo); }
 .o { margin: 0; aspect-ratio: 4 / 3; overflow: hidden; background: #e9e6e1; }
 .o img { width: 100%; height: 100%; object-fit: cover; transition: filter 3.2s ease, opacity 3.2s ease; }
@@ -96,12 +96,12 @@
 #thiep.hien .o:nth-of-type(3) img { transition-delay: 1s; }
 .o-moi { text-align: center; padding: 18px 6px 26px; border-top: 1px solid #ece8e1; display: grid; justify-items: center; }
 .o-moi p { margin: 0; }
-.kinh-moi { font: 400 26px/1.2 var(--f-tay); color: var(--kim); }
+.kinh-moi { font: 400 26px/1.2 var(--f-tay); color: var(--kim-chu); }
 .moi-ten { font: 400 20px/1.3 var(--f-ten); margin-top: 2px !important; }
 .moi-chu { font-size: 13px; color: var(--mo); margin-top: 6px !important; }
 .moi-doi { margin: 8px 0 12px; display: grid; justify-items: center; font-weight: 400; }
 .moi-doi span { font: 300 clamp(26px, 8vw, 36px)/1.14 var(--f-ten); }
-.moi-doi .va { font: 400 22px/1.2 var(--f-tay); color: var(--kim); }
+.moi-doi .va { font: 400 22px/1.2 var(--f-tay); color: var(--kim-chu); }
 .moi-ngay { font-size: 14px; font-weight: 500; }
 .moi-noi { font-size: 13px; color: var(--mo); }
 .goi-y { margin: 0; font-size: 14px; opacity: .7; min-height: 1.6em; text-align: center; }
@@ -151,7 +151,7 @@
 .tai-khoan { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .tk { background: #fff; color: var(--muc); padding: 20px; text-align: center; border-radius: 4px; }
 .tk p { margin: 4px 0; }
-.tk .ai { font: 400 24px/1.2 var(--f-tay); color: var(--kim); }
+.tk .ai { font: 400 24px/1.2 var(--f-tay); color: var(--kim-chu); }
 .tk .qr { margin: 8px auto; width: 180px; height: 180px; }
 .tk .so { display: flex; justify-content: center; align-items: center; gap: 10px; font-weight: 500; }
 .chep { border: 1px solid var(--kim); background: none; color: var(--muc); padding: 6px 10px; border-radius: 4px; font: 400 14px var(--f); cursor: pointer; }
@@ -167,6 +167,16 @@
 .ngay-cuoi { margin-top: 6px !important; color: var(--kim); letter-spacing: .08em; }
 .cam-on { margin-top: 18px !important; opacity: .85; }
 
+/* Màn thấp (điện thoại nhỏ): thu máy chụp để nút "Xem thiệp ngay" luôn thấy được mà không cần cuộn */
+@media (max-height: 700px) {
+  .goc { gap: 8px; padding: 10px 14px; }
+  .kich { font-size: 24px; }
+  .ten-cap { font-size: 22px; }
+  .may { width: min(70vw, 36svh, 300px); padding: 10px 10px 0; }
+  .bang { gap: 6px; padding: 8px 0 6px; }
+  .nut-chup { width: 60px; height: 60px; padding: 4px; }
+  .loi-man { padding: 30px 10px 10px; font-size: 16px; }
+}
 @media (min-width: 960px) {
   .goc { grid-template-columns: auto; }
   .may { width: min(30vw, 50vh, 420px); }

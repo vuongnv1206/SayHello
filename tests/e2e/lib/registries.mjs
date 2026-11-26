@@ -25,6 +25,7 @@ export async function discoverThemes() {
       features: mod.features || {},
       demo: JSON.parse(readFileSync(join(THEMES_DIR, id, 'demo.json'), 'utf8')),
       themeJs,
+      ritual: readFileSync(themeJs, 'utf8').includes('data-ritual'),
       assetBase: `/_e/themes/${id}/`,
     };
   }));

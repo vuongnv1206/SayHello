@@ -13,7 +13,7 @@
 1. **Không React trong trang thiệp** (`packages/engine/`, `packages/themes/*`): thiệp dựng bằng HTML/JS thuần từ `renderDocument()` rồi nâng cấp qua `packages/engine/src/client/runtime.js`.
 2. **Next.js 16** trong `apps/web/`: đọc `apps/web/AGENTS.md` và `node_modules/next/dist/docs/` trước khi sửa.
 3. **Mở bìa và chuyển động:**
-   - Mở bìa xong trong `<= 900ms` (chuẩn `450ms`).
+   - Mở bìa xong trong `<= 900ms` (chuẩn `450ms`). Ngoại lệ chủ dự án duyệt ngày 26/11/2026: mẫu có nghi thức mở dài (như đếm 3-2-1) đánh dấu nút bằng `data-ritual` và phải có nút `data-skip` thấy ngay trên màn đầu, mở trong `<= 900ms`.
    - Không xoay camera 3D tự do, không rung lắc camera, không hiệu ứng `infinite` trên lớp phủ lớn.
    - Có bản tĩnh `?tier=lite`, theo `prefers-reduced-motion`, gắn `bindContextLoss` khi dùng WebGL.
 4. **Chữ và tương phản:** thân bài `>= 16px`, nhãn tiếng Việt `>= 13px`, tương phản `>= 4.5:1`, font có bộ ký tự `vietnamese`, tách chữ bằng `splitText()`, không tràn ngang ở `320×568`, `390×844`, `1440×900`.

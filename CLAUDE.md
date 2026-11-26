@@ -31,7 +31,7 @@ Monorepo thiệp cưới online. **Một bộ mã duy nhất, chỉ làm trên n
 - `npm run test:e2e` — Playwright đầy đủ (tự dò hoặc khởi chạy server).
 
 ## Ràng buộc
-1. **Không React trong trang thiệp** (`packages/engine/`, `packages/themes/`). Thư viện nặng chỉ nạp qua `ctx.lib()`; bìa mở trong `<= 900ms` (chuẩn `450ms`).
+1. **Không React trong trang thiệp** (`packages/engine/`, `packages/themes/`). Thư viện nặng chỉ nạp qua `ctx.lib()`; bìa mở trong `<= 900ms` (chuẩn `450ms`); nghi thức mở dài (`data-ritual`) phải có nút `data-skip` mở trong `<= 900ms`.
 2. **Card-as-Centerpiece, không chóng mặt:** không bay camera 3D, không rung lắc nhàn rỗi, nghiêng tối đa `±5°`, không hiệu ứng `infinite` phủ lớn. Hỗ trợ `?tier=lite`, `prefers-reduced-motion`, `bindContextLoss`.
 3. **Tiếng Việt và an toàn:** HTML escape qua `` html`...` ``; font có subset `vietnamese`; nhãn `>= 13px`, thân bài `>= 16px`; tách chữ qua `splitText()`; kiểm tra ở `320×568`, `390×844`, `1440×900`.
 4. **Vệ sinh:** không commit `.env`, khoá `service_role`, hay dữ liệu thật của cặp đôi.

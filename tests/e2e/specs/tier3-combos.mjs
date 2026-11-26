@@ -112,7 +112,9 @@ export async function runTier3Combos({ browser, webUrl, shotsDir, record }) {
         }
         await instantScrollTo(rsvpForm);
         assert.equal(await rsvpForm.locator('input[name="name"]').inputValue(), 'Chị Lan');
-        await rsvpForm.locator('textarea[name="wish"]').fill('Chúc mừng hạnh phúc!');
+        // Một số mẫu tách lời chúc ra form riêng, hồi âm không có ô này
+        const wishBox = rsvpForm.locator('textarea[name="wish"]');
+        if (await wishBox.count()) await wishBox.fill('Chúc mừng hạnh phúc!');
         await rsvpForm.locator('[type="submit"]').click();
         await page.waitForFunction(
           sel => /Cảm ơn/.test(document.querySelector(sel)?.textContent || ''),

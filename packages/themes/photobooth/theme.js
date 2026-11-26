@@ -3,8 +3,9 @@
 //   Thiệp: dải ảnh in ra từ khe máy chính là tấm thiệp; ô cuối là lời mời có tên khách; ảnh hiện dần như ảnh lấy liền.
 //   Lễ và tiệc, Hồi âm (gửi xong in một dải ảnh mang tên khách để lưu), Mừng cưới, Lời chúc, Lời cảm ơn.
 // Mức chuyển động: chỉ CSS và Web Audio, không nạp thư viện. lite: không đếm, không flash, thiệp in sẵn.
+// Nghi thức mở: nút Chụp (data-ritual) đếm ảnh vài giây; nút data-skip luôn hiện trên màn đầu và mở ngay.
 // Ảnh dùng: images.hero (màn hình máy chụp), album[] (ô trong dải ảnh và ảnh thêm).
-import { defineTheme, html, br, rsvpForm, wishForm, wishList, countdown, fmt, qrUrl } from '@sayhello/engine';
+import { defineTheme, html, br, rsvpForm, wishForm, wishList, countdown, fmt, plain, qrUrl } from '@sayhello/engine';
 
 const initial = s => (s || '').trim().charAt(0).toUpperCase();
 const ngay = iso => fmt.dots(iso).replace(/ · /g, '.');
@@ -33,15 +34,25 @@ export default defineTheme({
   voice: 'trang-trong',
   themeColor: '#141b2d',
   fonts: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,200;0,300;0,400;1,300&family=Pinyon+Script&family=Be+Vietnam+Pro:wght@300;400;500&display=swap',
+  tagline: 'Góc chụp ở tiệc cưới: dải ảnh in ra chính là tấm thiệp mời.',
   gateMs: 700,
+  moment: {
+    id: 'shoot-print',
+    verb: 'shoot',
+    verbLabel: 'Chụp ảnh và in thiệp',
+    trigger: 'click',
+    durationMs: 700,
+    easing: 'ease',
+    reducedFallback: 'instant-fade',
+  },
   features: { when: 'required', where: 'required', rsvp: 'required', map: 'optional', album: 'optional', gift: 'optional', guestbook: 'optional', countdown: 'optional', story: 'off' },
   slots: {
     images: { hero: { required: true, aspect: '3:4', label: 'Ảnh trên màn hình máy chụp' }, album: { min: 3, ideal: 6, max: 24 } },
   },
   palettes: [
     { id: 'dem-xanh', name: 'Đêm xanh', swatch: ['#141b2d', '#b79c6b'] },
-    { id: 'dem-ruou', name: 'Rượu vang', swatch: ['#2a1420', '#c7a56f'], vars: { '--dem': '#24111b', '--dem-2': '#3a1a2a', '--kim': '#c7a56f' } },
-    { id: 'rung-dem', name: 'Rừng đêm', swatch: ['#11201b', '#b9a274'], vars: { '--dem': '#0f1c18', '--dem-2': '#1a3029', '--kim': '#b9a274' } },
+    { id: 'dem-ruou', name: 'Rượu vang', swatch: ['#2a1420', '#c7a56f'], vars: { '--dem': '#24111b', '--dem-2': '#3a1a2a', '--kim': '#c7a56f', '--kim-chu': '#7c6134' } },
+    { id: 'rung-dem', name: 'Rừng đêm', swatch: ['#11201b', '#b9a274'], vars: { '--dem': '#0f1c18', '--dem-2': '#1a3029', '--kim': '#b9a274', '--kim-chu': '#6f6038' } },
   ],
   defaults: {
     texts: {
@@ -79,7 +90,7 @@ export default defineTheme({
             </div>
             <div class="bang">
               <p class="cham" aria-hidden="true"><i></i><i></i><i></i><i></i></p>
-              <button type="button" class="nut-chup"><span>${t.boothShoot}</span></button>
+              <button type="button" class="nut-chup" data-ritual><span>${t.boothShoot}</span></button>
             </div>
             <i class="khe" aria-hidden="true"></i>
           </div>
@@ -245,7 +256,11 @@ export default defineTheme({
             <p>${a.name}</p>
           </article>`)}
         </div>`,
-      mount(el) {
+      mount(el, ctx) {
+        if (ctx.guest) {
+          const note = encodeURIComponent(`Mung cuoi ${plain(ctx.guest)}`.slice(0, 50));
+          el.querySelectorAll('img.qr').forEach(img => { img.src = img.src.replace(/addInfo=[^&]*/, `addInfo=${note}`); });
+        }
         el.querySelectorAll('.chep').forEach(b => b.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Đã chép'; } catch { b.textContent = b.dataset.copy; }
           setTimeout(() => { b.textContent = 'Chép số'; }, 2000);
