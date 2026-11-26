@@ -23,6 +23,8 @@ docs/                Tài liệu hiện hành
 | Chiều Sâu `chieu-sau` | Lookbook × đẩy tiêu cự 2.5D | `suong-da-lat`, `dem-sai-gon`, `chang-vang-bien` |
 | Hộp Ký Ức `hop-ky-uc` | Hộp thẻ × chia và lật thẻ | `hop-nhung`, `buu-thiep` |
 | Song Gia `song-gia` | Chia đôi hai nhà × kết nút tơ | `gom-su`, `hai-thanh-pho` |
+| Thẻ Lên Máy Bay `the-len-may-bay` | Chia đôi vé và cuống × xé cuống xác nhận | `hang-khong-co-dien`, `tau-thong-nhat`, `the-thong-hanh`, `ve-le-hoi` |
+| Album Nhạc `album-nhac` | Đĩa than bìa gập × rút đĩa khỏi bìa | `ruou-vang`, `dia-sai-gon`, `vai-bo`, `bang-cassette` |
 | Photobooth `photobooth` | Góc chụp tiệc cưới × in dải ảnh | `dem-xanh`, `dem-ruou`, `rung-dem` |
 | Cuộn Phim `cuon-phim` | Cuộn điện ảnh | `nhung-do`, `luc-bao`, `hai-quan` |
 | Phòng Triển Lãm `phong-trien-lam` | Sân khấu 3D camera phẳng | `xam-luc`, `nhung-man`, `thach-cao`, `men-lam` |

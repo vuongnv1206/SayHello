@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-the-len-may-bay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Thẻ Lên Máy Bay: tấm vé là thiệp mời, cuống vé là phiếu hồi âm.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}

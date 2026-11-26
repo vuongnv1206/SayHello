@@ -1,0 +1,195 @@
+/* Thẻ Lên Máy Bay: bảng giờ bay mở thiệp; tấm vé là thiệp mời; cuống vé là phiếu hồi âm. */
+.theme-the-len-may-bay {
+  --f-bang: "Barlow Condensed", system-ui, sans-serif;
+  --f-ten: "Playfair Display", Georgia, serif;
+  --f: "Be Vietnam Pro", system-ui, sans-serif;
+  --tren-nen: var(--tl-on-bg, var(--sh-ink));
+  margin: 0; background: var(--sh-bg); color: var(--sh-ink);
+  font: 400 16px/1.55 var(--f); -webkit-font-smoothing: antialiased;
+}
+.theme-the-len-may-bay img { display: block; max-width: 100%; }
+.theme-the-len-may-bay a { color: inherit; }
+.theme-the-len-may-bay :focus-visible { outline: 2px solid var(--tl-line); outline-offset: 3px; }
+.theme-the-len-may-bay p { margin: 0; }
+.theme-the-len-may-bay .sh-scene h2 { margin: 0 0 24px; font: 400 clamp(32px, 8vw, 46px)/1.15 var(--f-ten); text-align: center; color: var(--tren-nen); }
+.theme-the-len-may-bay .sh-scene:not(.sh-gate) { min-height: 0; }
+
+/* ---------- 1. Bảng giờ bay ---------- */
+#bang-bay { background: var(--tl-board); color: var(--tl-board-ink); display: grid; align-content: center; padding: 20px 12px; overflow-y: auto; transition: transform .55s cubic-bezier(.7, 0, .2, 1); }
+#bang-bay.is-open { transform: translateY(-100%); }
+.bb { display: grid; justify-items: center; gap: 14px; width: min(720px, 100%); margin: 0 auto; text-align: center; }
+.bb-dau { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.16); font: 600 20px/1.2 var(--f-bang); color: #fff; }
+.bb-dau span:last-child { color: var(--tl-board-ink); font-variant-numeric: tabular-nums; }
+.bb-ten { margin: 8px 0 0; display: grid; gap: 8px; font-weight: 400; }
+.bb-o { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; }
+.bb-tu { display: inline-flex; gap: 3px; }
+.bb-o i {
+  position: relative; display: grid; place-items: center; width: clamp(23px, 6.6vw, 38px); height: clamp(34px, 9.4vw, 54px);
+  border-radius: 3px; background: #1f2126; font: 600 clamp(20px, 5.6vw, 32px)/1 var(--f-bang); font-style: normal; color: var(--tl-board-ink);
+}
+.bb-o i::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.6); }
+.bb-o i.lat { animation: tl-lat .07s linear; }
+@keyframes tl-lat { 50% { transform: scaleY(.2); filter: brightness(1.5); } }
+.bb-noi .bb-o i { width: clamp(18px, 5vw, 28px); height: clamp(26px, 7vw, 40px); font-size: clamp(16px, 4.4vw, 24px); }
+.bb-moi { margin-top: 6px; font: 400 18px/1.5 var(--f); color: #f4f2ee; }
+.bb-moi b { font: 400 24px/1.3 var(--f-ten); color: #fff; margin: 0 .15em; }
+.bb-nut { margin-top: 6px; min-height: 52px; padding: 14px 28px; border: 0; border-radius: 4px; background: var(--tl-board-ink); color: var(--tl-board); font: 700 19px/1 var(--f-bang); letter-spacing: .03em; cursor: pointer; }
+
+/* ---------- 2. Tấm vé ---------- */
+#tam-ve { padding: 24px 16px 56px; }
+.ve { display: grid; width: min(100%, 440px); margin: 0 auto; }
+.the { background: var(--tl-card); border-radius: 18px 18px 0 0; overflow: hidden; }
+.the-dau { background: var(--tl-head); color: var(--tl-head-ink); padding: 26px 22px 24px; text-align: center; }
+.kinh-moi { font: italic 400 17px/1.4 var(--f-ten); }
+.hanh-khach { font: 500 24px/1.3 var(--f-ten); margin-top: 4px !important; overflow-wrap: anywhere; }
+.le { font-size: 15px; margin-top: 6px !important; }
+.theme-the-len-may-bay .the-dau .ten-doi { margin: 12px 0 0; display: grid; justify-items: center; color: var(--tl-head-ink); font-size: clamp(32px, 9vw, 44px); line-height: 1.15; }
+.ten-doi i { font-size: .5em; line-height: 1.5; }
+.the-than { padding: 20px 22px 8px; }
+.tuyen { display: grid; grid-template-columns: auto minmax(60px, 1fr) auto; gap: 12px; align-items: center; text-align: center; }
+.tuyen .ma { font: 700 clamp(26px, 8vw, 34px)/1.1 var(--f-bang); text-transform: uppercase; max-width: 150px; }
+.tuyen .nho { font-size: 13px; }
+.tuyen svg { width: 100%; height: 24px; color: var(--tl-mark); }
+.o-tin { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; margin: 20px 0 14px; padding-top: 16px; border-top: 1px solid var(--sh-soft); }
+.o-tin div { margin: 0; }
+.o-tin .rong { grid-column: 1 / -1; }
+.o-tin dt { font-size: 13px; color: var(--tl-mark); font-weight: 500; }
+.o-tin dd { margin: 2px 0 0; font-weight: 600; font-size: 16px; }
+.o-tin dd.am { font-weight: 400; font-size: 15px; }
+.o-tin dd.so { font: 700 28px/1.2 var(--f-bang); font-variant-numeric: tabular-nums; }
+.con-lai { padding: 6px 0 14px; }
+.theme-the-len-may-bay .sh-cd { display: flex; justify-content: center; gap: 18px; }
+.theme-the-len-may-bay .sh-cd .u { display: grid; justify-items: center; }
+.theme-the-len-may-bay .sh-cd b { font: 700 30px/1 var(--f-bang); }
+.theme-the-len-may-bay .sh-cd span { font-size: 13px; }
+
+.cuong { position: relative; background: var(--tl-card); border-radius: 0 0 18px 18px; border-top: 2px dashed var(--sh-soft); transition: transform .32s cubic-bezier(.22, 1, .36, 1), margin .32s; transform-origin: 0 0; }
+.cuong::before, .cuong::after { content: ""; position: absolute; top: -13px; width: 24px; height: 24px; border-radius: 50%; background: var(--sh-bg); }
+.cuong::before { left: -12px; }
+.cuong::after { right: -12px; }
+.cuong-trong { display: grid; gap: 14px; padding: 22px; }
+.cuong-dau { font: 400 24px/1.25 var(--f-ten); }
+.cuong-loi { font-size: 16px; }
+.ma-vach { width: 100%; height: 40px; fill: currentColor; }
+.cuong.xe { transform: translateY(14px) rotate(1.6deg); margin-bottom: 14px; border-radius: 18px; }
+.dau-moc { justify-self: center; padding: 10px 18px; border: 3px double var(--tl-mark); border-radius: 8px; color: var(--tl-mark); font: 700 24px/1.2 var(--f-bang); text-transform: uppercase; letter-spacing: .08em; transform: rotate(-3deg); }
+.dau-moc[hidden] { display: none; }
+html[data-motion="lite"] .theme-the-len-may-bay .cuong { transition: none; }
+html[data-motion="lite"] .theme-the-len-may-bay .cuong.xe { transform: none; margin-bottom: 0; border-radius: 0 0 18px 18px; }
+
+.theme-the-len-may-bay .sh-form :is(input:not([type=radio]):not([type=checkbox]), select, textarea) { background: #fff; color: var(--sh-ink); border: 1px solid var(--sh-soft); border-radius: 8px; font: 400 16px var(--f); }
+.theme-the-len-may-bay :is(.sh-choice, .sh-pick) span { border-radius: 8px; }
+.theme-the-len-may-bay .sh-row { grid-template-columns: 1fr; }
+.theme-the-len-may-bay .sh-btn { min-height: 50px; border: 0; border-radius: 8px; background: var(--sh-accent); color: var(--sh-accent-ink); font: 600 16px/1.2 var(--f); cursor: pointer; }
+
+/* ---------- 3. Cửa sổ ---------- */
+#cua-so { padding: 40px 16px 56px; }
+.khoang { display: grid; gap: 46px; width: min(100%, 1040px); margin: 0 auto; }
+.o-cua { margin: 0; width: min(68vw, 300px); justify-self: start; margin-left: 5vw; }
+.o-cua:nth-child(even) { justify-self: end; margin-left: 0; margin-right: 5vw; }
+.kinh { aspect-ratio: 3 / 4; overflow: hidden; border-radius: 46% / 36%; background: #dfe7ec; box-shadow: 0 0 0 10px #f7f8f9, 0 0 0 12px #cdd5da, 0 22px 36px -18px rgba(0,0,0,.45); }
+.kinh img { width: 100%; height: 100%; object-fit: cover; transform: translateY(calc(var(--p, 0) * 6%)) scale(1.14); }
+.o-cua figcaption { margin-top: 22px; text-align: center; font-size: 15px; color: var(--tren-nen); }
+html[data-motion="lite"] .theme-the-len-may-bay .kinh img { transform: none; }
+
+/* ---------- 4. Lịch trình ---------- */
+#lich-trinh { width: min(100%, 680px); margin: 0 auto; padding: 40px 18px; color: var(--tren-nen); }
+.chang { list-style: none; margin: 0; padding: 0; }
+.chang li { display: grid; grid-template-columns: 78px 1fr; gap: 14px; padding: 18px 0; border-top: 1px solid color-mix(in srgb, var(--tren-nen) 28%, transparent); }
+.chang li[hidden] { display: none; }
+.chang .gio { font: 700 32px/1.1 var(--f-bang); font-variant-numeric: tabular-nums; }
+.theme-the-len-may-bay .chang h3 { margin: 0 0 2px; font: 500 20px/1.3 var(--f-ten); }
+.chang .am { font-size: 14px; }
+.lien-ket { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.lien-ket a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 500; text-underline-offset: 4px; }
+.hai-nha { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 20px; border-top: 1px solid color-mix(in srgb, var(--tren-nen) 28%, transparent); font-size: 15px; }
+.nha { font: italic 400 21px/1.3 var(--f-ten); }
+
+/* ---------- 5. Mừng cưới và lời chúc ---------- */
+#hanh-ly { width: min(100%, 680px); margin: 0 auto; padding: 40px 18px 56px; display: grid; gap: 34px; }
+.theme-the-len-may-bay #hanh-ly h2 { margin: 0; }
+.tai-khoan { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.tk { display: grid; justify-items: center; gap: 4px; padding: 20px; border-radius: 14px; background: var(--tl-card); text-align: center; }
+.tk .ai { font: 500 20px/1.3 var(--f-ten); }
+.tk .qr { width: 180px; height: 180px; margin: 6px 0; background: #fff; }
+.tk .so { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.chep { min-height: 44px; padding: 6px 12px; border: 1px solid var(--sh-accent); border-radius: 6px; background: none; color: var(--sh-ink); font: 500 14px var(--f); cursor: pointer; }
+.so-chuc { display: grid; gap: 16px; padding: 22px; border-radius: 14px; background: var(--tl-card); }
+.theme-the-len-may-bay #hanh-ly .so-chuc h2 { color: var(--sh-ink); }
+.theme-the-len-may-bay .sh-wishes { display: grid; gap: 10px; }
+.theme-the-len-may-bay .sh-wish { padding: 12px 14px; border-radius: 10px; background: #fff; color: #1f2933; }
+
+/* ---------- 6. Lời hẹn ---------- */
+#ha-canh { position: relative; display: grid; align-content: end; justify-items: center; min-height: 76svh; padding: 0 20px 96px; overflow: hidden; text-align: center; color: #fff; background: #14212b; }
+#ha-canh > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#ha-canh::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(10,16,22,.88)); }
+.hc { position: relative; z-index: 1; }
+.hc-chu { font: 400 clamp(28px, 7.6vw, 44px)/1.25 var(--f-ten); }
+.hc-nho { margin-top: 8px !important; }
+
+@media (min-width: 960px) {
+  .ve { grid-template-columns: minmax(0, 72fr) minmax(320px, 36fr); width: min(100%, 1040px); align-items: stretch; }
+  .the { border-radius: 18px 0 0 18px; }
+  .cuong { border-radius: 0 18px 18px 0; border-top: 0; border-left: 2px dashed var(--sh-soft); }
+  .cuong::before { left: -13px; top: -12px; }
+  .cuong::after { left: -13px; right: auto; top: auto; bottom: -12px; }
+  .cuong.xe { transform: translate(14px, 8px) rotate(1.4deg); margin-bottom: 0; }
+  .khoang { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 56px 24px; }
+  .o-cua, .o-cua:nth-child(even) { justify-self: center; margin: 0; width: min(100%, 280px); }
+  .o-cua:nth-child(even) { margin-top: 70px; }
+}
+html[data-motion="lite"] .theme-the-len-may-bay #bang-bay { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  #bang-bay, .cuong { transition: none !important; }
+  .bb-o i.lat { animation: none; }
+  .kinh img { transform: none; }
+}
+
+/* =================================================================
+   Chủ đề
+   ================================================================= */
+
+/* --- Tàu Thống Nhất: hai ga dừng xếp dọc, lỗ bấm soát vé, cửa sổ toa tàu --- */
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .the { border-radius: 6px 6px 0 0; }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .tuyen { grid-template-columns: 1fr; gap: 0; text-align: left; justify-items: start; }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .tuyen .ga { display: grid; grid-template-columns: 18px auto; column-gap: 12px; align-items: center; }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .tuyen .ga::before { content: ""; grid-row: span 2; width: 12px; height: 12px; border: 3px solid var(--tl-mark); border-radius: 50%; }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .tuyen .ma { max-width: none; }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .tuyen svg { display: block; width: 0; height: 28px; margin-left: 8px; border-left: 2px dashed var(--tl-mark); }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .ma-vach { height: 22px; fill: transparent; background: radial-gradient(circle at 11px 0, var(--sh-bg) 0 10px, transparent 11px) 0 0 / 34px 22px repeat-x; border-bottom: 1px dashed var(--sh-soft); }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .cuong { border-radius: 0 0 6px 6px; }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .kinh { border-radius: 22px; aspect-ratio: 4 / 3; box-shadow: 0 0 0 8px #2c4a3d, 0 0 0 11px #c9b98c, 0 22px 36px -18px rgba(0,0,0,.45); }
+html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .o-cua { width: min(86vw, 420px); justify-self: center; margin: 0; }
+@media (min-width: 960px) {
+  html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .the { border-radius: 6px 0 0 6px; }
+  html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .cuong { border-radius: 0 6px 6px 0; }
+  html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .khoang { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html[data-topic="tau-thong-nhat"] .theme-the-len-may-bay .o-cua { margin: 0; }
+}
+
+/* --- Thẻ thông hành: sổ mở đôi, triện bến nước, ảnh dán trang sổ --- */
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .the { border-radius: 4px 4px 0 0; border: 1px solid var(--tl-line); border-bottom: 0; }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .the-dau { position: relative; border-bottom: 3px double var(--tl-line); }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .the-dau::before { content: "囍"; display: grid; place-items: center; width: 66px; height: 48px; margin: 0 auto 12px; border: 2px solid var(--tl-mark); border-radius: 50%; outline: 1px solid var(--tl-mark); outline-offset: 4px; color: var(--tl-mark); font-size: 26px; transform: rotate(-4deg); }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .cuong { border: 1px solid var(--tl-line); border-top: 2px solid var(--tl-line); border-radius: 0 0 4px 4px; box-shadow: inset 0 14px 16px -14px rgba(0,0,0,.35); }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .cuong::before, html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .cuong::after { display: none; }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .kinh { border-radius: 2px; padding: 10px; background: #f7f5f0; box-shadow: 0 18px 30px -16px rgba(0,0,0,.6); }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .o-cua:nth-child(odd) .kinh { transform: rotate(-1.6deg); }
+html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .o-cua:nth-child(even) .kinh { transform: rotate(1.6deg); }
+@media (min-width: 960px) {
+  html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .ve { grid-template-columns: 1fr 1fr; }
+  html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .the { border: 1px solid var(--tl-line); border-right: 0; border-radius: 4px 0 0 4px; }
+  html[data-topic="the-thong-hanh"] .theme-the-len-may-bay .cuong { border: 1px solid var(--tl-line); border-left: 2px solid var(--tl-line); border-radius: 0 4px 4px 0; box-shadow: inset 18px 0 20px -18px rgba(0,0,0,.4); }
+}
+
+/* --- Thẻ vào tiệc đêm: lỗ đeo dây phía trên, ảnh vuông lấy liền --- */
+html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .the { border-radius: 28px 28px 0 0; }
+html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .the-dau { padding-top: 18px; }
+html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .the-dau::before { content: ""; display: block; width: 78px; height: 16px; margin: 0 auto 18px; border-radius: 99px; background: var(--sh-bg); box-shadow: 0 0 0 3px rgba(255,255,255,.35); }
+html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .cuong { border-radius: 0 0 28px 28px; }
+html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .kinh { aspect-ratio: 1; border-radius: 3px; padding: 10px 10px 40px; background: #fbf8f2; box-shadow: 0 18px 30px -16px rgba(0,0,0,.7); }
+html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .khoang { gap: 30px; }
+@media (min-width: 960px) {
+  html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .the { border-radius: 28px 0 0 28px; }
+  html[data-topic="ve-le-hoi"] .theme-the-len-may-bay .cuong { border-radius: 0 28px 28px 0; }
+}

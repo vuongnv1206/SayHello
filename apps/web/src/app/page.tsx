@@ -1,11 +1,11 @@
 import { THEME_LIST, getThemeVariants } from "@/lib/themes";
 
 const LAYOUT_LABELS: Record<string, string> = {
-  folio: "Folio 2 Cánh",
+  folio: "Bìa gập hai cánh",
   lookbook: "Lookbook 2.5D",
-  deck: "Hộp Thẻ Ký Ức",
-  split: "Song Gia 50/50",
-  scroll: "Cuộn Biên Tập",
+  deck: "Bộ thẻ",
+  split: "Chia đôi",
+  scroll: "Cuộn dọc",
   stage: "Sân Khấu 3D",
   pager: "Lật Trang",
   hub: "Trung Tâm",

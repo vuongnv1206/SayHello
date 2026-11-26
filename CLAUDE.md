@@ -18,7 +18,7 @@ Monorepo thiệp cưới online. **Một bộ mã duy nhất, chỉ làm trên n
 ## Cấu trúc
 - `apps/web/` — Next.js `16.4.6` + React `19.3.0` + Tailwind `4.3.3`. `/`, `/demo/[theme]/`, `/demo/[theme]/[topic]/`. `predev`/`prebuild` chạy `scripts/sync-engine.mjs` sinh `src/lib/themes.generated.ts` và `public/_e/`.
 - `packages/engine/` — Bộ máy thiệp JS thuần (**không React**): `defineTheme`, `composeInvitation`, `renderDocument`, `qrUrl`, `imgPair`, `base.css`.
-- `packages/themes/` — Mỗi thư mục là một mẫu (hiện 8).
+- `packages/themes/` — Mỗi thư mục là một mẫu (hiện 10).
 - `assets/anh-minh-hoa/` — Ảnh minh hoạ mặc định.
 - `prototypes/` — Bản thử topic chờ duyệt.
 - `supabase/` — Cấu hình PG17, chưa có migration.

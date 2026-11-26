@@ -1,0 +1,95 @@
+{
+  "slug": "demo-album-nhac",
+  "groom": {
+    "short": "Nhật Minh",
+    "full": "Đoàn Nhật Minh"
+  },
+  "bride": {
+    "short": "Thanh Trúc",
+    "full": "Huỳnh Thanh Trúc"
+  },
+  "order": "groom-first",
+  "city": "Huế",
+  "date": "2027-10-24T17:30:00+07:00",
+  "themeColor": "#2B0F1A",
+  "families": [
+    {
+      "side": "Nhà trai",
+      "father": "Đoàn Quang Hải",
+      "mother": "Tôn Nữ Minh Tâm",
+      "address": "Phường Thuận Hóa,\nThành phố Huế"
+    },
+    {
+      "side": "Nhà gái",
+      "father": "Huỳnh Văn Phước",
+      "mother": "Lê Thị Ngọc Lan",
+      "address": "Phường Kim Long,\nThành phố Huế"
+    }
+  ],
+  "events": [
+    {
+      "title": "Lễ thành hôn",
+      "date": "2027-10-24T09:00:00+07:00",
+      "venue": "Tư gia nhà gái",
+      "address": "Phường Kim Long, Thành phố Huế",
+      "lunar": "Nhằm ngày 25 tháng 9 năm Đinh Mùi"
+    },
+    {
+      "title": "Tiệc cưới",
+      "date": "2027-10-24T17:30:00+07:00",
+      "venue": "Nhà hàng Bên Sông",
+      "address": "12 Lê Lợi, Thành phố Huế",
+      "main": true
+    }
+  ],
+  "places": [
+    {
+      "label": "Tiệc cưới",
+      "address": "12 Lê Lợi, Thành phố Huế"
+    },
+    {
+      "label": "Lễ thành hôn",
+      "address": "Phường Kim Long, Thành phố Huế"
+    }
+  ],
+  "images": {
+    "hero": "images/anh1.jpg",
+    "thanks": "images/anh6.jpg",
+    "album": [
+      "images/anh1.jpg",
+      "images/anh2.jpg",
+      "images/anh3.jpg",
+      "images/anh4.jpg",
+      "images/anh5.jpg"
+    ],
+    "preview": "images/xem-truoc.jpg"
+  },
+  "music": "/assets/music/hop-nhac.mp3",
+  "accounts": [
+    {
+      "who": "Chú rể",
+      "bank": "Vietcombank",
+      "bankCode": "VCB",
+      "number": "0000000000",
+      "name": "DOAN NHAT MINH"
+    },
+    {
+      "who": "Cô dâu",
+      "bank": "Techcombank",
+      "bankCode": "TCB",
+      "number": "0000000000",
+      "name": "HUYNH THANH TRUC"
+    }
+  ],
+  "guestGroups": [
+    {
+      "id": "nha-gai",
+      "label": "Họ nhà gái",
+      "greeting": "Trân trọng kính mời họ nhà gái",
+      "events": [
+        0
+      ],
+      "note": "Xe đón họ nhà gái xuất phát lúc 7:00"
+    }
+  ]
+}

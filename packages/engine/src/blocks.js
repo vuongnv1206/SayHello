@@ -6,7 +6,7 @@ import { html, br } from './html.js';
 import { fmt } from './date.js';
 
 // note/wish: false để bỏ ô ghi chú, ô lời chúc (mẫu có chỗ viết lời chúc riêng, form gọn còn ≤ 3 ô chính)
-export function rsvpForm(ctx, { yes, no, submit, cls = '', maxGuests, sides, note = true, wish = true } = {}) {
+export function rsvpForm(ctx, { yes, no, submit, cls = '', maxGuests, sides, note = true, wish = true, noteLabel, notePlaceholder } = {}) {
   const { say, data: d, events } = ctx, r = d.rsvp || {};
   const max = maxGuests || r.maxGuests || 5;
   const sideList = sides || r.sides || ['Khách nhà trai', 'Khách nhà gái'];
@@ -25,7 +25,7 @@ export function rsvpForm(ctx, { yes, no, submit, cls = '', maxGuests, sides, not
     <fieldset class="sh-pick" data-when-attend><legend>${say('pickEvents')}</legend>
       ${events.map((e, i) => html`<label data-ev="${i}"><input type="checkbox" name="ev" value="${i}" checked><span>${e.title}</span></label>`)}
     </fieldset>` : ''}
-    ${r.note !== false && note ? html`<label class="sh-field"><span>Ghi chú</span><input name="note" maxlength="160" placeholder="Ăn chay, đi cùng em bé, cần xe đưa đón…"></label>` : ''}
+    ${r.note !== false && note ? html`<label class="sh-field"><span>${noteLabel || 'Ghi chú'}</span><input name="note" maxlength="160" placeholder="${notePlaceholder || 'Ăn chay, đi cùng em bé, cần xe đưa đón…'}"></label>` : ''}
     ${wish ? html`<label class="sh-field"><span>Lời chúc (không bắt buộc)</span><textarea name="wish" maxlength="500" rows="2" placeholder="${say('wishPh')}"></textarea></label>` : ''}
     <button class="sh-btn" type="submit">${submit || say('submitRsvp')}</button>
     <p class="sh-msg" role="status" aria-live="polite"></p>

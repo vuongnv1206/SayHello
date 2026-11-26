@@ -98,6 +98,8 @@ Trên điện thoại, các tờ của Thiệp Gấp Đôi có nếp gấp. Than
 
 | Mẫu | Ghi chú |
 |---|---|
+| `the-len-may-bay` | Tấm vé là thiệp mời, cuống vé là phiếu hồi âm; dựng từ bản thử cùng tên. Bảng giờ bay lật chữ nhưng nút mở bấm được ngay. Chờ chủ dự án duyệt. |
+| `album-nhac` | Đĩa than bìa gập, chương trình cưới là danh sách bài, hồi âm kèm xin một bài; đĩa không quay vòng. Chờ chủ dự án duyệt. |
 | `photobooth` | Góc chụp tiệc cưới, chủ dự án đã duyệt. Nghi thức đếm 3-2-1 (`data-ritual`) kèm nút "Xem thiệp ngay" (`data-skip`). |
 | `cuon-phim` | Cuộn điện ảnh, mở bìa `450ms`. |
 | `phong-trien-lam`, `to-hong` | Sân khấu 3D camera phẳng, nguồn kỹ thuật `stage3d.js` / `polarKnotPath`. |

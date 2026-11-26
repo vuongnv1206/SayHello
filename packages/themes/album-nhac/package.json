@@ -1,0 +1,14 @@
+{
+  "name": "@sayhello/theme-album-nhac",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mẫu Album Nhạc: đĩa than bìa gập, chương trình cưới là danh sách bài.",
+  "type": "module",
+  "exports": {
+    ".": "./theme.js",
+    "./demo.json": "./demo.json"
+  },
+  "dependencies": {
+    "@sayhello/engine": "*"
+  }
+}
