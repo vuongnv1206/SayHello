@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import {
   defineTheme,
   composeInvitation,
@@ -198,4 +199,41 @@ test('renderDocument resolves topics, opts.topic, font vars, theme-color, and re
   const clientData = JSON.parse(/id="sh-data">(.*?)<\/script>/s.exec(defaultDoc)[1]);
   assert.equal(clientData.topics.length, 2);
   assert.equal(clientData.topics[1].id, 'hai-thanh-pho');
+
+  // Regression: early script must ignore Object.prototype keys (?topic=__proto__ / ?topic=toString)
+  const earlyScriptMatch = /<link rel="modulepreload"[^>]+>\s*<script>([\s\S]*?)<\/script>/.exec(defaultDoc);
+  assert.ok(earlyScriptMatch, 'Early inline script missing');
+  assert.match(earlyScriptMatch[1], /Object\.prototype\.hasOwnProperty\.call\(T,tp\)/);
+
+  const runEarly = search => {
+    const props = {};
+    const root = {
+      dataset: { topic: 'gom-su', palette: 'gom-su' },
+      style: { setProperty: (k, v) => { props[k] = v; } },
+    };
+    vm.runInNewContext(earlyScriptMatch[1], {
+      URLSearchParams,
+      location: { search },
+      matchMedia: () => ({ matches: false }),
+      navigator: {},
+      document: {
+        documentElement: root,
+        head: { appendChild: () => {} },
+        querySelector: () => null,
+      },
+    });
+    return { root, props };
+  };
+
+  const protoRes = runEarly('?topic=__proto__');
+  assert.equal(protoRes.root.dataset.topic, 'gom-su');
+  assert.equal(protoRes.root.dataset.palette, 'gom-su');
+
+  const toStringRes = runEarly('?topic=toString');
+  assert.equal(toStringRes.root.dataset.topic, 'gom-su');
+  assert.equal(toStringRes.root.dataset.palette, 'gom-su');
+
+  const validRes = runEarly('?topic=hai-thanh-pho');
+  assert.equal(validRes.root.dataset.topic, 'hai-thanh-pho');
+  assert.equal(validRes.props['--sh-bg'], '#F5F2EC');
 });

@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import {
-  ROOT,
   readShopConfig,
   discoverV2Themes,
   isV2ShowcaseUpgraded,
@@ -153,7 +150,6 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
 
   // Journey 3+ (Desktop & Mobile): Complete Guest Journey per dynamically discovered v2 theme
   const v2Themes = await discoverV2Themes({ webUrl });
-  const cuonPhimMissingImagesDir = !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
   for (const theme of v2Themes) {
     await record('tier4', 'journeys', `Journey (Desktop + Mobile): v2 ${theme.id} complete guest workflow`, async () => {
       if (!theme.isRegistered) {
@@ -162,7 +158,6 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
         throw err;
       }
 
-      let pendingReason = '';
       for (const vp of [
         { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true },
         { name: 'desktop', width: 1440, height: 900, isMobile: false, hasTouch: false },
@@ -179,15 +174,7 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
           await page.goto(`${webUrl}/v2/demo/${theme.id}/?k=${encodeURIComponent('Khách Quý')}&n=nha-gai`, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
           const gateTiming = await openV2Gate(page);
-          try {
-            assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `Journey ${theme.id} ${vp.name}` });
-          } catch (gateErr) {
-            if (theme.id === 'cuon-phim') {
-              pendingReason ||= 'M1: reduce cuon-phim cover gate lock <= 900ms';
-            } else {
-              throw gateErr;
-            }
-          }
+          assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `Journey ${theme.id} ${vp.name}` });
 
           await assertFiveSecondDiscoverability(page, {
             groomShort: theme.demo?.groom?.short || '',
@@ -201,15 +188,7 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
 
           await scrollFullPage(page);
           await assertNoHorizontalOverflow(page, `Journey ${theme.id} ${vp.name}`);
-          try {
-            await assertVisibleImagesLoaded(page, `Journey ${theme.id} ${vp.name}`);
-          } catch (imgErr) {
-            if (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir && /\/_e\/themes\/cuon-phim\/images\//.test(imgErr.message)) {
-              pendingReason ||= 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
-            } else {
-              throw imgErr;
-            }
-          }
+          await assertVisibleImagesLoaded(page, `Journey ${theme.id} ${vp.name}`);
 
           const layout = await page.getAttribute('html', 'data-layout');
           if (layout === 'stage') {
@@ -329,25 +308,13 @@ export async function runTier4Journeys({ browser, legacyUrl, webUrl, shotsDir, r
             }
           }
 
-          const badErrs = (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir)
-            ? tracker.allErrors().filter(e => !/\/_e\/themes\/cuon-phim\/images\//.test(e))
-            : tracker.allErrors();
-          assert.equal(badErrs.length, 0, `Journey ${theme.id} ${vp.name}: ${badErrs.join(' | ')}`);
-          if (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir && tracker.allErrors().length > 0) {
-            pendingReason ||= 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
-          }
+          tracker.assertClean(`Journey ${theme.id} ${vp.name}`);
         } catch (err) {
           await saveFailureShot(session.ctx, shotsDir, `tier4-journey-${theme.id}-${vp.name}`, err);
           throw err;
         } finally {
           await session.ctx.close();
         }
-      }
-
-      if (pendingReason) {
-        const err = new Error(pendingReason);
-        err.pendingMilestone = pendingReason;
-        throw err;
       }
     });
   }

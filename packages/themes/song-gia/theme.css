@@ -96,17 +96,38 @@
   line-height: 1.08;
 }
 .theme-song-gia .sg-gate-center em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
-.theme-song-gia .sg-gate-meta { margin: 0; font-size: 15px; opacity: 0.85; }
+.theme-song-gia .sg-gate-meta { margin: 0; font-size: max(16px, 1rem); opacity: 0.85; }
 .theme-song-gia .sg-gate-hint { margin: 0; font-size: max(13px, 0.875rem); opacity: 0.78; }
 
 /* ===== 2. Bố cục 50/50 Song Gia ===== */
+.theme-song-gia .sh-group-note {
+  max-width: min(720px, calc(100vw - 24px));
+  margin-inline: auto;
+}
+
 .theme-song-gia .sg-wrap {
   width: min(1240px, 100%);
   margin: 0 auto;
-  padding: clamp(16px, 3vw, 36px) clamp(16px, 3vw, 32px);
+  padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 32px) clamp(16px, 3vw, 36px);
   display: grid;
   gap: 28px;
 }
+
+.theme-song-gia .sg-head {
+  padding-top: 12px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  text-align: center;
+}
+.theme-song-gia .sg-head .sg-kicker { margin: 0; }
+.theme-song-gia .sg-head-names {
+  margin: 0;
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.15;
+}
+.theme-song-gia .sg-head-names em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+.theme-song-gia .sg-head-meta { margin: 0; font-size: max(16px, 1rem); opacity: 0.85; }
 
 .theme-song-gia .sg-switcher {
   display: flex;
@@ -144,15 +165,17 @@
   background: var(--sh-surface);
   display: grid;
   gap: 16px;
-  transition: opacity 220ms var(--sh-ease-tactile), border-color 220ms var(--sh-ease-tactile);
+  transition: background-color 220ms var(--sh-ease-tactile), border-color 220ms var(--sh-ease-tactile);
 }
 .theme-song-gia .sg-split[data-side-focus="nha-trai"] .sg-col-right,
 .theme-song-gia .sg-split[data-side-focus="nha-gai"] .sg-col-left {
-  opacity: 0.62;
+  background: color-mix(in srgb, var(--sh-surface) 55%, var(--sh-bg));
+  border-color: color-mix(in srgb, var(--sh-soft) 60%, transparent);
 }
 .theme-song-gia .sg-split[data-side-focus="nha-trai"] .sg-col-left,
 .theme-song-gia .sg-split[data-side-focus="nha-gai"] .sg-col-right {
   border-color: var(--sh-foil);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sh-foil) 30%, transparent);
 }
 
 .theme-song-gia .sg-portrait { margin: 0; display: grid; gap: 10px; }
@@ -164,15 +187,15 @@
 }
 .theme-song-gia .sg-portrait figcaption { display: grid; gap: 4px; }
 .theme-song-gia .sg-portrait b { font-family: var(--sh-font-display); font-size: 22px; }
-.theme-song-gia .sg-portrait span { font-size: 15px; opacity: 0.85; }
+.theme-song-gia .sg-portrait span { font-size: max(16px, 1rem); opacity: 0.85; }
 
 .theme-song-gia .sg-fam-card {
   padding-top: 12px;
   border-top: 1px solid var(--sh-soft);
 }
 .theme-song-gia .sg-fam-card h3 { margin: 0 0 6px; font-size: 20px; }
-.theme-song-gia .sg-fam-card p { margin: 2px 0 0; font-size: 15px; }
-.theme-song-gia .sg-dim { opacity: 0.78; font-size: 14px; }
+.theme-song-gia .sg-fam-card p { margin: 2px 0 0; font-size: max(16px, 1rem); }
+.theme-song-gia .sg-dim { opacity: 0.78; font-size: max(16px, 1rem); }
 
 .theme-song-gia .sg-converge {
   padding: clamp(24px, 4vw, 40px);
@@ -219,7 +242,7 @@
 .theme-song-gia .sg-ev-top h3 { margin: 0; font-size: 22px; }
 .theme-song-gia .sg-ev-top span { font-size: max(13px, 0.9rem); color: var(--sh-accent); font-weight: 600; }
 .theme-song-gia .sg-ev-venue { margin: 8px 0 0; font-size: 16px; font-weight: 600; }
-.theme-song-gia .sg-ev-addr { margin: 4px 0 0; font-size: 15px; opacity: 0.85; }
+.theme-song-gia .sg-ev-addr { margin: 4px 0 0; font-size: max(16px, 1rem); opacity: 0.85; }
 .theme-song-gia .sg-ev-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .theme-song-gia .sg-ghost {
   background: transparent;

@@ -77,8 +77,8 @@
   font-size: clamp(32px, 5vw, 48px);
   line-height: 1.1;
 }
-.theme-thiep-gap-doi .fg-cover-names span { font-style: italic; font-weight: 400; color: var(--sh-foil); }
-.theme-thiep-gap-doi .fg-cover-meta { margin: 0; font-size: 15px; opacity: 0.86; }
+.theme-thiep-gap-doi .fg-cover-names span { font-style: italic; font-weight: 400; color: var(--sh-accent); }
+.theme-thiep-gap-doi .fg-cover-meta { margin: 0; font-size: max(16px, 1rem); opacity: 0.86; }
 .theme-thiep-gap-doi .fg-seal {
   margin-top: 8px;
   min-width: 156px;
@@ -132,7 +132,7 @@
   display: grid;
   gap: 4px;
 }
-.theme-thiep-gap-doi .fg-names em { font-size: 24px; color: var(--sh-foil); font-style: italic; }
+.theme-thiep-gap-doi .fg-names em { font-size: 24px; color: var(--sh-accent); font-style: italic; }
 
 .theme-thiep-gap-doi .fg-rule {
   width: 72px;
@@ -143,10 +143,10 @@
 }
 
 .theme-thiep-gap-doi .fg-date-main { margin: 0; font-size: 18px; font-weight: 600; }
-.theme-thiep-gap-doi .fg-date-dots { margin: 4px 0 0; font-size: 15px; opacity: 0.86; }
+.theme-thiep-gap-doi .fg-date-dots { margin: 4px 0 0; font-size: max(16px, 1rem); opacity: 0.86; }
 .theme-thiep-gap-doi .fg-lunar { margin: 4px 0 0; font-size: max(13px, 0.875rem); opacity: 0.8; }
 .theme-thiep-gap-doi .fg-venue { margin: 0; font-size: 17px; font-weight: 600; }
-.theme-thiep-gap-doi .fg-addr { margin: 4px 0 0; font-size: 15px; opacity: 0.86; }
+.theme-thiep-gap-doi .fg-addr { margin: 4px 0 0; font-size: max(16px, 1rem); opacity: 0.86; }
 .theme-thiep-gap-doi .fg-card-actions { display: flex; justify-content: center; padding-top: 4px; }
 
 /* Cánh phải cuộn nội dung */
@@ -194,8 +194,8 @@
 }
 .theme-thiep-gap-doi .fg-fam-card h3,
 .theme-thiep-gap-doi .fg-ev-card h3 { margin: 0 0 8px; font-size: 22px; }
-.theme-thiep-gap-doi .fg-fam-card p { margin: 4px 0 0; font-size: 15px; }
-.theme-thiep-gap-doi .fg-dim { opacity: 0.78; font-size: 14px; }
+.theme-thiep-gap-doi .fg-fam-card p { margin: 4px 0 0; font-size: max(16px, 1rem); }
+.theme-thiep-gap-doi .fg-dim { opacity: 0.78; font-size: max(16px, 1rem); }
 
 .theme-thiep-gap-doi .fg-portrait {
   margin: 0;
@@ -208,7 +208,7 @@
 .theme-thiep-gap-doi .fg-portrait figcaption { padding: 14px 16px; display: grid; gap: 4px; }
 .theme-thiep-gap-doi .fg-portrait small { font-size: max(13px, 0.85rem); color: var(--sh-accent); text-transform: uppercase; letter-spacing: 0.08em; }
 .theme-thiep-gap-doi .fg-portrait b { font-size: 18px; font-family: var(--sh-font-display); }
-.theme-thiep-gap-doi .fg-portrait span { font-size: 14px; opacity: 0.84; }
+.theme-thiep-gap-doi .fg-portrait span { font-size: max(16px, 1rem); opacity: 0.84; }
 
 .theme-thiep-gap-doi .fg-ev-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
 .theme-thiep-gap-doi .fg-ev-time { font-size: max(13px, 0.9rem); color: var(--sh-accent); font-weight: 600; }

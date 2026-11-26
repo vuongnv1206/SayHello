@@ -1,135 +1,142 @@
-# Tạo mẫu thiệp mới
+# Hướng dẫn Tạo Mẫu & Chủ đề mới (v2 trên `@sayhello/engine`)
 
-Mục tiêu của bộ thiệp là **mỗi mẫu là một trải nghiệm riêng**, không phải cùng một khung đổi màu. Phần dùng chung (`core/`) lo dữ liệu, hiệu ứng và các mục có hành vi phức tạp; mẫu thiệp tự quyết bố cục, câu chuyện và cảm giác.
+> Mọi mẫu mới phát triển trên nhánh `redesign` dùng bộ máy `@sayhello/engine` (`packages/engine/`) theo mô hình **Card-as-Centerpiece (`Layout × Topic × Moment`)**. Không viết mẫu mới vào `legacy/` (thế hệ 1 đã đóng băng).
 
-## 1. Nguyên tắc thiết kế
+---
 
-Rút từ cách làm của skill *frontend-design* của Anthropic, áp vào thiệp cưới:
+## 1. Điều kiện tiên quyết trước khi viết code
 
-1. **Chọn một ý tưởng trung tâm trước khi viết code.** Thiệp là gì: một cánh cửa, một lá thư, một tấm vé máy bay, một cuộn phim, một trang báo cũ, một bản nhạc? Mọi chi tiết (bìa, cách mở, cách hiện ảnh, nút bấm) phải kể cùng câu chuyện đó. "Thư Tay" là lá thư nên ảnh là con tem, sự kiện là vé, xác nhận là thư hồi âm.
-2. **Màn mở đầu là khoảnh khắc đáng nhớ nhất.** Khách nhìn bìa trước tiên. Hãy cho họ một hành động có cảm giác vật lý: mở cửa, bóc dấu sáp, kéo rèm, xé phong bì, lật vé.
-3. **Chữ có cá tính.** Tránh Inter, Roboto, Arial. Ghép một font tiêu đề nổi bật với một font đọc dễ. Bắt buộc có bộ ký tự **vietnamese** trên Google Fonts (kiểm tra kỹ: Parisienne, Sacramento, Bodoni Moda, Caveat không có). Một số font có tiếng Việt: Cormorant Garamond, Playfair Display, Lora, Fraunces, Be Vietnam Pro, Dancing Script, Great Vibes, Ephesis, Pinyon Script, Alex Brush, Allura, Charm, Italianno.
-4. **Bảng màu có chủ đích.** Một màu chủ đạo, một màu nhấn sắc, khai báo bằng biến CSS. Tránh gradient tím trên nền trắng kiểu "AI".
-5. **Nền có chiều sâu.** Vân giấy, hạt nhiễu, hoa văn, ánh sáng, bóng đổ. Nền phẳng một màu làm thiệp trông rẻ.
-6. **Chuyển động có nhịp.** Một màn mở bìa dàn dựng kỹ (dùng `animation-delay` nối tiếp) đáng giá hơn mười hiệu ứng rời rạc. Hiện dần khi cuộn tới, chạm vào thì có phản hồi.
-7. **Bố cục bất ngờ.** Chữ tràn qua ảnh, phần tử xoay nghiêng, chồng lớp, khoảng trắng rộng. Không phải mục nào cũng là "tiêu đề giữa + nội dung giữa".
-8. **Điện thoại trước tiên.** 95% khách mở thiệp trên điện thoại. Kiểm tra ở bề rộng 360-400px.
-9. **Tôn trọng `prefers-reduced-motion`.** `core/` đã tự tắt hạt bay và hiệu ứng nặng; mẫu không nên thêm animation bắt buộc phải xem.
+Đọc kỹ `docs/DESIGN.md` và `docs/TEMPLATES-AND-TOPICS.md` để chốt trước 4 thông số:
+1. **Kiến trúc bố cục (`layout`):** Một trong các giá trị hợp lệ của `LAYOUTS` trong `packages/engine/src/define-theme.js` (`folio`, `lookbook`, `deck`, `split`, `scroll`, `pager`, `stage`, `hub`, `chat`, `custom`). Tuyệt đối không dùng khung cột đơn hẹp lặp lại mọi mẫu khác.
+2. **Khoảnh khắc chữ ký (`moment`):** Đúng 1 động tác vật lý có tên (`id`, `verb`, `verbLabel`, `trigger`, `durationMs`, `easing`, `reducedFallback`), tôn trọng giới hạn mở bìa **`<= 900ms`** (khuyến nghị `gateMs: 450`).
+3. **Danh sách chủ đề (`topics`):** Ít nhất 2 chủ đề tinh tế, chống sến, mỗi chủ đề có `id`, `name`, `desc`, `swatch`, `themeColor`, và bộ biến `vars` (`--sh-bg`, `--sh-surface`, `--sh-ink`, `--sh-accent`, `--sh-accent-ink`, `--sh-foil`, `--sh-soft`, `--sh-panel`, `--sh-font-display`, `--sh-font-body`).
+4. **Kịch bản tĩnh (`?tier=lite` & `prefers-reduced-motion`):** Mọi cảnh dùng chuyển động nặng hoặc WebGL (`motion.cinematic`) bắt buộc khai báo `motion.lite` với đầy đủ thông tin và biểu mẫu RSVP.
 
-## 2. Cấu trúc một mẫu
+---
 
+## 2. Cấu trúc một gói mẫu v2 (`packages/themes/<id>/`)
+
+Nhờ cơ chế tự động quét của `apps/web/scripts/sync-engine.mjs`, bạn **không cần sửa tay 5 tệp đăng ký** ở `apps/web/` nữa. Chỉ cần tạo đúng các tệp sau trong `packages/themes/<id>/`:
+
+```text
+packages/themes/<id>/
+├── package.json            # name: "@sayhello/theme-<id>", type: "module", peer/dep "@sayhello/engine"
+├── theme.js                # export default defineTheme(...) hoặc composeInvitation(...)
+├── theme.css               # Kiểu dáng riêng ghi đè mượt lên packages/engine/src/base.css
+├── demo.json               # Dữ liệu cặp đôi giả lập (tên giả, số 0000000000, có guestGroups)
+├── images/                 # Ảnh cưới tự chứa (anh1..6.jpg, xem-truoc.jpg, tuỳ chọn *-nguoi.webp)
+└── test/
+    └── contract.test.js    # Kiểm tra hợp đồng, renderDocument, XSS, prototype pollution & MD5 ảnh
 ```
-themes/ten-mau/
-  theme.js     export default { id, name, fonts, coverMs, defaults, render, mounted?, opened? }
-  theme.css
-```
 
-Thêm mẫu vào `themes/index.json` và tạo thiệp mẫu `demo-ten-mau/` (sao chép một demo có sẵn, đổi `theme`).
+*(Tham khảo triển khai thực tế tại `packages/themes/thiep-gap-doi/`, `packages/themes/chieu-sau/`, `packages/themes/hop-ky-uc/`, `packages/themes/song-gia/`.)*
 
-### `theme.js`
+---
+
+## 3. Khai báo `theme.js` với `composeInvitation` / `defineTheme`
 
 ```js
-import { html, br, fmt, parts } from '../../core/util.js';
+import {
+  composeInvitation, html, plain, qrUrl, rsvpForm, wishForm, wishList, countdown, fmt
+} from '@sayhello/engine';
 
-export default {
+export default composeInvitation({
   id: 'ten-mau',
-  name: 'Tên hiển thị',
-  fonts: 'https://fonts.googleapis.com/css2?family=...&display=swap',
-  coverMs: 2000,              // thời gian từ lúc bấm mở đến khi ẩn bìa
-  cheersButton: 'btn',        // class nút "Đóng" của hộp cảm ơn
-  defaults: {                 // invite.json ghi đè được mọi giá trị ở đây
-    effects: { ambient: ['petals', 'sparkles'], colors: { petals: ['#...'] } },
-    sections: ['hero', 'events', 'album', 'rsvp', 'guestbook', 'gift'],
-    texts: { invite: '...' },
+  name: 'Tên Mẫu',
+  version: '1.0.0',
+  tier: 'cinematic',
+  layout: { id: 'folio', spread: '2-leaf' },
+  voice: 'trang-trong', // hoặc 'than-mat'
+  themeColor: '#FAF8F4',
+  tagline: 'Mô tả ngắn về cấu trúc & chất liệu',
+  // Bắt buộc chọn font có subset vietnamese trên Google Fonts
+  fonts: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap',
+  gateMs: 450,
+  moment: {
+    id: 'ten-khoanh-khac',
+    verb: 'unseal',
+    verbLabel: 'Nhãn hiển thị trên Showcase',
+    trigger: 'click',
+    durationMs: 450,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    reducedFallback: 'instant-fade',
   },
-  render(ctx) {
-    const { data: d, names: n, widgets: W } = ctx;
-    return {
-      cover: html`... <button data-open>Mở thiệp</button>`,
-      main: html`...${W.countdown()} ...`,
-    };
+  topics: [
+    {
+      id: 'chu-de-1',
+      name: 'Tên Chủ Đề 1',
+      desc: 'Mô tả vật liệu & sắc độ.',
+      swatch: ['#FAF8F4', '#8E1B2C'],
+      themeColor: '#FAF8F4',
+      vars: {
+        '--sh-bg': '#FAF8F4',
+        '--sh-surface': '#F1ECE3',
+        '--sh-ink': '#1C1917',
+        '--sh-accent': '#8E1B2C',
+        '--sh-accent-ink': '#FAF8F4',
+        '--sh-foil': '#B88D48',
+        '--sh-soft': 'rgba(28, 25, 23, 0.16)',
+        '--sh-panel': '#F1ECE3',
+        '--sh-font-display': "'Newsreader', Georgia, serif",
+        '--sh-font-body': "'Be Vietnam Pro', system-ui, sans-serif",
+      },
+    },
+  ],
+  gate: {
+    id: 'bia',
+    kind: 'gate',
+    render: ({ names, date, guest }) => html`... <button type="button" data-open>Mở thiệp</button>`,
+    mount(el, ctx) {
+      el.querySelector('[data-open]')?.addEventListener('click', () => ctx.open());
+    },
   },
-  mounted(ctx, { cover, main }) {},   // sau khi gắn vào trang (tùy chọn)
-  opened(ctx, instant) {},            // khi khách mở bìa (tùy chọn)
-};
+  scenes: [
+    {
+      id: 'noi-dung',
+      provides: ['when', 'where', 'rsvp', 'album', 'gift', 'guestbook'],
+      render: ctx => html`... ${rsvpForm(ctx)} ...`,
+    },
+  ],
+});
 ```
 
-- `html\`\`` tự thoát ký tự đặc biệt trong dữ liệu, nên chèn tên khách thẳng vào an toàn. `br(text)` đổi `\n` thành xuống dòng.
-- Bìa phải có ít nhất một phần tử `data-open`. Khi bấm, `core` thêm class `open` vào `#cover`, `opened` vào `body`, phát nhạc, chạy hạt bay; sau `coverMs` thêm `gone`.
-- `ctx.has('gift')` cho biết một mục có được bật không (tự tắt hộp quà khi không có tài khoản, bản đồ khi không có địa điểm).
+### Quy tắc kỹ thuật bắt buộc trong `theme.js` & `theme.css`
+1. **Không đọc `window`/`document` trong `render(ctx)`:** `renderDocument()` chạy trên server Next.js (`apps/web/src/app/v2/demo/[theme]/route.ts`). Mọi tương tác DOM chỉ viết trong `mount(el, ctx)` hoặc `motion.standard/cinematic(el, ctx)`.
+2. **Bảo mật HTML & chữ tiếng Việt:** Luôn dùng `` html`...` `` để tự động escape; chỉ dùng `raw()` cho SVG tĩnh do bạn tự viết. Tách chữ bằng `splitText()` từ `@sayhello/engine`, dùng `plain()` và `qrUrl(account, 'Mung cuoi ' + plain(ctx.guest))` (giữ mã hóa `%20`, không dùng `+`).
+3. **Lớp cắt ảnh 2.5D (`ctx.imgPair`):** Nếu mẫu tách tiền cảnh nhân vật, dùng `ctx.imgPair(slot, i)` trong `packages/engine/src/model.js` và đặt overscan đối xứng (như `--cs-bleed: 10px` trong `packages/themes/chieu-sau/theme.css`) kèm fallback `.no-fg` khi thiếu tệp cutout.
+4. **Sàn chữ & Không tràn ngang:** Mọi nhãn tiếng Việt `>= 13px`, đoạn văn bản `<p>` `>= 16px`, `.sh-scene { overflow-x: clip; }`, không dùng `loading="lazy"` ở ảnh bìa/ảnh đầu, không dùng animation `infinite` trên lớp phủ lớn.
 
-### `ctx` có gì
+---
 
-| | |
-| --- | --- |
-| `ctx.data` | `invite.json` đã gộp với `defaults` |
-| `ctx.names` | `groom`, `bride`, `first`, `second`, `pair` ("A & B") theo `order` |
-| `ctx.guest` | tên khách từ `?k=`, chuỗi rỗng nếu không có |
-| `ctx.img(slot, i)` | ảnh ở ô `slot`, không có thì lấy `album[i]` |
-| `ctx.album` | danh sách ảnh album |
-| `ctx.fx` | `burst(x, y, n, {hearts, colors})`, `burstAt(el)`, `firework(x, y)` |
-| `ctx.widgets` | các khối bên dưới |
+## 4. Thêm Topic mới vào mẫu đã có (không cần đụng Layout)
 
-### Khối có sẵn (`ctx.widgets`)
+1. Mở `packages/themes/<id>/theme.js`, thêm một phần tử vào mảng `topics` với `id` mới (chữ thường, gạch ngang, không dấu), `name`, `desc`, `swatch`, `themeColor` và đủ bộ biến `--sh-*`.
+2. Nếu topic dùng họ font mới, bổ sung vào chuỗi `fonts` (kiểm tra chắc chắn Google Fonts có subset `vietnamese`).
+3. Kiểm tra tương phản màu chữ `--sh-ink` trên `--sh-bg` / `--sh-surface` đạt `>= 4.5:1` (chuẩn WCAG AA).
+4. Chạy đồng bộ và kiểm thử: `apps/web/scripts/sync-engine.mjs` sẽ tự động đưa topic mới vào `/v2/` và sinh route SSG `/v2/demo/<id>/<topic>/`.
 
-| Khối | Markup / class để tạo kiểu |
-| --- | --- |
-| `W.countdown({labels, done})` | `.cd .u b span`, `.cd-done` |
-| `W.calendar()` | `.cal h3 .cal-grid span.wd/.wed/.eng` |
-| `W.gcalUrl()` | trả về link Google Calendar |
-| `W.gallery()` | `.show img.on`, `.thumbs`, `.hint` (trình chiếu + ảnh nhỏ) |
-| `W.polaroids({captions})` | `.polas .pola img figcaption` (kéo ném, chạm để phóng to) |
-| `W.map({btn})` | `.tabs button.on`, `.addr`, `.map iframe` |
-| `W.rsvp({btn, yes, no})` | `.form .choice .row .msg` |
-| `W.guestbook({btn, placeholder})` | `.form`, `.wishes .wish-item b p` |
-| `W.gift({btn, hint, box})` | `.giftbox.open`, `.accounts .acc` (truyền `box` để vẽ hộp riêng) |
-| `W.scratch(inner, {label, foil, ink})` | `.scratch .scratch-in`, `.scratch.revealed` (cào nhũ) |
+---
 
-### Hiệu ứng gắn bằng thuộc tính
+## 5. Chuẩn bị ảnh tự chứa (MD5 duy nhất) bằng `sharp`
 
-| Thuộc tính | Tác dụng |
-| --- | --- |
-| `data-rv="up/left/right/zoom/flip/blur/drop"` | hiện dần khi cuộn tới (thêm class `in`) |
-| `data-type="28"` | chữ hiện từng ký tự (ms mỗi ký tự) khi cuộn tới |
-| `data-tilt="10"` | nghiêng 3D theo chuột |
-| `data-parallax="0.18"` | trôi chậm hơn khi cuộn |
-| `data-zoom` (trên `img`) | chạm để xem toàn màn hình |
-| `data-fireworks` | bắn pháo hoa khi phần này trên màn hình, chạm để bắn thêm |
+1. **Tự chứa 100%:** Đặt ảnh mẫu trong `packages/themes/<id>/images/`, tuyệt đối không trỏ sang đường dẫn của `legacy/` hay cổng `:3001`.
+2. **MD5 duy nhất:** Không sao chép y nguyên tệp ảnh của mẫu khác hoặc của `legacy/demo-*` (bộ kiểm tra `tests/e2e/specs/tier1-topics.mjs` kiểm tra va chạm MD5 trên toàn repo). Hãy xử lý/tối ưu ảnh riêng bằng `sharp` (`resize`, nén JPEG/WebP chất lượng `80–85`, tỷ lệ khung phù hợp `3:4` hoặc `4:5` dung lượng nhẹ cho 4G).
 
-Các thành phần nổi (`.music`, `.love`, `.progress`, `.fly-item`, `.heart`, `.lb`, `.cheers`) đã có kiểu mặc định trong `core/base.css`; đặt các biến `--c-paper`, `--c-ink`, `--c-accent`... trong `:root` của mẫu là đủ, rồi viết đè nếu muốn.
+---
 
-## 3. Ý tưởng cho các mẫu tiếp theo
+## 6. Kiểm tra hợp đồng & E2E trước khi hoàn thành
 
-Đã làm: **Song Hỷ**, **Thư Tay**, **Vé Máy Bay**, **Khóa Tình** (Mở Khóa Tình Yêu), **Đèn Lồng** (Đèn Lồng Hội An), **Cuộn Phim**, **Tin Nhắn**, **Thiệp Gấp** (pop-up), **Khung Thêu**, **Cà Phê Phin** *(10 mẫu hiện hành; bản v2 có **Cuộn Phim** v2 và các mẫu mới)*. Mỗi ý tưởng dưới đây có một "cú chạm" chính (thứ khách nhớ và kể lại), không chỉ là đổi màu.
-
-**Đồ vật kỷ niệm**
-- **Cuộn Phim:** bìa là máy chiếu, kéo cần để bật đèn; ảnh chạy như khung phim 35mm có lỗ răng cưa, chữ hiện như phụ đề, có tiếng tạch máy ảnh.
-- **Báo Xuân:** trang nhất tờ báo cũ "TIN VUI", tít lớn, cột chữ, ảnh in lưới chấm; khách lật trang như báo giấy, có mục "rao vặt" để gửi lời chúc.
-- **Đĩa Than:** bìa là bìa album, kéo đĩa ra rồi đặt kim để phát nhạc cưới; các mục là danh sách bài hát, mặt B là album ảnh.
-- **Băng Cát-sét:** tua băng bằng bút chì (kéo vòng tròn) để chuyển phần, nhãn băng viết tay tên cặp đôi.
-- **Máy Ảnh Lấy Liền:** bấm nút chụp, ảnh trượt ra và hiện dần từ trắng sang màu; sổ lưu bút là bảng ghim ảnh.
-- **Vườn Ép Hoa:** sổ ép hoa khô, lật trang 3D, mỗi trang một bông hoa và một kỷ niệm.
-
-**Trò chơi nhỏ**
-- **Mở Khóa Tình Yêu:** ổ khóa số, khách xoay đúng ngày cưới (gợi ý sẵn) để mở thiệp.
-- **Ô Chữ:** điền ô chữ ngắn, hàng dọc hiện tên cô dâu chú rể.
-- **Cào Vé Số:** cào ba ô trúng "giải đặc biệt" là ngày cưới, giờ, địa điểm.
-- **Bói Bánh Quy May Mắn:** bẻ bánh quy, mảnh giấy bên trong là lời mời, mỗi khách một câu chúc vui khác nhau.
-- **Mê Cung:** dẫn hai nhân vật nhỏ tìm nhau qua mê cung ngắn, gặp nhau thì thiệp mở.
-
-**Không gian và ánh sáng**
-- **Đêm Sao:** nền trời đêm, chạm để nối các ngôi sao thành tên cặp đôi, ngày cưới là một chòm sao.
-- **Đèn Lồng Hội An:** thả đèn lồng trôi trên sông, mỗi đèn là một lời chúc của khách, chạm vào để đọc.
-- **Tàu Đêm Thống Nhất:** vé tàu giấy, các ga dừng là cột mốc tình yêu, toa cuối là tiệc cưới.
-- **Mùa Trong Năm:** cuộn trang là đi qua bốn mùa (hoa đào, nắng, lá vàng, tuyết), mùa cưới dừng lại.
-- **Bản Đồ Kho Báu:** giấy da cũ, đường chấm đỏ dẫn tới chữ X là nơi tổ chức; khách xoay la bàn bằng cảm biến nghiêng máy.
-
-**Văn hóa Việt**
-- **Tranh Đông Hồ:** khắc gỗ, màu điệp, đám cưới chuột cách điệu, chữ thư pháp.
-- **Áo Dài & Nón Lá:** nón lá xoay để lộ bài thơ ẩn dưới ánh sáng (hiệu ứng soi đèn).
-- **Mâm Quả:** mở từng tráp ăn hỏi (trầu cau, bánh phu thê, trà, rượu), mỗi tráp là một phần thông tin.
-
-**Hiện đại**
-- **Tin Nhắn:** giao diện trò chuyện, tin nhắn của hai người hiện dần kể chuyện tình, cuối cùng gửi "lời mời"; khách trả lời bằng bong bóng chat.
-- **Trang Web 1999:** giao diện máy tính cũ, cửa sổ bật lên, bộ đếm người xem, chữ chạy; hoài niệm vui.
-- **Thời Tiết:** dự báo "100% khả năng hạnh phúc" vào ngày cưới, biểu đồ nhiệt độ là đếm ngược.
+1. Viết `packages/themes/<id>/test/contract.test.js` kiểm tra:
+   - Export hợp lệ qua `defineTheme` / `composeInvitation`, có `topics` và `moment`.
+   - `renderDocument` chạy sạch ở mọi topic, thoát mã XSS (`<script>`), an toàn trước `?topic=__proto__`.
+   - Không va chạm MD5 ảnh với các mẫu khác trong repo.
+2. Chạy đầy đủ bộ lệnh kiểm tra:
+   ```powershell
+   npm test -w @sayhello/engine
+   node --test packages/themes/<id>/test/contract.test.js
+   npm run sync -w @sayhello/web
+   npm run build
+   npm run test:v2
+   node tests/e2e/run.mjs --tier=all
+   ```
+3. Kiểm tra bằng mắt ảnh chụp Playwright ở `320×568`, `390×844` và `1440×900` dựa trên **Rubric nhị phân 4 tiêu chí** trong `docs/TEMPLATES-AND-TOPICS.md`.

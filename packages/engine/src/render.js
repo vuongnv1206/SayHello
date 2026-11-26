@@ -15,7 +15,7 @@ const sanitizeVars = vars => {
   return out;
 };
 const sanitizeThemeColor = c => (typeof c === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(c.trim()) ? c.trim() : '');
-const sanitizeFontUrl = u => (typeof u === 'string' && /^https:\/\/fonts\.googleapis\.com\/css2\?[^\s"<>]+$/.test(u) ? u : '');
+const sanitizeFontUrl = u => (typeof u === 'string' && /^https:\/\/fonts\.googleapis\.com\/css2\?[^\s"'<>\\]+$/.test(u) ? u : '');
 
 /**
  * @param theme   mẫu đã qua defineTheme
@@ -59,7 +59,7 @@ export function renderDocument(theme, invite, opts = {}) {
     if (s.when && !s.when(ctx)) return '';
     const body = s.render(ctx);
     if (s.kind === 'gate') return html`<div class="sh-gate" id="${s.id}" data-scene="${s.id}" data-kind="gate" role="region" aria-label="Bìa thiệp">${body}</div>`;
-    return html`<section class="sh-scene sh-${s.kind}" id="${s.id}" data-scene="${s.id}" data-kind="${s.kind}"${s.label ? html` aria-label="${s.label}"` : ''}>${body}</section>`;
+    return html`<section class="sh-scene sh-${s.kind}" id="${s.id}" data-scene="${s.id}" data-kind="${s.kind}" tabindex="-1"${s.label ? html` aria-label="${s.label}"` : ''}>${body}</section>`;
   });
 
   const clientTopics = variants.map(v => ({
@@ -87,6 +87,7 @@ export function renderDocument(theme, invite, opts = {}) {
     'three/addons/': THREE_CDN + 'examples/jsm/',
   };
   const hasGate = theme.scenes[0]?.kind === 'gate';
+  const themeFont = sanitizeFontUrl(theme.fonts);
   const extraFont = sanitizeFontUrl(activeVar?.fonts);
   const themeColor = sanitizeThemeColor(d.themeColor) || sanitizeThemeColor(activeVar?.themeColor) || sanitizeThemeColor(theme.themeColor) || '#111111';
   const earlyTopicsMap = Object.fromEntries(clientTopics.map(t => [t.id, t]));
@@ -104,9 +105,9 @@ export function renderDocument(theme, invite, opts = {}) {
 ${url ? html`<meta property="og:url" content="${url}"><link rel="canonical" href="${url}">` : ''}
 ${ogImage ? html`<meta property="og:image" content="${ogImage}"><meta name="twitter:card" content="summary_large_image">` : ''}
 <meta name="theme-color" content="${themeColor}">
-${theme.fonts || extraFont ? html`<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>` : ''}
-${theme.fonts ? html`<link rel="preload" as="style" href="${theme.fonts}" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${theme.fonts}"></noscript>` : ''}
-${extraFont && extraFont !== theme.fonts ? html`<link rel="preload" as="style" href="${extraFont}" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${extraFont}"></noscript>` : ''}
+${themeFont || extraFont ? html`<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>` : ''}
+${themeFont ? html`<link rel="preload" as="style" href="${themeFont}" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${themeFont}"></noscript>` : ''}
+${extraFont && extraFont !== themeFont ? html`<link rel="preload" as="style" href="${extraFont}" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="${extraFont}"></noscript>` : ''}
 <link rel="stylesheet" href="${engineUrl}base.css">
 <link rel="stylesheet" href="${themeUrl}theme.css">
 <script type="importmap">${jsonScript({ imports })}</script>
@@ -121,7 +122,7 @@ ${quickInfo(ctx, { rsvpScene })}
 <aside class="sh-group-note" data-sh="group-note" role="note" hidden><p></p><button type="button" class="sh-x" aria-label="${ctx.say('close')}">×</button></aside>
 ${music ? html`<button class="sh-music" type="button" data-sh="music" aria-pressed="false" aria-label="Bật nhạc nền"><i aria-hidden="true">♪</i></button><audio id="sh-audio" src="${music}" preload="none" loop></audio>` : ''}
 <script type="application/json" id="sh-data">${jsonScript(client)}</script>
-<script type="module">import { boot } from '@sayhello/engine/client/runtime.js'; import theme from '${themeUrl}theme.js'; boot(theme);</script>
+<script type="module">import { boot } from '@sayhello/engine/client/runtime.js'; import theme from ${jsonScript(themeUrl + 'theme.js')}; boot(theme);</script>
 </body>
 </html>`);
 }
@@ -129,5 +130,5 @@ ${music ? html`<button class="sh-music" type="button" data-sh="music" aria-press
 // Chạy trước khi vẽ: đặt mức chuyển động và topic/palette (?topic= / ?p=) sơ bộ để CSS không nhảy
 function buildEarlyScript(topicsMap) {
   const serialized = Object.keys(topicsMap).length ? toStr(jsonScript(topicsMap)) : '{}';
-  return `(function(d){try{var q=new URLSearchParams(location.search);var m=q.get('tier')||(matchMedia('(prefers-reduced-motion: reduce)').matches||(navigator.connection&&navigator.connection.saveData)?'lite':'standard');d.dataset.motion=m;var T=${serialized};var tp=q.get('topic')||q.get('p');if(tp&&T[tp]){var c=T[tp],v=c.vars||{};for(var k in v)d.style.setProperty(k,v[k]);d.dataset.topic=tp;d.dataset.palette=tp;if(c.themeColor){var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute('content',c.themeColor);}if(c.fonts&&!document.querySelector('link[href="'+c.fonts+'"]')){var lk=document.createElement('link');lk.rel='stylesheet';lk.href=c.fonts;document.head.appendChild(lk);}}}catch(e){d.dataset.motion='standard'}})(document.documentElement)`;
+  return `(function(d){var rm=function(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches||(navigator.connection&&navigator.connection.saveData)}catch(_){return false}};try{var q=new URLSearchParams(location.search);var tr=q.get('tier');var m=(tr==='cinematic'||tr==='standard'||tr==='lite')?tr:(rm()?'lite':'standard');d.dataset.motion=m;var T=${serialized};var tp=q.get('topic')||q.get('p');if(tp&&Object.prototype.hasOwnProperty.call(T,tp)){var c=T[tp],v=c.vars||{};for(var k in v)if(Object.prototype.hasOwnProperty.call(v,k))d.style.setProperty(k,v[k]);d.dataset.topic=tp;d.dataset.palette=tp;if(c.themeColor){var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute('content',c.themeColor);}if(c.fonts&&!document.querySelector('link[href="'+c.fonts+'"]')){var lk=document.createElement('link');lk.rel='stylesheet';lk.href=c.fonts;document.head.appendChild(lk);}}}catch(e){d.dataset.motion=rm()?'lite':'standard'}})(document.documentElement)`;
 }

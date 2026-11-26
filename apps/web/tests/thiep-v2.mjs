@@ -26,6 +26,7 @@ const ALLOWED_EXTERNAL_ERRORS = /(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|viet
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900, isMobile: false, hasTouch: false },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true },
+  { name: 'mobile-320', width: 320, height: 568, isMobile: true, hasTouch: true },
 ];
 
 async function discoverThemes() {
@@ -75,6 +76,10 @@ async function createTrackedContext(browser, vp, tier) {
   await ctx.route('https://www.google.com/maps/**', route =>
     route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Map</title>' })
   );
+  await ctx.route('https://fonts.googleapis.com/**', route =>
+    route.fulfill({ status: 200, contentType: 'text/css; charset=utf-8', body: '' })
+  );
+  await ctx.route('https://fonts.gstatic.com/**', route => route.abort());
 
   const page = await ctx.newPage();
   const errors = [];
@@ -221,7 +226,7 @@ async function checkVestibular(page, tier) {
   return page.evaluate(isLite => {
     const isVis = el => {
       for (let cur = el; cur && cur.nodeType === 1; cur = cur.parentElement) {
-        if (cur.hasAttribute('hidden') || cur.getAttribute('aria-hidden') === 'true') return false;
+        if (cur.hasAttribute('hidden')) return false;
         if (cur.classList.contains('sh-gate') && cur.hidden) return false;
         const cs = getComputedStyle(cur);
         if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) <= 0.05) return false;
@@ -293,7 +298,6 @@ try {
     for (const vp of VIEWPORTS) {
       for (const tier of ['cinematic', 'standard', 'lite']) {
         const { ctx, page, errors } = await createTrackedContext(browser, vp, tier);
-        const softPending = [];
         const shot = async name => { if (SHOTS) await page.screenshot({ path: join(SHOTS, `${theme.id}-${vp.name}-${tier}-${name}.png`) }); };
 
         try {
@@ -322,9 +326,7 @@ try {
               .catch(() => errors.push('bìa không mở sau khi kích hoạt CTA'));
             const unlockMs = Date.now() - t0;
             if (unlockMs > 900) {
-              const msg = `mở bìa mất ${unlockMs}ms (> 900ms)`;
-              if (ALLOW_PENDING && theme.id === 'cuon-phim') softPending.push(msg);
-              else errors.push(msg);
+              errors.push(`mở bìa mất ${unlockMs}ms (> 900ms)`);
             }
             await page.waitForFunction(() => {
               const g = document.querySelector('.sh-gate');
@@ -361,17 +363,13 @@ try {
           // Kiểm tra cỡ chữ >= 13px
           const smallFonts = await checkSmallText(page, 13);
           if (smallFonts.length) {
-            const msg = `chữ < 13px: ${smallFonts.slice(0, 3).join(', ')}`;
-            if (ALLOW_PENDING && theme.id === 'cuon-phim') softPending.push(msg);
-            else errors.push(msg);
+            errors.push(`chữ < 13px: ${smallFonts.slice(0, 3).join(', ')}`);
           }
 
           // Kiểm tra chống chóng mặt (vestibular comfort)
           const vestIssues = await checkVestibular(page, tier);
           if (vestIssues.length) {
-            const msg = `vestibular: ${vestIssues.slice(0, 2).join('; ')}`;
-            if (ALLOW_PENDING && theme.id === 'cuon-phim') softPending.push(msg);
-            else errors.push(msg);
+            errors.push(`vestibular: ${vestIssues.slice(0, 2).join('; ')}`);
           }
 
           // Quick Info (#sh-quick)
@@ -441,23 +439,11 @@ try {
           await ctx.close();
         }
 
-        const cuonPhimMissingImagesDir = theme.id === 'cuon-phim' && !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
-        const realErrors = [];
-        for (const e of errors) {
-          if (ALLOW_PENDING && cuonPhimMissingImagesDir && /\/_e\/themes\/cuon-phim\/images\//.test(e)) {
-            softPending.push(e);
-          } else {
-            realErrors.push(e);
-          }
-        }
         const label = `${theme.id} · ${vp.name} · ${tier}`;
-        if (realErrors.length) {
+        if (errors.length) {
           console.log(`✗ ${label}`);
-          realErrors.forEach(e => console.log('   ' + e));
-          failures.push(...realErrors.map(e => `${label}: ${e}`));
-        } else if (softPending.length) {
-          console.log(`~ ${label} (pending: ${softPending.join(' | ')})`);
-          pendingItems.push(...softPending.map(p => `${label}: ${p}`));
+          errors.forEach(e => console.log('   ' + e));
+          failures.push(...errors.map(e => `${label}: ${e}`));
         } else {
           console.log(`✓ ${label}`);
         }
@@ -492,27 +478,26 @@ try {
       } finally {
         await ctx.close();
       }
-      const cuonPhimMissingImagesDir = theme.id === 'cuon-phim' && !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
-      const realErrors = [];
-      const groupPending = [];
-      for (const e of errors) {
-        if (ALLOW_PENDING && cuonPhimMissingImagesDir && /\/_e\/themes\/cuon-phim\/images\//.test(e)) {
-          groupPending.push(e);
-        } else {
-          realErrors.push(e);
-        }
-      }
       const label = `${theme.id} · ${vp.name} · nhóm khách`;
-      if (realErrors.length) {
+      if (errors.length) {
         console.log(`✗ ${label}`);
-        realErrors.forEach(e => console.log('   ' + e));
-        failures.push(...realErrors.map(e => `${label}: ${e}`));
-      } else if (groupPending.length) {
-        console.log(`~ ${label} (pending: ${groupPending.join(' | ')})`);
-        pendingItems.push(...groupPending.map(p => `${label}: ${p}`));
+        errors.forEach(e => console.log('   ' + e));
+        failures.push(...errors.map(e => `${label}: ${e}`));
       } else {
         console.log(`✓ ${label}`);
       }
+    }
+  }
+  for (const badPath of ['/v2/demo/toString/', '/v2/demo/__proto__/', '/v2/demo/constructor/', '/v2/demo/valueOf/', '/v2/demo/toString/foo/']) {
+    try {
+      const r = await fetch(`${BASE}${badPath}`, { redirect: 'follow' });
+      if (r.status !== 404) {
+        const msg = `${badPath}: trả về ${r.status} (mong đợi 404)`;
+        console.log(`✗ ${msg}`);
+        failures.push(msg);
+      }
+    } catch (err) {
+      failures.push(`${badPath}: ${err?.message || err}`);
     }
   }
 } finally {

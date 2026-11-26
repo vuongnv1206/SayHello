@@ -238,7 +238,7 @@ export default defineTheme({
           ${events.map((e, i) => html`
             <article class="ticket ${e.main ? 'main' : ''}" data-ev="${i}">
               <div class="tk-body">
-                <p class="tk-brand">Rạp Hạnh Phúc · Vé mời</p>
+                <p class="tk-brand">Suất chiếu riêng · Vé mời</p>
                 <h3>${e.title}</h3>
                 <div class="tk-grid"><div><small>Suất chiếu</small><b>${fmt.time(e.date)}</b></div><div><small>Ngày</small><b>${fmt.short(e.date)}</b></div></div>
                 ${e.lunar ? html`<p class="lunar">${e.lunar}</p>` : ''}

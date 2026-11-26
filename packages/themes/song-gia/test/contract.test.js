@@ -31,6 +31,7 @@ test('song-gia renderDocument: 50/50 split, switcher, 2D SVG knot, stripped opti
   assert.match(fullHtml, /data-layout="split"/);
   assert.match(fullHtml, /data-moment="seam-converge"/);
   assert.match(fullHtml, /data-side-pick="nha-gai"/);
+  assert.ok(fullHtml.indexOf('class="sg-head"') !== -1 && fullHtml.indexOf('class="sg-head"') < fullHtml.indexOf('class="sg-switcher"'));
   assert.match(fullHtml, /sg-knot-svg/);
   assert.match(fullHtml, /data-ev="0"/);
   assert.match(fullHtml, /data-ev="1"/);

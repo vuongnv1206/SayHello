@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
@@ -22,10 +21,13 @@ import {
   instantScrollTo,
   assertNoHorizontalOverflow,
   findSmallVietnameseText,
+  assertReadableVietnameseText,
   assertVisibleClickableCta,
   assertCoverGateTiming,
+  assertFiveSecondDiscoverability,
   assertVestibularComfort,
   assertSelfContainedAssets,
+  assertWcagContrast,
   measureDesktopLayoutFingerprint,
 } from '../lib/assertions.mjs';
 
@@ -33,6 +35,7 @@ const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900, isMobile: false, hasTouch: false },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true },
 ];
+const MOBILE_320 = { name: 'mobile-320', width: 320, height: 568, isMobile: true, hasTouch: true };
 
 export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, record }) {
   const legacyThemes = readLegacyThemes();
@@ -40,17 +43,6 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
   const v2Themes = await discoverV2Themes({ webUrl });
   const { renderDocument } = await import(pathToFileURL(join(ROOT, 'packages', 'engine', 'src', 'render.js')).href);
   const v2Fingerprints = {};
-  const cuonPhimMissingImagesDir = !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
-  const assertCleanThemeTracker = (tracker, themeId, label) => {
-    const errs = (themeId === 'cuon-phim' && cuonPhimMissingImagesDir)
-      ? tracker.allErrors().filter(e => !/\/_e\/themes\/cuon-phim\/images\//.test(e))
-      : tracker.allErrors();
-    assert.equal(errs.length, 0, `${label}: ${errs.join(' | ')}`);
-    if (themeId === 'cuon-phim' && cuonPhimMissingImagesDir && tracker.allErrors().length > 0) {
-      return 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
-    }
-    return '';
-  };
 
   // 1. Frozen legacy v1: Desktop (1440x900) & Mobile (390x844) overflow, CTA clickability, 0 runtime errors
   for (const t of legacyThemes) {
@@ -115,7 +107,6 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           isMobile: vp.isMobile,
           hasTouch: vp.hasTouch,
         });
-        let pendingReason = '';
         try {
           const { page, tracker } = await session.newTrackedPage();
           await page.goto(`${webUrl}/v2/demo/${theme.id}/?k=Kh%C3%A1ch+Th%E1%BB%AD`, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -127,15 +118,7 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           await assertVisibleClickableCta(page, gateSel, { label: `v2 ${theme.id} ${vp.name} gate CTA` });
 
           const gateTiming = await openV2Gate(page);
-          try {
-            assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `v2 ${theme.id} ${vp.name}` });
-          } catch (gateErr) {
-            if (theme.id === 'cuon-phim') {
-              pendingReason ||= 'M1: reduce cuon-phim cover gate lock <= 900ms';
-            } else {
-              throw gateErr;
-            }
-          }
+          assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `v2 ${theme.id} ${vp.name}` });
 
           await scrollFullPage(page);
           await assertNoHorizontalOverflow(page, `v2 ${theme.id} ${vp.name}`);
@@ -156,46 +139,19 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           const smallText = await findSmallVietnameseText(page, 13);
           const microscopic = smallText.filter(x => x.fontSize < 6);
           assert.equal(microscopic.length, 0, `v2 ${theme.id} ${vp.name} microscopic text (<6px): ${JSON.stringify(microscopic)}`);
-          if (smallText.length > 0) {
-            if (theme.id === 'cuon-phim') {
-              pendingReason ||= `M1: raise cuon-phim <13px labels (${smallText.length} rules)`;
-            } else {
-              assert.fail(`v2 ${theme.id} ${vp.name} has ${smallText.length} Vietnamese text element(s) < 13px: ${JSON.stringify(smallText.slice(0, 4))}`);
-            }
-          }
+          assert.equal(smallText.length, 0, `v2 ${theme.id} ${vp.name} has ${smallText.length} Vietnamese text element(s) < 13px: ${JSON.stringify(smallText.slice(0, 4))}`);
 
           // Self-contained asset isolation check
-          try {
-            assertSelfContainedAssets(tracker.trackedRequests, { themeId: theme.id, label: `v2 ${theme.id} ${vp.name}` });
-          } catch (assetErr) {
-            if (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir) {
-              pendingReason ||= 'M1: bundle cuon-phim self-contained images';
-            } else {
-              throw assetErr;
-            }
-          }
+          assertSelfContainedAssets(tracker.trackedRequests, { themeId: theme.id, label: `v2 ${theme.id} ${vp.name}` });
 
           // Vestibular comfort check
-          try {
-            const actualMotion = await page.getAttribute('html', 'data-motion');
-            await assertVestibularComfort(page, {
-              label: `v2 ${theme.id} ${vp.name}`,
-              motionTier: actualMotion || 'standard',
-            });
-          } catch (vestErr) {
-            if (theme.id === 'cuon-phim') {
-              pendingReason ||= `M1: fix ${theme.id} vestibular comfort (${vestErr.message.slice(0, 90)})`;
-            } else {
-              throw vestErr;
-            }
-          }
+          const actualMotion = await page.getAttribute('html', 'data-motion');
+          await assertVestibularComfort(page, {
+            label: `v2 ${theme.id} ${vp.name}`,
+            motionTier: actualMotion || 'standard',
+          });
 
-          pendingReason ||= assertCleanThemeTracker(tracker, theme.id, `v2 ${theme.id} ${vp.name}`);
-          if (pendingReason) {
-            const err = new Error(pendingReason);
-            err.pendingMilestone = pendingReason;
-            throw err;
-          }
+          tracker.assertClean(`v2 ${theme.id} ${vp.name}`);
         } catch (err) {
           await saveFailureShot(session.ctx, shotsDir, `tier2-${vp.name}-v2-${theme.id}`, err);
           throw err;
@@ -228,7 +184,7 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
     }
 
     const cases = [
-      { label: 'tier=cinematic', query: '?tier=cinematic', reducedMotion: 'no-preference', expected: 'cinematic', testContextLoss: true, vp: VIEWPORTS[1] },
+      { label: 'tier=cinematic', query: theme.layout === 'stage' ? '?tier=cinematic&snap=1' : '?tier=cinematic', reducedMotion: 'no-preference', expected: 'cinematic', testContextLoss: true, vp: VIEWPORTS[1] },
       { label: 'tier=standard', query: '?tier=standard', reducedMotion: 'no-preference', expected: 'standard', testContextLoss: false, vp: VIEWPORTS[1] },
       { label: 'tier=lite', query: '?tier=lite', reducedMotion: 'no-preference', expected: 'lite', testContextLoss: false, vp: VIEWPORTS[1] },
       { label: 'prefers-reduced-motion: reduce (mobile)', query: '', reducedMotion: 'reduce', expected: 'lite', testContextLoss: false, vp: VIEWPORTS[1] },
@@ -245,7 +201,6 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           hasTouch: c.vp.hasTouch,
           reducedMotion: c.reducedMotion,
         });
-        let pendingReason = '';
         try {
           const { page, tracker } = await session.newTrackedPage();
           await page.goto(`${webUrl}/v2/demo/${theme.id}/${c.query}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -253,44 +208,76 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           const actual = await page.getAttribute('html', 'data-motion');
           assert.equal(actual, c.expected, `Expected html[data-motion="${c.expected}"], got "${actual}"`);
 
+          // Also check gate-phase vestibular safety before opening (e.g. .cover-hint in lite mode)
+          await assertVestibularComfort(page, {
+            label: `v2 ${theme.id} ${c.label} (gate)`,
+            reducedMotion: c.reducedMotion === 'reduce',
+            motionTier: c.expected,
+            checkIdleDrift: false,
+          });
+
           await openV2Gate(page);
           await scrollFullPage(page);
           await assertNoHorizontalOverflow(page, `v2 ${theme.id} ${c.label}`);
 
-          try {
-            await assertVestibularComfort(page, {
-              label: `v2 ${theme.id} ${c.label}`,
-              reducedMotion: c.reducedMotion === 'reduce',
-              motionTier: c.expected,
+          // Verify .sh-music[aria-pressed="true"] i does not spin infinitely in lite/reduced mode
+          if (c.expected === 'lite') {
+            await page.evaluate(() => {
+              const btn = document.querySelector('[data-sh="music"]');
+              if (btn) btn.setAttribute('aria-pressed', 'true');
             });
-          } catch (vestErr) {
-            if (theme.id === 'cuon-phim') {
-              pendingReason ||= `M1: fix ${theme.id} vestibular comfort (${vestErr.message.slice(0, 90)})`;
-            } else {
-              throw vestErr;
-            }
           }
 
+          await assertVestibularComfort(page, {
+            label: `v2 ${theme.id} ${c.label}`,
+            reducedMotion: c.reducedMotion === 'reduce',
+            motionTier: c.expected,
+          });
+
           if (c.testContextLoss) {
-            const hasCanvas = await page.locator('canvas').count();
-            if (hasCanvas > 0) {
-              const wasCanceled = await page.evaluate(() => {
+            const layout = await page.getAttribute('html', 'data-layout');
+            if (layout === 'stage') {
+              await page.waitForFunction(
+                () => document.documentElement.classList.contains('ptl-3d')
+                  || document.documentElement.classList.contains('th-3d')
+                  || document.documentElement.dataset.motion === 'lite',
+                null,
+                { timeout: 10000 }
+              ).catch(() => {});
+
+              const stageState = await page.evaluate(() => {
                 const cv = document.querySelector('canvas');
-                if (!cv) return false;
-                const ev = new Event('webglcontextlost', { cancelable: true });
-                cv.dispatchEvent(ev);
-                return ev.defaultPrevented;
+                const mounted3d = document.documentElement.classList.contains('ptl-3d') || document.documentElement.classList.contains('th-3d');
+                let webglSupported = false;
+                try {
+                  const testCanvas = document.createElement('canvas');
+                  webglSupported = Boolean(testCanvas.getContext('webgl2') || testCanvas.getContext('webgl'));
+                } catch {}
+                return { hasCanvas: Boolean(cv), mounted3d, webglSupported };
               });
-              await page.waitForTimeout(300);
-              const layout = await page.getAttribute('html', 'data-layout');
-              const motionAfter = await page.getAttribute('html', 'data-motion');
-              const motionWhy = await page.getAttribute('html', 'data-motion-why');
-              if (layout === 'stage' && (wasCanceled || motionWhy)) {
+
+              if (stageState.mounted3d && stageState.hasCanvas) {
+                const wasCanceled = await page.evaluate(() => {
+                  const cv = document.querySelector('canvas');
+                  if (!cv) return false;
+                  const ev = new Event('webglcontextlost', { cancelable: true });
+                  cv.dispatchEvent(ev);
+                  return ev.defaultPrevented;
+                });
+                assert.equal(wasCanceled, true, `v2 ${theme.id}: webglcontextlost event was not preventDefault()'d by bindContextLoss`);
+                await page.waitForTimeout(300);
+                const motionAfter = await page.getAttribute('html', 'data-motion');
+                const motionWhy = await page.getAttribute('html', 'data-motion-why');
                 assert.equal(
                   motionAfter,
                   'lite',
                   `v2 ${theme.id}: expected stage theme to downgrade html[data-motion] to "lite" after webglcontextlost, got "${motionAfter}"`
                 );
+                assert.equal(motionWhy, 'webglcontextlost', `v2 ${theme.id}: expected data-motion-why="webglcontextlost", got "${motionWhy}"`);
+              } else if (stageState.webglSupported) {
+                // Only skip if Three.js CDN failed to load offline; fail loudly otherwise
+                const cdnBlocked = tracker.consoleErrors.length > 0;
+                assert.ok(cdnBlocked, `v2 ${theme.id}: stage layout failed to mount WebGL under &snap=1 even though WebGL is supported (${JSON.stringify(stageState)})`);
               }
             }
           }
@@ -303,12 +290,7 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           await page.locator('#sh-quick [data-sh="quick-close"]').first().click({ force: true });
           await page.locator('#sh-quick').waitFor({ state: 'hidden', timeout: 3000 });
 
-          pendingReason ||= assertCleanThemeTracker(tracker, theme.id, `v2 ${theme.id} ${c.label}`);
-          if (pendingReason) {
-            const err = new Error(pendingReason);
-            err.pendingMilestone = pendingReason;
-            throw err;
-          }
+          tracker.assertClean(`v2 ${theme.id} ${c.label}`);
         } catch (err) {
           await saveFailureShot(session.ctx, shotsDir, `tier2-motion-${theme.id}-${c.label}`, err);
           throw err;
@@ -318,6 +300,36 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
       });
     }
   }
+
+  await record('tier2', 'motion-tiers', 'v2 phong-trien-lam (?tier=lite&open=1, no-preference): .ptl-imgs img filter === "none" without scroll', async () => {
+    const session = await createSafeContext(browser, {
+      legacyUrl,
+      webUrl,
+      viewport: { width: VIEWPORTS[1].width, height: VIEWPORTS[1].height },
+      isMobile: VIEWPORTS[1].isMobile,
+      hasTouch: VIEWPORTS[1].hasTouch,
+      reducedMotion: 'no-preference',
+    });
+    try {
+      const { page, tracker } = await session.newTrackedPage();
+      await page.goto(`${webUrl}/v2/demo/phong-trien-lam/?tier=lite&open=1`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 20000 });
+      const actualMotion = await page.getAttribute('html', 'data-motion');
+      assert.equal(actualMotion, 'lite', `Expected html[data-motion="lite"], got "${actualMotion}"`);
+      const filters = await page.$$eval('.ptl-imgs img', imgs => imgs.map(img => getComputedStyle(img).filter));
+      assert.ok(filters.length > 0, 'Expected .ptl-imgs img elements in phong-trien-lam');
+      assert.ok(
+        filters.every(f => f === 'none'),
+        `Expected all .ptl-imgs img filter === "none" in ?tier=lite&open=1 without scroll, got ${JSON.stringify(filters)}`
+      );
+      tracker.assertClean('v2 phong-trien-lam lite static image parity');
+    } catch (err) {
+      await saveFailureShot(session.ctx, shotsDir, 'tier2-motion-phong-trien-lam-lite-img', err);
+      throw err;
+    } finally {
+      await session.ctx.close();
+    }
+  });
 
   // 5. Boundary & Invalid-Input Rejection (empty RSVP/wish, attend="Không", XSS ?k=, 60-char Vietnamese ?k=)
   for (const theme of v2Themes.filter(t => t.isRegistered)) {
@@ -405,12 +417,7 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
           assert.ok(!/Cảm ơn/.test(invalidWishMsg || ''), `v2 ${theme.id}: invalid wish must not show thank-you message`);
         }
 
-        const pending = assertCleanThemeTracker(tracker, theme.id, `v2 ${theme.id} input-bounds`);
-        if (pending) {
-          const err = new Error(pending);
-          err.pendingMilestone = pending;
-          throw err;
-        }
+        tracker.assertClean(`v2 ${theme.id} input-bounds`);
       } catch (err) {
         await saveFailureShot(session.ctx, shotsDir, `tier2-input-${theme.id}`, err);
         throw err;
@@ -517,12 +524,7 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
         await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 20000 });
         assert.equal(await page.$eval('[data-sh="group-note"]', el => el.hidden), true, `v2 ${theme.id}: group-note should stay hidden for ?n=khong-co`);
         assert.equal(await page.$$eval('#sh-quick [data-ev][hidden]', els => els.length), 0, `v2 ${theme.id}: ?n=khong-co must not hide any events`);
-        const pending = assertCleanThemeTracker(tracker, theme.id, `v2 ${theme.id} guest groups`);
-        if (pending) {
-          const err = new Error(pending);
-          err.pendingMilestone = pending;
-          throw err;
-        }
+        tracker.assertClean(`v2 ${theme.id} guest groups`);
       } catch (err) {
         await saveFailureShot(session.ctx, shotsDir, `tier2-groups-${theme.id}`, err);
         throw err;
@@ -620,12 +622,7 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
         const qb = await ensureQuickOpenVisible(page);
         await qb.click();
         await page.locator('#sh-quick').waitFor({ state: 'visible', timeout: 3000 });
-        const pending = assertCleanThemeTracker(tracker, theme.id, `v2 ${theme.id} stripped optional fields`);
-        if (pending) {
-          const err = new Error(pending);
-          err.pendingMilestone = pending;
-          throw err;
-        }
+        tracker.assertClean(`v2 ${theme.id} stripped optional fields`);
       } catch (err) {
         await saveFailureShot(session.ctx, shotsDir, `tier2-optional-v2-${theme.id}`, err);
         throw err;
@@ -634,4 +631,161 @@ export async function runTier2Bounds({ browser, legacyUrl, webUrl, shotsDir, rec
       }
     });
   }
+
+  // 8. Narrow Mobile (320x568) bounds, CTA & 5s discoverability across /v2/ & all v2 themes
+  await record('tier2', 'viewport-bounds', 'v2 /v2/ showcase (mobile-320 320x568): overflow, CTA, >=13px', async () => {
+    const session = await createSafeContext(browser, {
+      legacyUrl,
+      webUrl,
+      viewport: { width: MOBILE_320.width, height: MOBILE_320.height },
+      isMobile: MOBILE_320.isMobile,
+      hasTouch: MOBILE_320.hasTouch,
+    });
+    try {
+      const { page, tracker } = await session.newTrackedPage();
+      await page.goto(`${webUrl}/v2/`, { waitUntil: 'load', timeout: 30000 });
+      await scrollFullPage(page);
+      await assertNoHorizontalOverflow(page, '/v2/ mobile-320');
+      await assertReadableVietnameseText(page, { minPx: 13, label: '/v2/ mobile-320' });
+      await assertVisibleClickableCta(page, 'a[href*="/v2/demo/"]', { label: '/v2/ mobile-320 demo CTA' });
+      tracker.assertClean('/v2/ mobile-320');
+    } catch (err) {
+      await saveFailureShot(session.ctx, shotsDir, 'tier2-mobile320-v2-showcase', err);
+      throw err;
+    } finally {
+      await session.ctx.close();
+    }
+  });
+
+  for (const theme of v2Themes.filter(t => t.isRegistered)) {
+    await record('tier2', 'viewport-bounds', `v2 ${theme.id} (mobile-320 320x568): overflow, CTA, 5s discoverability, >=13px`, async () => {
+      const session = await createSafeContext(browser, {
+        legacyUrl,
+        webUrl,
+        viewport: { width: MOBILE_320.width, height: MOBILE_320.height },
+        isMobile: MOBILE_320.isMobile,
+        hasTouch: MOBILE_320.hasTouch,
+      });
+      try {
+        const { page, tracker } = await session.newTrackedPage();
+        await page.goto(`${webUrl}/v2/demo/${theme.id}/?k=${encodeURIComponent('Khách Thử')}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 20000 });
+
+        const gateSel = (await page.locator('.sh-gate [data-open]').count()) > 0
+          ? '.sh-gate [data-open]'
+          : '.sh-gate button, .sh-gate [role="button"], .sh-gate [data-open], .sh-gate .lever, .sh-gate .ptl-switch, .sh-gate .th-open-btn';
+        await assertVisibleClickableCta(page, gateSel, { label: `v2 ${theme.id} mobile-320 gate CTA` });
+
+        const gateTiming = await openV2Gate(page);
+        assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `v2 ${theme.id} mobile-320` });
+
+        await assertFiveSecondDiscoverability(page, {
+          groomShort: theme.demo?.groom?.short || '',
+          brideShort: theme.demo?.bride?.short || '',
+          date: theme.demo?.date || '',
+          city: theme.demo?.city || '',
+          venue: theme.demo?.events?.[0]?.venue || '',
+          timeoutMs: 5000,
+          label: `v2 ${theme.id} mobile-320`,
+        });
+
+        await scrollFullPage(page);
+        await assertNoHorizontalOverflow(page, `v2 ${theme.id} mobile-320`);
+        await assertReadableVietnameseText(page, { minPx: 13, label: `v2 ${theme.id} mobile-320` });
+
+        const sceneRsvpBtn = page.locator('.sh-scene form[data-sh="rsvp"] [type="submit"]').first();
+        if (await sceneRsvpBtn.count()) {
+          await assertVisibleClickableCta(page, '.sh-scene form[data-sh="rsvp"] [type="submit"]', { label: `v2 ${theme.id} mobile-320 RSVP submit` });
+        }
+        await ensureQuickOpenVisible(page);
+        await assertVisibleClickableCta(page, '[data-sh="quick-open"]', { label: `v2 ${theme.id} mobile-320 Quick Info button` });
+
+        const actualMotion = await page.getAttribute('html', 'data-motion');
+        await assertVestibularComfort(page, {
+          label: `v2 ${theme.id} mobile-320`,
+          motionTier: actualMotion || 'standard',
+        });
+
+        tracker.assertClean(`v2 ${theme.id} mobile-320`);
+      } catch (err) {
+        await saveFailureShot(session.ctx, shotsDir, `tier2-mobile320-v2-${theme.id}`, err);
+        throw err;
+      } finally {
+        await session.ctx.close();
+      }
+    });
+  }
+
+  // 9. WCAG AA contrast across all v2 theme x topic/palette variants (17 variants)
+  for (const theme of v2Themes.filter(t => t.isRegistered)) {
+    const variants = theme.topics?.length ? theme.topics : (theme.palettes || []);
+    const variantIds = variants.length ? variants.map(v => v.id) : [''];
+    for (const vId of variantIds) {
+      const label = vId ? `${theme.id}/${vId}` : theme.id;
+      await record('tier2', 'wcag-contrast', `v2 ${label}: WCAG AA contrast >= 4.5:1 (3:1 large text)`, async () => {
+        const session = await createSafeContext(browser, {
+          legacyUrl,
+          webUrl,
+          viewport: { width: 390, height: 844 },
+          isMobile: true,
+          hasTouch: true,
+        });
+        try {
+          const { page, tracker } = await session.newTrackedPage();
+          const url = vId ? `${webUrl}/v2/demo/${theme.id}/${vId}/?tier=lite` : `${webUrl}/v2/demo/${theme.id}/?tier=lite`;
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+          await page.waitForFunction(() => document.documentElement.classList.contains('sh-ready'), null, { timeout: 20000 });
+          await assertWcagContrast(page, { label: `${label} (gate)` });
+          await openV2Gate(page);
+          await scrollFullPage(page);
+
+          for (const sel of ['.tk-stub', '.bucket', '[data-flip]']) {
+            const locs = page.locator(sel);
+            const cnt = await locs.count();
+            for (let i = 0; i < cnt; i++) {
+              const loc = locs.nth(i);
+              if (await loc.isVisible().catch(() => false)) {
+                await instantScrollTo(loc);
+                await loc.click({ force: true });
+              }
+            }
+          }
+          await page.waitForTimeout(150);
+          await assertWcagContrast(page, { label: `${label} (open)` });
+
+          const quickBtn = await ensureQuickOpenVisible(page);
+          await quickBtn.click({ timeout: 5000 });
+          await page.locator('#sh-quick').waitFor({ state: 'visible', timeout: 3000 });
+          await page.locator('#sh-quick').evaluate(el => { el.scrollTop = 0; });
+          await page.waitForTimeout(150);
+          await assertWcagContrast(page, { label: `${label} (#sh-quick)` });
+          await page.locator('#sh-quick [data-sh="quick-close"]').first().click({ force: true });
+          await page.locator('#sh-quick').waitFor({ state: 'hidden', timeout: 3000 });
+
+          tracker.assertClean(`v2 ${label} contrast`);
+        } catch (err) {
+          await saveFailureShot(session.ctx, shotsDir, `tier2-contrast-${theme.id}-${vId || 'default'}`, err);
+          throw err;
+        } finally {
+          await session.ctx.close();
+        }
+      });
+    }
+  }
+
+  // 10. Prototype-key route guard regression (toString, __proto__, constructor, valueOf -> HTTP 404, never 500)
+  await record('tier2', 'input-bounds', 'v2 prototype-key route lookups return HTTP 404 (not 500)', async () => {
+    const badPaths = [
+      '/v2/demo/toString/',
+      '/v2/demo/__proto__/',
+      '/v2/demo/constructor/',
+      '/v2/demo/valueOf/',
+      '/v2/demo/toString/foo/',
+      '/v2/demo/chieu-sau/toString/',
+    ];
+    for (const p of badPaths) {
+      const res = await fetch(`${webUrl}${p}`, { redirect: 'follow' });
+      assert.equal(res.status, 404, `Expected HTTP 404 at ${p}, got ${res.status}`);
+    }
+  });
 }

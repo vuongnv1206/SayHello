@@ -13,6 +13,37 @@ function renderDepthFrame(pair, alt, bigText, eager = false, hasFgClass = '') {
     </div>`;
 }
 
+function mountDepthFrames(el, ctx) {
+  const frames = [...el.querySelectorAll('.cs-frame')];
+  if (!frames.length) return;
+  frames.forEach(f => {
+    const fg = f.querySelector('.cs-fg');
+    if (!fg) return;
+    const onErr = () => { f.classList.add('no-fg'); fg.remove(); };
+    if (fg.complete && fg.naturalWidth === 0) onErr();
+    else fg.addEventListener('error', onErr, { once: true });
+  });
+  if (ctx.reduced || ctx.motion === 'lite') return;
+  const update = () => {
+    const vh = Math.max(1, window.innerHeight);
+    for (const f of frames) {
+      const r = f.getBoundingClientRect();
+      const center = (r.top + r.height * 0.5) / vh;
+      const p = Math.max(-1, Math.min(1, (0.5 - center) * 1.4));
+      f.style.setProperty('--p', p.toFixed(3));
+    }
+  };
+  let raf = 0;
+  const onScroll = () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; update(); });
+  };
+  update();
+  ctx.on('open', update);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+}
+
 export default defineTheme({
   id: 'chieu-sau',
   name: 'Chiều Sâu',
@@ -56,13 +87,13 @@ export default defineTheme({
       id: 'suong-da-lat',
       name: 'Sương Đà Lạt',
       desc: 'Xanh thông sương sớm, nền sương mù dịu và ánh hổ phách ấm.',
-      swatch: ['#DDE3DF', '#8C5832'],
+      swatch: ['#DDE3DF', '#724322'],
       themeColor: '#DDE3DF',
       vars: {
         '--sh-bg': '#DDE3DF',
         '--sh-surface': '#CFD7D2',
         '--sh-ink': '#1C2621',
-        '--sh-accent': '#8C5832',
+        '--sh-accent': '#724322',
         '--sh-accent-ink': '#FAF7F2',
         '--sh-foil': '#B87A4B',
         '--sh-soft': 'rgba(28, 38, 33, 0.16)',
@@ -112,7 +143,7 @@ export default defineTheme({
   ],
   defaults: {
     texts: {
-      coverKicker: 'Thiệp mời điện ảnh 2.5D',
+      coverKicker: 'Thư mời ngày chung đôi',
       coverHint: 'Chạm mở khung hình để bước vào thiệp cưới',
       heroKicker: 'Trân trọng kính mời',
       eventsTitle: 'Lịch Lễ & Tiệc',
@@ -223,10 +254,13 @@ export default defineTheme({
             </div>
           </div>`;
       },
+      mount(el, ctx) {
+        mountDepthFrames(el, ctx);
+      },
     },
     {
       id: 'cuon-anh',
-      label: 'Lookbook ảnh cưới 2.5D',
+      label: 'Cuộn ảnh cưới',
       provides: ['album'],
       when: ctx => ctx.has('album'),
       render: ctx => {
@@ -247,7 +281,7 @@ export default defineTheme({
                     <div class="cs-type-col">
                       <span class="cs-frame-no">Khung ${pad2(i + 1)}</span>
                       <h3>${cap}</h3>
-                      <p class="cs-frame-sub">${pair.fg ? 'Lớp tiền cảnh tách sâu 2.5D theo nhịp cuộn.' : 'Khung hình toàn cảnh đẩy tiêu cự tĩnh.'}</p>
+                      <p class="cs-frame-sub">${pair.fg ? 'Khoảnh khắc chân dung được giữ lại cho ngày chung vui.' : 'Góc nhìn rộng ghi lại không gian buổi hẹn đầu.'}</p>
                     </div>
                   </article>`;
               })}
@@ -255,28 +289,7 @@ export default defineTheme({
           </div>`;
       },
       mount(el, ctx) {
-        const frames = [...el.querySelectorAll('.cs-frame')];
-        frames.forEach(f => {
-          const fg = f.querySelector('.cs-fg');
-          fg?.addEventListener('error', () => { f.classList.add('no-fg'); fg.remove(); });
-        });
-        if (ctx.reduced) return;
-        const update = () => {
-          const vh = Math.max(1, window.innerHeight);
-          for (const f of frames) {
-            const r = f.getBoundingClientRect();
-            const center = (r.top + r.height * 0.5) / vh;
-            const p = Math.max(-1, Math.min(1, (0.5 - center) * 1.4));
-            f.style.setProperty('--p', p.toFixed(3));
-          }
-        };
-        let raf = 0;
-        const onScroll = () => {
-          if (raf) return;
-          raf = requestAnimationFrame(() => { raf = 0; update(); });
-        };
-        update();
-        window.addEventListener('scroll', onScroll, { passive: true });
+        mountDepthFrames(el, ctx);
       },
     },
     {

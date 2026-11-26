@@ -160,6 +160,12 @@ export default defineTheme({
         const rightFam = families[1] || null;
         return html`
           <div class="sg-wrap">
+            <header class="sg-head">
+              <p class="sg-kicker">${t.coverTitle}</p>
+              <h2 class="sg-head-names">${n.first} <em>&amp;</em> ${n.second}</h2>
+              <p class="sg-head-meta">${fmt.dots(date)}${city ? html` · ${city}` : ''}</p>
+            </header>
+
             <div class="sg-switcher" role="group" aria-label="Chọn góc nhìn gia đình">
               <button type="button" class="sg-pill is-active" data-side-pick="all">Cả Hai</button>
               <button type="button" class="sg-pill" data-side-pick="nha-trai">Khách Nhà Trai</button>

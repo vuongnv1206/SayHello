@@ -1,97 +1,83 @@
-# Thiết kế · SayHello
+# Hệ Thiết kế · SayHello 2.0 (Card-as-Centerpiece)
 
-Nguyên tắc chung (rút từ skill *frontend-design* của Anthropic): mỗi mẫu có **một ý tưởng trung tâm**, màn mở bìa là khoảnh khắc đáng nhớ nhất, chữ có cá tính và **bắt buộc hỗ trợ tiếng Việt**, bảng màu có chủ đích, nền có chiều sâu, chuyển động có nhịp, điện thoại trước tiên. Chi tiết: [TAO-MAU-MOI.md](TAO-MAU-MOI.md#1-nguyên-tắc-thiết-kế).
+Tài liệu này quy định chuẩn thiết kế thống nhất cho toàn bộ mẫu thiệp v2 trên `@sayhello/engine` (`packages/engine/`) và giao diện trưng bày `/v2/` (`apps/web/src/app/v2/page.tsx`), hợp nhất các cổng hiệu quả H1–H7 và phép thử chống khuôn mẫu từ `docs/archive/KHONG-KHUON-MAU.md`.
 
-## Biến màu dùng chung
+---
 
-Mỗi mẫu khai báo các biến này trên `:root` để phần dùng chung (`core/base.css`: nút, form, hộp quà, hộp cảm ơn) tự ăn theo:
+## 1. Luận điểm thiết kế cốt lõi: `Layout × Topic × Moment`
 
-| Biến | Ý nghĩa |
-|---|---|
-| `--c-bg` | Nền ngoài thiệp |
-| `--c-paper` | Nền thiệp |
-| `--c-ink` | Chữ chính |
-| `--c-accent` / `--c-accent-ink` | Nút chính và chữ trên nút |
-| `--c-soft` | Đường kẻ, viền nhạt |
+1. **Tấm thiệp là nhân vật chính (Card-as-Centerpiece):** Mọi trải nghiệm bắt đầu và xoay quanh một tấm thiệp cưới có chất liệu rõ ràng (giấy Dó, sơn mài, hộp nhung, men sứ, lookbook biên tập). Ảnh cặp đôi và thông tin lễ là trọng tâm; kỹ thuật 3D/CSS chỉ phục vụ **chất liệu bề mặt** và **chiều sâu 2.5D bên trong khung ảnh**, không dựng thế giới 3D bay camera xa rời tấm thiệp.
+2. **Ba trục tách bạch:**
+   - **Layout (`layoutSpec`):** Khung kiến trúc và cách khách đi qua thiệp (`folio`, `lookbook`, `deck`, `split`, `scroll`, `stage`, `pager`, `hub`, `chat`, `custom` trong `packages/engine/src/define-theme.js`).
+   - **Topic (`topics[]`):** Bộ không khí thẩm mỹ hoàn chỉnh gồm bảng màu CSS `--sh-*`, cặp font hỗ trợ `vietnamese`, chất liệu và `swatch`. Một mẫu có 2–3 topic đặc trưng, chuyển đổi qua `/v2/demo/[theme]/[topic]/` hoặc `?topic=<id>`.
+   - **Signature Moment (`moment`):** Đúng **1 động tác chữ ký có tên** (`unseal-gleam`, `optical-push`, `deal-flip`, `seam-converge`), gắn với vật lý mở thiệp hoặc tương tác trọng tâm.
+3. **Trang trưng bày `/v2` (`apps/web/src/app/v2/page.tsx`):** Thoát khỏi khuôn mẫu landing page nền tối điểm vàng cũ; dùng nền giấy sáng `#FAF8F4`, chữ mực `#1C1917`, nhấn son `#8E1B2C`, trình bày minh bạch thẻ *Layout*, *Signature Moment*, các *Topic* kèm vòng màu và nút mở thẳng bản tĩnh `?tier=lite`.
 
-`core/base.css` dùng `:where()` nên độ ưu tiên bằng 0: mẫu viết đè thoải mái, không cần `!important`.
+---
 
-## Các mẫu
+## 2. Hợp đồng Token CSS (`packages/engine/src/base.css`)
 
-### Song Hỷ: truyền thống
-- **Ý tưởng:** cửa son mở hai cánh, đèn lồng, chữ Hỷ vàng kim, pháo hoa.
-- **Màu:** đỏ son `#a4161a`, đỏ thẫm `#6a040f`, vàng kim `#e6c27a`, kem `#fff8ef`, mực nâu `#4a2a22`.
-- **Chữ:** VL Bodega Script (tên, file riêng), Dancing Script, Playfair Display, Be Vietnam Pro.
+Toàn bộ bộ chọn mặc định trong `packages/engine/src/base.css` nằm trong `:where()` (độ ưu tiên `0`) để từng mẫu và từng `topic` ghi đè sạch sẽ mà không cần `!important` (ngoại trừ `.sh-gate[hidden]` và `[data-ev][hidden]` để bảo đảm trạng thái ẩn DOM tuyệt đối).
 
-### Thư Tay: hiện đại, lãng mạn
-- **Ý tưởng:** lá thư trong phong bì: bóc dấu sáp, chữ hiện như đang viết, ảnh là con tem, ngày cưới dưới lớp nhũ cào, sự kiện là vé xé cuống, polaroid kéo ném, thư hồi âm.
-- **Màu:** giấy dó `#f4ede1`, mực xanh than `#1f2a44`, sáp đỏ `#8e1b2c`, hồng phấn `#c98b8b`, vàng đồng `#b08d57`, bàn gỗ `#2b221d`. Nền có vân giấy (SVG noise).
-- **Chữ:** Cormorant Garamond (tiêu đề), Ephesis (viết tay), Lora (nội dung).
+| Token (`:where(:root)`) | Giá trị mặc định (`base.css`) | Vai trò |
+|---|---|---|
+| `--sh-bg` | `#111` | Nền tổng thể ngoài tấm thiệp / trang |
+| `--sh-surface` | `#1c1814` | Mặt giấy / nền thẻ chính |
+| `--sh-ink` | `#f4ede1` | Màu chữ chính (bắt buộc tương phản `>= 4.5:1` trên `--sh-bg` / `--sh-surface`) |
+| `--sh-muted` | `color-mix(in srgb, var(--sh-ink) 68%, transparent)` | Chữ phụ, chú thích |
+| `--sh-accent` | `#e8a33d` | Màu nhấn nút chính, dấu triện, focus ring |
+| `--sh-accent-ink` | `#1a1208` | Màu chữ trên nút `--sh-accent` |
+| `--sh-foil` | `#d4b06a` | Ánh nhũ kim / đường chỉ son / viền trang trí |
+| `--sh-soft` | `rgba(255,255,255,.18)` | Đường kẻ `hairline`, viền ô nhập liệu |
+| `--sh-panel` | `var(--sh-surface)` | Nền hộp nổi `#sh-quick`, `.sh-group-note`, nút nhạc |
+| `--sh-font-display` | `'Cormorant Garamond', Georgia, serif` | Font tiêu đề / tên cặp đôi |
+| `--sh-font-body` | `'Be Vietnam Pro', system-ui, sans-serif` | Font thân bài & biểu mẫu |
+| `--sh-font-mono` | `'Space Mono', ui-monospace, monospace` | Font mã / giờ `tabular-nums` (luôn `>= 13px`) |
+| `--sh-radius` | `14px` | Bo góc cơ sở cho thành phần UI |
+| `--sh-ease-tactile` | `cubic-bezier(0.22, 1, 0.36, 1)` | Đường cong gia tốc xúc giác chuẩn (`emil-design-eng`) |
+| `--sh-ease` | `var(--sh-ease-tactile)` | Alias đường cong chuẩn |
+| `--sh-dur-ui` | `240ms` | Thời lượng phản hồi điều khiển (`<= 280ms`) |
 
-### Vé Máy Bay: trẻ trung
-- **Ý tưởng:** thẻ lên máy bay: xé cuống vé để mở, máy bay bay theo đường cuộn, bảng giờ bay lật chữ, hộ chiếu đóng dấu visa, ảnh qua ô cửa sổ, check-in, vali mừng cưới, hạ cánh.
-- **Màu:** trời bình minh `#fbe3d0 → #8ecae6 → #4a6fa5`, giấy vé `#fffaf0`, xanh hải quân `#14213d`, cam san hô `#e76f51`, hổ phách `#f4a261`, bạc hà `#2a9d8f`.
-- **Chữ:** Big Shoulders Display (biển báo sân bay), Fraunces nghiêng (cảm xúc), JetBrains Mono (dữ liệu vé).
+---
 
-### Khóa Tình: lãng mạn
-- **Ý tưởng:** ổ khóa tình yêu trên cầu đêm: khách xoay 4 vòng số đúng ngày cưới (ngày·tháng) để mở, có nút "Mở giúp tôi" tự xoay. Mặt dây chuyền đung đưa, chùm chìa khóa kỷ niệm, thẻ kim loại khắc lịch lễ, ảnh treo lan can cầu, lời chúc thành ổ khóa, hộp nhẫn, cuối thiệp ném chìa xuống sông.
-- **Màu:** đêm `#0b1822`, sông `#13354a`, đồng thau `#c9a227`, vàng hồng `#d8a48f`, đèn đường `#ffcf8a`, kem `#f7efe3`, ruy băng đỏ `#b23a48`.
-- **Chữ:** Alex Brush (tên), Spectral (nội dung, tiêu đề nghiêng), Be Vietnam Pro (chữ nhỏ).
+## 3. Chuẩn Chữ tiếng Việt & Giọng văn Hai Thanh điệu
 
-### Đèn Lồng: hoài cổ
-- **Ý tưởng:** đêm rằm phố Hội An: khách chạm hoa đăng để thắp nến và thả xuống sông thì thiệp mở. Dây đèn lồng sáng dần khi cuộn tới, cổng trăng ôm ảnh trên tường vàng, đôi đèn lồng lụa ôm ảnh cô dâu chú rể, dãy nhà phố kể chuyện tình, biển gỗ ghi lịch lễ, đèn lồng đếm ngược, cửa chớp gỗ tự mở ra album, lời chúc thành hoa đăng trôi trên sông, phong bao lì xì, cuối thiệp thả đèn trời.
-- **Màu:** đêm `#0f1a2b`, tường vàng `#f2c14e`, ngói `#8c2f1b`, gỗ `#4a2c1a`, cửa chớp xanh rêu `#2f6f5e`, đỏ đèn lồng `#c1121f`, cam `#f77f00`, vàng nến `#fcbf49`, hoa giấy `#e75480`, kem `#fdf3dc`.
-- **Chữ:** Dancing Script (tên), Noto Serif Display nghiêng (tiêu đề, nội dung), Be Vietnam Pro (chữ nhỏ).
+1. **Sàn kích thước chữ bắt buộc (`packages/engine/src/base.css:18-19`):**
+   - Thân văn bản (`body.sh`, `<p>`, `<input>`): **`font-size: max(16px, 1rem)`** (đồng thời ngăn iOS Safari tự zoom khi chạm ô nhập).
+   - Chữ nhỏ / nhãn UI / đơn vị đếm ngược (`small`, nhãn phụ): **`>= 13px`** (`font-size: max(13px, 1em)`). Tuyệt đối cấm nhãn `10px–12px` có dấu chồng tiếng Việt.
+2. **Bắt buộc bộ ký tự `vietnamese` trên Google Fonts:** Chỉ dùng các font hỗ trợ đầy đủ dấu tiếng Việt (ví dụ: `Be Vietnam Pro`, `Cormorant Garamond`, `Newsreader`, `Playfair Display`, `Bricolage Grotesque`, `Lora`, `Fraunces`, `Spectral`, `Space Mono`, `Dancing Script`, `Ephesis`). Kiểm tra kỹ trước khi thêm font mới.
+3. **Tách chữ an toàn:** Luôn tách ký tự qua `splitText()` (`Intl.Segmenter`) trong `packages/engine/src/html.js`, không dùng `[...str]` kẻo vỡ dấu thanh.
+4. **Hai thanh điệu (`packages/engine/src/voice.js`):**
+   - `trang-trong`: Xưng hô lễ nghi với hai họ, người lớn tuổi (*"Trân trọng kính mời"*, *"Ông/Bà"*, *"Lễ Vu Quy & Lễ Thành Hôn"*) — dùng ở `thiep-gap-doi`, `song-gia`.
+   - `than-mat`: Ấm áp, tự nhiên với bạn bè (*"Mời [Tên] tới chung vui"*) — dùng ở `chieu-sau`, `hop-ky-uc`.
 
-### Cuộn Phim: điện ảnh
-- **Ý tưởng:** thiệp là một suất chiếu đặc biệt. Bìa là phòng chiếu tối: khách kéo cần máy chiếu, đèn chiếu bật, cuộn phim quay (có tiếng lạch cạch tự tạo bằng Web Audio), màn ảnh đếm 3-2-1 rồi thiệp mở. Bên trong: biển đèn rạp, rèm nhung mở ra ảnh cưới, câu mở đầu hiện như phụ đề, diễn viên chính trong khung phim, gia đình là "nhà sản xuất", mỗi kỷ niệm là một cảnh phim có bảng clapper đập khi cuộn tới, lịch lễ là vé xem phim, đếm ngược kiểu vòng đầu phim, album là dải phim 35mm vuốt ngang (chạm có tiếng tạch và chớp flash), sơ đồ ghế đôi giữ chỗ, lời chúc thành phụ đề, hộp bắp rang mừng cưới, cuối thiệp là danh đề chạy chữ (có tên khách mời).
-- **Màu:** rạp tối `#15120f`, phim `#0d0b0a`, nhung đỏ `#7d1a1d`/`#a8262b`, hổ phách `#e8a33d`, phụ đề vàng `#ffe27a`, màn ảnh `#f5efe3`, vé giấy `#f3eadb`.
-- **Chữ:** Big Shoulders Display (biển rạp, tiêu đề), Playfair Display nghiêng (tên), Space Mono (mã phim, nhãn nhỏ), Be Vietnam Pro (nội dung).
+---
 
-### Tin Nhắn: hiện đại
-- **Ý tưởng:** thiệp là một nhóm chat. Bìa là màn hình khóa điện thoại (giờ thật của máy khách, ảnh cưới làm nền mờ) có thông báo "Gửi {khách}: Bạn có một lời mời đám cưới"; chạm thông báo thì nghe tiếng "ting" (tự tạo bằng Web Audio) và vào nhóm chat. Tin nhắn hiện lần lượt khi cuộn tới, trước mỗi tin là dấu "đang soạn tin" ngay tại chỗ (không làm trang giật). Nội dung: báo tin kèm ảnh và thẻ thiệp mời, danh thiếp hai người, bố mẹ gửi lời chào, tin nhắn cũ theo năm, thẻ lịch hẹn cho từng lễ, tin ghim đếm ngược, ảnh đã gửi (lưới ảnh, "+N"), chia sẻ vị trí, khách trả lời xác nhận và lời chúc trong bong bóng của mình, bao lì xì, cuối cùng là nhãn dán trái tim và "Đã xem".
-- **Giao diện riêng**, không giống ứng dụng chat nào: nền kem chấm bi nhạt, bong bóng trắng (chú rể), hồng phấn (cô dâu), san hô (khách).
-- **Màu:** nền `#f6efe6`, trắng ấm `#fffdfb`, hồng phấn `#fde6dc`, san hô `#e0644f`, xanh mòng két `#2f7d6d`, chữ `#2d2420`.
-- **Chữ:** Fraunces (tên, tiêu đề), Be Vietnam Pro (tin nhắn).
+## 4. SLA Mở Bìa, Chống Chóng Mặt & Khả năng Tiếp cận
 
-## Trang bán hàng (trang chủ, đặt thiệp)
-- Nền tối ấm `#14110f`, chữ kem `#f4ede1`, nhấn vàng đồng `#d9a86c`, đỏ rượu mờ làm ánh sáng nền.
-- Chữ: Cormorant Garamond (tiêu đề), Be Vietnam Pro (nội dung).
+1. **Thời gian mở bìa (`gateMs`):** Hạn mức tối đa **`<= 900ms`**, mục tiêu chuẩn **`<= 450ms`** (các mẫu M1–M2 dùng `gateMs: 450` với tự mở/bỏ qua `280ms` ở chế độ thường và `80ms` ở `reduced`). Không khóa khách bằng đếm ngược thụ động `2.3s–2.8s`.
+2. **Chống chóng mặt & An toàn tiền đình:**
+   - Cấm bay camera xuyên không gian 3D, cấm rung lắc camera nhàn rỗi, cấm quay camera xoay mặt chữ `CSS3DRenderer`.
+   - Mọi góc nghiêng theo chuột/cảm biến (nếu dùng) chỉ tác động lên khung tranh hoặc ánh phản quang trong giới hạn **`<= ±5°`**.
+   - Cấm hiệu ứng `infinite` phủ diện tích lớn (`.lap-lanh` cũ hoặc chớp nháy vô hạn).
+3. **Tương tác & Bố cục đáp ứng (`320×568`, `390×844`, `1440×900`):**
+   - Vùng chạm tối thiểu `44×44px` (`48px` cho nút `.sh-btn` và ô nhập), hỗ trợ `:focus-visible`, `touch-action: manipulation`.
+   - Không tràn ngang (`overflow-x: clip`, `docOverflow === 0` ngay cả ở `320px`, như `.sh-cd` tự xuống dòng dưới `380px`).
+   - Hỗ trợ đầy đủ **`?tier=lite`** và **`@media (prefers-reduced-motion: reduce)`**: hiển thị nguyên vẹn toàn bộ nội dung, ảnh, bản đồ, RSVP và QR mừng cưới không cần WebGL hay animation.
 
-## Studio (công cụ cho cặp đôi)
-- Sáng, gọn, dễ đọc: nền `#f6f2ec`, bảng `#fffdf9`, chữ `#26211d`, nhấn đỏ rượu `#8e1b2c`.
-- Chữ: Be Vietnam Pro. Nhóm thu gọn được (`details`), xem trước trong khung điện thoại / máy tính bảng / máy tính.
+---
 
-## Thành phần dùng chung (`core/widgets.js`)
+## 5. Cổng Hiệu quả H1–H7 & Phép thử Chống Khuôn mẫu
 
-| Thành phần | Mẫu tự trang trí bằng |
-|---|---|
-| Đếm ngược `.cd` | ô `.u`, số `b`, nhãn `span` |
-| Lịch tháng `.cal` | ngày cưới `.on` |
-| Album / polaroid | khung ảnh, độ nghiêng |
-| Bản đồ `.map` + tab địa điểm | viền, nút |
-| Xác nhận `form[data-w=rsvp]`, lưu bút `form[data-w=guestbook]` | `.choice span`, ô nhập, `.wish-item` |
-| Hộp quà `.giftbox` | phần ruột tự vẽ (vd. vali, phong bì) |
-| Lớp cào `scratch` | màu nhũ, chữ |
-| Nhạc `.music`, thả tim `.love`, lời chúc bay `.fly-item`, hộp cảm ơn `.cheers-card` | màu, bóng |
+Mọi mẫu thiệp mới phải vượt qua **cổng hiệu quả H1–H7** trước khi chấm điểm sáng tạo, và vượt qua **hai phép thử tổng**:
 
-## Hiệu ứng
+- **H1 — Năm giây đầu:** Tên hai người, ngày dương (và âm), địa điểm và đường dẫn xác nhận RSVP phải tiếp cận được trong `<= 5s`.
+- **H2 — Tôn trọng ảnh cưới:** Ảnh hiển thị rõ nét, không phủ lớp làm bệt màu da/váy cưới, xem hết được chỉ bằng thao tác quen thuộc (cuộn/chạm).
+- **H3 — Không phải học cách dùng:** Cử chỉ chữ ký phải tự giải thích bằng hình và luôn có nút bấm/chạm thay thế chuẩn.
+- **H4 — Trả lời thuận tiện:** Nút xác nhận RSVP tới được từ bất cứ đâu (qua nút trực tiếp hoặc `#sh-quick`); form gọn tối đa 3 trường chính.
+- **H5 — Chữ đọc rõ:** Thân `>= 16px`, nhãn `>= 13px`, tương phản `>= 4.5:1` trên nền đặc hoặc có lớp lót. Thông tin bắt buộc nằm trong DOM HTML, không giấu độc quyền trong `<canvas>`.
+- **H6 — Nhẹ trên Zalo WebView:** Ảnh tối ưu bằng `sharp`, thư viện nặng nạp sau khi mở bìa qua `ctx.lib()`, hoạt động mượt ở `390×844` và có phương án dự phòng `webglcontextlost`.
+- **H7 — Khác biệt cấu trúc:** Mỗi mẫu mới phải khác các mẫu còn lại ở ít nhất 3 trục (cách đi qua thiệp, bố cục desktop/mobile, vị trí đặt thông tin, ẩn dụ vật liệu, khoảnh khắc chữ ký).
+- **Phép thử Bịt logo & Hai giây:** Khi đặt 3 mẫu cạnh nhau ở chế độ đen trắng làm mờ nhẹ, phải phân biệt được từng mẫu chỉ bằng **bộ khung bố cục** chứ không dựa vào đồ trang trí.
 
-- Gắn bằng thuộc tính: `data-rv` (hiện dần: up/left/right/zoom/flip/blur/drop), `data-type` (gõ chữ), `data-tilt`, `data-parallax`, `data-zoom` (xem ảnh lớn), `data-fireworks`.
-- Hạt bay (canvas): `petals`, `sparkles`, `snow`, `hearts`, `leaves`, `bokeh`. Pháo giấy, pháo hoa.
-- Luôn tôn trọng `prefers-reduced-motion`.
-
-### Thiệp Gấp: thủ công
-- **Ý tưởng:** tấm thiệp giấy gấp pop-up. Bìa là nắp thiệp màu san hô; chạm thì nắp lật lên, bốn lớp giấy cắt (cổng hoa, đồi, đôi uyên ương, hoa) dựng đứng lần lượt với độ trễ nối tiếp, dải tên hiện cuối. Bên trong là những tờ giấy xếp chồng lệch màu, ảnh trong khung vòm, ngày lễ là tờ giấy gập góc, ngăn kéo giấy đựng quà.
-- **Màu:** san hô, vàng nắng, ngọc, hồng trên nền giấy kraft. **Chữ:** Fraunces, Be Vietnam Pro.
-
-### Khung Thêu: mộc mạc
-- **Ý tưởng:** khung thêu tay căng vải lanh. Khách **giữ ngón tay** trên khung: kim chạy và đường chỉ thêu dần trái tim cùng sáu cánh hoa (mặt nạ SVG lộ theo thời gian giữ), thả sớm thì chỉ tụt lại, thêu đủ ~1,8 giây thì thiệp mở. Có nút "Mở ngay" cho ai không muốn giữ (và cho bàn phím). Bên trong: mảnh vải vá khâu nét đứt, nhãn vải hồi âm, ảnh trong khung thêu tròn, túi gấm rút dây.
-- **Màu:** lanh, đất nung, mù tạt, xanh sage. **Chữ:** Charm (nét tay), Be Vietnam Pro.
-
-### Cà Phê Phin: ấm cúng
-- **Ý tưởng:** góc quán quen. Bìa là bàn gỗ, phin nhôm đặt trên ly thủy tinh; chạm thì nắp phin nhấc lên, giọt cà phê nhỏ xuống đầy ly, hơi nóng bốc lên. Nội dung theo thực đơn "Ngày chung đôi": khai vị (chuyện hai đứa), món chính (lịch lễ kẻ chấm), tráng miệng (album), bảng phấn đếm ngược, phiếu order xác nhận, mẩu giấy nhắn, hũ tiền tip.
-- **Màu:** nâu cà phê, kem, crema. **Chữ:** Playfair Display, Space Mono, Be Vietnam Pro.
-
-### Bảng màu có sẵn
-Mỗi mẫu khai báo `palettes` trong `theme.js` (id, tên, 2 màu mẫu, `vars` ghi đè biến CSS của mẫu). Cặp đôi chọn trong Studio, thiệp áp qua `data.palette`. Chỉ đổi các biến màu chính; màu đặt cứng ở chỗ khác trong `theme.css` giữ nguyên.
+*(Danh sách chi tiết 5 kiến trúc template, các topic và rubric nhị phân 4 tiêu chí xem tại `docs/TEMPLATES-AND-TOPICS.md`.)*

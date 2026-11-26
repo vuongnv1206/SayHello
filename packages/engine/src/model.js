@@ -4,17 +4,36 @@ import { html, br, splitText } from './html.js';
 import { fmt, gcalUrl } from './date.js';
 import { createVoice } from './voice.js';
 
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 // Gộp mặc định của mẫu với dữ liệu thiệp: object gộp sâu, mảng và giá trị đơn thì dữ liệu thiệp thắng
 export function merge(base, over) {
   if (Array.isArray(over) || typeof over !== 'object' || over === null) return over === undefined ? base : over;
-  const out = { ...(base || {}) };
-  for (const k of Object.keys(over)) out[k] = merge(base?.[k], over[k]);
+  const out = { ...(base && typeof base === 'object' && !Array.isArray(base) ? base : {}) };
+  for (const k of Object.keys(over)) {
+    if (UNSAFE_KEYS.has(k)) continue;
+    const baseVal = base && typeof base === 'object' && Object.hasOwn(base, k) ? base[k] : undefined;
+    out[k] = merge(baseVal, over[k]);
+  }
   return out;
 }
 
 export const mapUrl = p => p ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.coords || p.address || p.label || '') : '';
 
-export const qrUrl = (a, note = '') => !a ? '' : a.qr || (a.bankCode && a.number ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note || '')}` : '');
+const safeQrUrl = u => {
+  if (typeof u !== 'string') return '';
+  const s = u.trim();
+  return /^(?:https?:\/\/|\/(?!\/))[^\s"'<>]+$/i.test(s) ? s : '';
+};
+
+export const qrUrl = (a, note = '') => {
+  if (!a) return '';
+  const customQr = typeof a.qr === 'string' ? a.qr.trim() : '';
+  if (customQr) return safeQrUrl(customQr);
+  return a.bankCode && a.number
+    ? `https://img.vietqr.io/image/${encodeURIComponent(a.bankCode)}-${encodeURIComponent(a.number)}-compact2.png?accountName=${encodeURIComponent(a.name || '')}&addInfo=${encodeURIComponent(note || '')}`
+    : '';
+};
 
 // Ảnh trong dữ liệu ghi tương đối ("images/anh1.jpg"): gắn vào gốc ảnh của thiệp
 const absolutize = (src, base) => !src || /^(https?:|data:|\/)/.test(src) ? src || '' : base.replace(/\/?$/, '/') + src.replace(/^\.\//, '');

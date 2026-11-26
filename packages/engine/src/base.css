@@ -1,5 +1,5 @@
 /* Kiểu nền của bộ máy thiệp v2. Mọi bộ chọn nằm trong :where() nên độ ưu tiên bằng 0: mẫu viết đè tự do.
-   Biến màu mẫu nên khai báo: --sh-bg, --sh-ink, --sh-accent, --sh-accent-ink, --sh-soft, --sh-panel */
+   Biến mẫu nên khai báo: --sh-bg, --sh-surface, --sh-ink, --sh-muted, --sh-accent, --sh-accent-ink, --sh-foil, --sh-soft, --sh-panel, --sh-font-display, --sh-font-body, --sh-font-mono, --sh-radius, --sh-ease-tactile, --sh-ease, --sh-dur-ui */
 :where(:root) {
   --sh-bg: #111; --sh-surface: #1c1814; --sh-ink: #f4ede1;
   --sh-muted: color-mix(in srgb, var(--sh-ink) 68%, transparent);
@@ -50,6 +50,7 @@
   width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--sh-soft); border-radius: 10px;
   background: rgba(255,255,255,.06); color: inherit; font: inherit; font-size: 16px; /* 16px: iOS không tự phóng to */
 }
+:where(.sh-form :is(input, textarea))::placeholder { color: color-mix(in srgb, var(--sh-ink) 76%, transparent); opacity: 1; }
 :where(.sh-form textarea) { min-height: 72px; resize: vertical; }
 :where(.sh-form select option) { color: #111; }
 :where(.sh-row) { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
@@ -63,10 +64,14 @@
 :where(.sh-wishes) { display: grid; gap: 10px; }
 :where(.sh-wish b) { display: block; font-size: 14px; }
 :where(.sh-wish p) { margin: 2px 0 0; }
-:where(.sh-cd) { display: flex; gap: 10px; justify-content: center; font-variant-numeric: tabular-nums; }
+:where(.sh-cd) { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; font-variant-numeric: tabular-nums; }
 :where(.sh-cd .u) { display: grid; justify-items: center; min-width: 64px; }
 :where(.sh-cd b) { font-size: 34px; line-height: 1; }
 :where(.sh-cd span) { font-size: 13px; opacity: .8; }
+@media (max-width: 380px) {
+  :where(.sh-cd) { gap: 6px; }
+  :where(.sh-cd .u) { min-width: 52px; }
+}
 
 /* Thông tin nhanh: nút nổi nhỏ góc dưới trái (nút nhạc, nếu có, ở góc phải) */
 :where(.sh-quick-btn) {
@@ -94,6 +99,7 @@
 @media (prefers-reduced-motion: reduce) {
   :where(*, *::before, *::after) { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+html[data-motion="lite"] :where(*, *::before, *::after) { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 
 /* Buổi lễ không thuộc nhóm khách (?n=) bị ẩn: thắng mọi display của mẫu */
 [data-ev][hidden] { display: none !important; }
@@ -104,5 +110,6 @@
 :where(.sh-music) { position: fixed; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 40; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--sh-soft); background: color-mix(in srgb, var(--sh-panel) 86%, transparent); color: var(--sh-ink); font-size: 20px; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 :where(html.sh-locked .sh-music) { opacity: 0; pointer-events: none; }
 :where(.sh-music[aria-pressed=true] i) { display: inline-block; animation: sh-spin 3s linear infinite; }
+html[data-motion="lite"] :where(.sh-music[aria-pressed=true] i) { animation: none; }
 :where(.sh-music:focus-visible) { outline: 3px solid var(--sh-accent); outline-offset: 2px; }
 @keyframes sh-spin { to { transform: rotate(360deg); } }

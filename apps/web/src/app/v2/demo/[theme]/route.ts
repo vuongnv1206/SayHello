@@ -9,7 +9,7 @@ export function generateStaticParams() {
 
 export async function GET(_req: Request, { params }: RouteContext<"/v2/demo/[theme]">) {
   const { theme: id } = await params;
-  const entry = THEMES[id];
+  const entry = Object.hasOwn(THEMES, id) ? THEMES[id] : undefined;
   if (!entry) return new Response("Không có mẫu này", { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } });
   const body = renderDocument(entry.theme, entry.demo, { assetBase: entry.assetBase });
   return new Response(body, {

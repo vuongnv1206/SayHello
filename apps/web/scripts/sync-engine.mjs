@@ -2,7 +2,7 @@
 // Tự động quét packages/themes/* để sinh public/_e/manifest.json và src/lib/themes.generated.ts (xoá nút thắt đăng ký 5 file).
 // Chạy tự động trước `next dev` và `next build` (predev/prebuild).
 import { cpSync, rmSync, mkdirSync, readdirSync, existsSync, statSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, extname } from 'node:path';
+import { join, extname, basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const WEB = fileURLToPath(new URL('..', import.meta.url));
@@ -13,7 +13,16 @@ const MANIFEST_JSON = join(OUT, 'manifest.json');
 const ALLOWED = new Set(['.js', '.css', '.svg', '.png', '.jpg', '.webp', '.woff2']);
 
 const copy = (src, dest) =>
-  cpSync(src, dest, { recursive: true, filter: p => statSync(p).isDirectory() || ALLOWED.has(extname(p)) });
+  cpSync(src, dest, {
+    recursive: true,
+    filter: p => {
+      if (statSync(p).isDirectory()) {
+        const name = basename(p);
+        return name !== 'test' && name !== 'node_modules';
+      }
+      return ALLOWED.has(extname(p));
+    },
+  });
 
 const toIdent = id =>
   id.replace(/-([a-z0-9])/g, (_, ch) => ch.toUpperCase()).replace(/[^a-zA-Z0-9_$]/g, '_');
@@ -38,11 +47,9 @@ mkdirSync(OUT, { recursive: true });
 copy(join(PKG, 'engine', 'src'), join(OUT, 'engine'));
 
 const themesRoot = join(PKG, 'themes');
-// photobooth (65c554f) chưa đạt chuẩn bìa <=900ms & hiệu ứng vô hạn nên chưa đăng ký vào /v2/ trong M2.
-const EXCLUDED_WIP = new Set(['photobooth']);
 const themeIds = existsSync(themesRoot)
   ? readdirSync(themesRoot)
-      .filter(d => !EXCLUDED_WIP.has(d) && existsSync(join(themesRoot, d, 'theme.js')) && existsSync(join(themesRoot, d, 'demo.json')))
+      .filter(d => existsSync(join(themesRoot, d, 'theme.js')) && existsSync(join(themesRoot, d, 'demo.json')))
       .sort()
   : [];
 

@@ -81,6 +81,12 @@ export async function createSafeContext(browser, {
     route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Map</title>' })
   );
 
+  // Stub Google Fonts so frozen legacy/core/boot.js never stalls on external font network latency
+  await ctx.route('https://fonts.googleapis.com/**', route =>
+    route.fulfill({ status: 200, contentType: 'text/css; charset=utf-8', body: '' })
+  );
+  await ctx.route('https://fonts.gstatic.com/**', route => route.abort());
+
   function attachPage(page) {
     const pageErrors = [];
     const httpErrors = [];

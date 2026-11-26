@@ -1,39 +1,60 @@
 # SayHello · Thiệp cưới online
 
-Cặp đôi tự làm thiệp cưới online, mỗi mẫu là một trải nghiệm riêng (không phải cùng khung đổi màu), gửi khách qua Zalo, nhận xác nhận và lời chúc ngay trên điện thoại.
+Nền tảng thiệp cưới online lấy **Tấm thiệp làm trung tâm** (*Card-as-Centerpiece*): mỗi mẫu là một kiến trúc bố cục riêng (`Layout × Topic × Moment`), mở nhanh trên điện thoại qua Zalo, hiển thị ngay tên cô dâu chú rể, ngày dương/âm lịch, địa điểm và nút xác nhận tham dự (RSVP) trong 5 giây đầu.
 
-Đang chuyển từ **bản 1** (site tĩnh, người bán làm thiệp từ đơn, dữ liệu trên Google Sheets) sang **bản 2** (SaaS tự phục vụ, Next.js + Supabase, bộ máy thiệp có cảnh và chuyển động điện ảnh). Kế hoạch đầy đủ: [docs/REDESIGN.md](docs/REDESIGN.md).
+Dự án vận hành song song **thế hệ 2** (`apps/web/`, `packages/engine/`, `packages/themes/`) trên nhánh `redesign` và **thế hệ 1 đóng băng** (`legacy/`) qua `rewrites.fallback` trong `apps/web/next.config.ts` để bảo đảm mọi link thiệp cũ đã gửi khách luôn hoạt động.
 
-## Cấu trúc
+## Kiến trúc kho mã nguồn
 
+```text
+apps/web/          Next.js 16 + Tailwind 4: Showcase /v2/, /v2/demo/[theme]/, /v2/demo/[theme]/[topic]/
+packages/engine/   Bộ máy thiệp v2 (JS thuần, không React): defineTheme, composeInvitation, renderDocument, base.css
+packages/themes/   7 mẫu v2 đang hoạt động (tự động đồng bộ bởi sync-engine.mjs)
+legacy/            Site tĩnh thế hệ 1 đóng băng: 10 mẫu v1, /, /dat-thiep/, /studio/, /ban-hang/
+supabase/          Cấu hình Supabase cục bộ (PostgreSQL 17) & migrations cho pha SaaS tiếp theo
+tests/e2e/         Bộ kiểm thử Playwright đa tầng (Tiers 1–4)
+docs/              Bộ tài liệu chuẩn hiện hành (tài liệu cũ lưu tại docs/archive/)
 ```
-apps/web/          Next.js 16: trang chủ mới, đăng nhập, trình sửa, thanh toán, route thiệp /[slug] (đang xây)
-packages/engine/   Bộ máy thiệp v2 (JS thuần, không React): khai báo mẫu, cảnh, hạng chuyển động
-supabase/          Cấu hình, migrations, Edge Functions
-legacy/            Site tĩnh bản 1, vẫn phục vụ các thiệp đã bán. Hướng dẫn: legacy/README.md
-docs/              PRD, kiến trúc, thiết kế, quy tắc, kế hoạch làm lại
-```
 
-Đường dẫn nào `apps/web` chưa có (kể cả trang chủ và mọi thiệp cũ) sẽ tự rơi về `legacy/` qua `rewrites.fallback` trong `apps/web/next.config.ts`, nên link thiệp đã gửi khách không bao giờ hỏng.
+## Bộ mẫu thiệp hiện có
 
-## Chạy trên máy
+- **Thế hệ 2 (`packages/themes/`, truy cập tại `/v2/` và `/v2/demo/<id>/`):**
+  1. **Thiệp Gấp Đôi (`thiep-gap-doi`)** — *Folio 2 cánh* × *Mở niêm phong & ánh nhũ* (`son-mai`, `giay-do`, `lua-nga`)
+  2. **Chiều Sâu (`chieu-sau`)** — *Lookbook 62/38* × *Đẩy tiêu cự 2.5D* (`suong-da-lat`, `dem-sai-gon`, `chang-vang-bien`)
+  3. **Hộp Ký Ức (`hop-ky-uc`)** — *Hộp thẻ 4 ngăn* × *Chia thẻ & lật mặt sau* (`hop-nhung`, `buu-thiep`)
+  4. **Song Gia (`song-gia`)** — *Chia đôi 50/50 hai nhà* × *Hội tụ & kết nút tơ* (`gom-su`, `hai-thanh-pho`)
+  5. **Cuộn Phim (`cuon-phim`)** — *Cuộn điện ảnh* (`nhung-do`, `luc-bao`, `hai-quan`)
+  6. **Phòng Triển Lãm (`phong-trien-lam`)** — *Sân khấu 3D camera phẳng* (`xam-luc`, `nhung-man`, `thach-cao`, `men-lam`)
+  7. **Tơ Hồng (`to-hong`)** — *Sân khấu tơ chỉ camera phẳng* (`suong-som`, `dem-to-do`)
+- **Thế hệ 1 (`legacy/`, 10 mẫu đóng băng):** `song-hy`, `thu-tay`, `ve-may-bay`, `khoa-tinh`, `den-long`, `cuon-phim`, `tin-nhan`, `thiep-gap`, `khung-theu`, `ca-phe-phin` (cùng các đường dẫn `/`, `/dat-thiep/`, `/studio/`, `/ban-hang/`).
+
+## Chạy nhanh & Kiểm thử
 
 ```bash
-npm install                       # một lần, cho cả monorepo (npm workspaces)
-npx playwright install chromium   # một lần, để chạy kiểm tra
-npm run dev:legacy                # site bản 1 ở http://localhost:3001
-npm run dev                       # Next.js ở http://localhost:3000 (chuyển tiếp sang 3001 khi chưa có route)
-npm test                          # kiểm tra bộ máy thiệp + mở thử mọi thiệp bản 1
+npm install                       # cài phụ thuộc toàn monorepo (npm workspaces)
+npx playwright install chromium   # cài trình duyệt cho E2E (một lần)
+
+npm run dev:legacy                # chạy site v1 tại http://localhost:3001
+npm run dev                       # chạy Next.js v2 tại http://localhost:3000 (fallback sang :3001)
+
+npm test -w @sayhello/engine      # unit test @sayhello/engine
+npm run lint -w @sayhello/web     # ESLint cho apps/web
+npx --prefix apps/web tsc --noEmit --incremental false -p apps/web/tsconfig.json
+npm run build                     # đồng bộ sync-engine.mjs + build Next.js
+npm test                          # test @sayhello/engine + @sayhello/legacy
+npm run test:v2                   # smoke test các mẫu v2 tại :3000
+node tests/e2e/run.mjs --tier=all
 ```
 
-Supabase chạy cục bộ cần Docker Desktop đang bật:
+Supabase cục bộ (khi bật Docker Desktop): `npm run db:start` / `npm run db:stop` / `npm run db:reset`.
 
-```bash
-npm run db:start                  # lần đầu tải image, khá lâu
-npm run db:stop
-```
+## Danh mục tài liệu (`docs/`)
 
-## Chạy song song với bản đang bán
-
-- Nhánh `main` vẫn là site bản 1 đang deploy tự động trên Vercel.
-- Bản 2 phát triển ở nhánh `redesign`. Khi gộp vào `main`, Vercel cần hai project: một trỏ vào `legacy/` (Root Directory), một trỏ vào `apps/web` với biến `LEGACY_ORIGIN` là địa chỉ project kia.
+- `docs/ASSESSMENT-AND-RESTRUCTURING-PLAN.md` — Đánh giá đa góc độ, phản biện kỹ thuật, giải phẫu 3D chóng mặt & lộ trình tái cấu trúc
+- `docs/TEMPLATES-AND-TOPICS.md` — Kiến trúc 5 mẫu, chủ đề sáng tạo, tiêu chí chống sến & rubric nhị phân 4 tiêu chí
+- `docs/DESIGN.md` — Hệ thiết kế `Layout × Topic × Moment`, token `--sh-*` & chuẩn chữ tiếng Việt
+- `docs/ARCHITECTURE.md` — Kiến trúc monorepo, luồng dữ liệu, định tuyến & CI
+- `docs/TAO-MAU-MOI.md` — Hướng dẫn tạo mẫu/chủ đề mới trên `@sayhello/engine`
+- `docs/RULES.md` — Quy trình Git (`redesign`), quy tắc bảo mật & bất biến kiểm thử
+- `docs/CLAUDE-HANDOFF.md` — Tóm tắt bàn giao cho cộng tác AI ở panel bên cạnh
+- `docs/archive/README.md` — Mục lục 12 tài liệu lịch sử đã lưu trữ

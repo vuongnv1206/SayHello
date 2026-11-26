@@ -105,7 +105,7 @@ export async function boot(theme) {
     if (entry.themeColor && /^#[0-9a-fA-F]{3,8}$/.test(entry.themeColor)) {
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', entry.themeColor);
     }
-    if (entry.fonts && /^https:\/\/fonts\.googleapis\.com\/css2\?[^\s"<>]+$/.test(entry.fonts)) {
+    if (entry.fonts && /^https:\/\/fonts\.googleapis\.com\/css2\?[^\s"'<>\\]+$/.test(entry.fonts)) {
       if (!document.querySelector(`link[href="${entry.fonts}"]`)) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';

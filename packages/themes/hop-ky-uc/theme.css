@@ -73,8 +73,8 @@
   font-size: clamp(32px, 5vw, 48px);
   line-height: 1.1;
 }
-.theme-hop-ky-uc .jb-lid-frame em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
-.theme-hop-ky-uc .jb-lid-meta { margin: 0; font-size: 15px; opacity: 0.85; }
+.theme-hop-ky-uc .jb-lid-frame em { font-style: italic; font-weight: 400; color: var(--sh-accent); }
+.theme-hop-ky-uc .jb-lid-meta { margin: 0; font-size: max(16px, 1rem); opacity: 0.85; }
 .theme-hop-ky-uc .jb-lid-hint { margin: 4px 0 0; font-size: max(13px, 0.875rem); opacity: 0.78; }
 
 /* ===== 2. Bộ thẻ trong hộp ===== */
@@ -150,7 +150,7 @@
   font-size: clamp(32px, 3.6vw, 48px);
   line-height: 1.1;
 }
-.theme-hop-ky-uc .jb-names em { font-style: italic; font-weight: 400; color: var(--sh-foil); }
+.theme-hop-ky-uc .jb-names em { font-style: italic; font-weight: 400; color: var(--sh-accent); }
 
 .theme-hop-ky-uc .jb-meta-grid,
 .theme-hop-ky-uc .jb-fams {
@@ -206,7 +206,7 @@
 .theme-hop-ky-uc .jb-deck-cap {
   margin: 0;
   padding: 12px 14px;
-  font-size: 15px;
+  font-size: max(16px, 1rem);
   font-weight: 500;
   border-top: 1px solid var(--sh-soft);
 }
@@ -226,7 +226,7 @@
 }
 .theme-hop-ky-uc .jb-back h3 { margin: 0; font-size: 28px; }
 .theme-hop-ky-uc .jb-back-note { margin: 0; font-size: 16px; font-weight: 600; }
-.theme-hop-ky-uc .jb-back-sub { margin: 0; font-size: 15px; opacity: 0.8; }
+.theme-hop-ky-uc .jb-back-sub { margin: 0; font-size: max(16px, 1rem); opacity: 0.8; }
 
 .theme-hop-ky-uc .jb-deck-controls {
   display: flex;
@@ -262,14 +262,14 @@
   padding: 18px;
   border-radius: 10px;
   border: 1px solid var(--sh-soft);
-  background: color-mix(in srgb, var(--sh-surface) 92%, var(--sh-foil));
+  background: color-mix(in srgb, var(--sh-surface) 96%, var(--sh-foil));
 }
 .theme-hop-ky-uc .jb-ev-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
 .theme-hop-ky-uc .jb-ev-top h3 { margin: 0; font-size: 22px; }
 .theme-hop-ky-uc .jb-ev-top span { font-size: max(13px, 0.9rem); color: var(--sh-accent); font-weight: 600; }
 .theme-hop-ky-uc .jb-lunar { margin: 6px 0 0; font-size: max(13px, 0.875rem); opacity: 0.82; }
 .theme-hop-ky-uc .jb-ev-venue { margin: 8px 0 0; font-size: 16px; font-weight: 600; }
-.theme-hop-ky-uc .jb-ev-addr { margin: 4px 0 0; font-size: 15px; opacity: 0.86; }
+.theme-hop-ky-uc .jb-ev-addr { margin: 4px 0 0; font-size: max(16px, 1rem); opacity: 0.86; }
 .theme-hop-ky-uc .jb-ev-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .theme-hop-ky-uc .jb-ev-links .sh-btn { min-height: 44px; padding: 10px 16px; font-size: 14px; }
 
@@ -320,4 +320,20 @@
   .theme-hop-ky-uc .jb-meta-grid,
   .theme-hop-ky-uc .jb-fams,
   .theme-hop-ky-uc .jb-acc { grid-template-columns: 1fr; }
+}
+
+html[data-motion="lite"] .theme-hop-ky-uc .jb-flipper,
+html[data-motion="lite"] .theme-hop-ky-uc .jb-box-lid,
+html[data-motion="lite"] .theme-hop-ky-uc .jb-pocket.is-tucked {
+  transition: none;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-hop-ky-uc .jb-flipper,
+  .theme-hop-ky-uc .jb-box-lid,
+  .theme-hop-ky-uc .jb-pocket.is-tucked {
+    transition: none;
+    animation: none;
+  }
 }

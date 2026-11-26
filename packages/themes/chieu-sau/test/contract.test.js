@@ -33,6 +33,8 @@ test('chieu-sau renderDocument: 2.5D imgPair cutouts, graceful no-fg fallback, t
   assert.match(fullHtml, /class="cs-frame no-fg/);
   assert.match(fullHtml, /data-ev="0"/);
   assert.match(fullHtml, /class="accounts"/);
+  assert.doesNotMatch(fullHtml, /2\.5D/);
+  assert.equal(typeof theme.scenes.find(s => s.id === 'trang-bia')?.mount, 'function');
 
   const night = renderDocument(theme, { ...DEMO, topic: 'dem-sai-gon' });
   assert.match(night, /data-topic="dem-sai-gon"/);

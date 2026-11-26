@@ -129,7 +129,7 @@ function stopHtml(st, ctx) {
       <div class="th-plate th-morph-plate">
         <p class="th-morph-names">${n.first} &amp; ${n.second}</p>
         <p class="th-morph-date">${fmt.short(date)}</p>
-        <p class="th-morph-sub">Sợi chỉ đỏ nối hai đầu thương nhớ</p>
+        <p class="th-morph-sub">Sợi chỉ đỏ se duyên hai nhà</p>
       </div>
     </li>`;
 
@@ -263,6 +263,7 @@ export default defineTheme({
         '--sky': '#261318',
         '--ink': '#FFF3EA',
         '--thread': '#D91B38',
+        '--thread-ink': '#FF8597',
         '--thread-deep': '#8E0B20',
         '--gold': '#E6C27A',
         '--sh-bg': '#160D10',

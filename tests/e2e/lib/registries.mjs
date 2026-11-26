@@ -36,12 +36,6 @@ export const RETAINED_V1_THEMES = [
   'ca-phe-phin',
 ];
 
-export const TARGET_V2_THEMES = [
-  'cuon-phim',
-  'to-hong',
-  'phong-trien-lam',
-];
-
 export function readLegacyThemes() {
   const file = join(ROOT, 'legacy', 'themes', 'index.json');
   return JSON.parse(readFileSync(file, 'utf8'));
@@ -441,12 +435,6 @@ export async function discoverV2Themes({ webUrl = '' } = {}) {
   }
 
   return results;
-}
-
-export function readAdvisoryDoc() {
-  const file = join(ROOT, 'docs', 'THAM-MUU-THIET-KE.md');
-  if (!existsSync(file)) return null;
-  return { file, text: readFileSync(file, 'utf8') };
 }
 
 export function listActiveDocs() {

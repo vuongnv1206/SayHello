@@ -276,7 +276,7 @@ export async function assertVestibularComfort(page, {
     const isVisibleEl = el => {
       if (!el || el.nodeType !== 1) return false;
       for (let cur = el; cur && cur.nodeType === 1; cur = cur.parentElement) {
-        if (cur.hasAttribute('hidden') || cur.getAttribute('aria-hidden') === 'true') return false;
+        if (cur.hasAttribute('hidden')) return false;
         if (cur.classList.contains('sh-gate') && cur.hidden) return false;
         const cs = getComputedStyle(cur);
         if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) <= 0.05) return false;
@@ -362,7 +362,7 @@ export async function assertVestibularComfort(page, {
         liteIssues.push(`${pinSpacers} .pin-spacer element(s) active in lite mode`);
       }
       for (const el of document.querySelectorAll('.sh-scene h1, .sh-scene h2, .sh-scene h3, .sh-scene p, .sh-scene .sh-btn')) {
-        if (!isVisibleEl(el)) continue;
+        if (!isVisibleEl(el) || el.closest('[aria-hidden="true"]')) continue;
         const op = parseFloat(getComputedStyle(el).opacity);
         if (Number.isFinite(op) && op <= 0.5) {
           liteIssues.push(`low opacity (${op}) on ${el.tagName.toLowerCase()}`);
@@ -623,4 +623,147 @@ export async function measureDesktopLayoutFingerprint(page) {
 
     return { dataLayout, mainWidth, contentSpan, multiColSections, hasFullBleedStage, bucket };
   });
+}
+
+export async function assertWcagContrast(page, { label = '' } = {}) {
+  const failures = await page.evaluate(() => {
+    const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG', 'PATH', 'TEMPLATE', 'OPTION']);
+    const cv = document.createElement('canvas');
+    cv.width = 1;
+    cv.height = 1;
+    const ctx2d = cv.getContext('2d', { willReadFrequently: true });
+    const toRgba = css => {
+      if (!css || css === 'none' || css === 'transparent') return [0, 0, 0, 0];
+      const m = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i.exec(css);
+      if (m) return [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]];
+      const srgb = /^color\(\s*srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+)(%?))?\s*\)$/i.exec(css);
+      if (srgb) {
+        const a = srgb[4] === undefined ? 1 : (srgb[5] ? +srgb[4] / 100 : +srgb[4]);
+        return [+srgb[1] * 255, +srgb[2] * 255, +srgb[3] * 255, a];
+      }
+      if (!ctx2d) return [0, 0, 0, 0];
+      ctx2d.clearRect(0, 0, 1, 1);
+      ctx2d.fillStyle = '#000000';
+      ctx2d.fillStyle = css;
+      ctx2d.fillRect(0, 0, 1, 1);
+      const d = ctx2d.getImageData(0, 0, 1, 1).data;
+      return [d[0], d[1], d[2], d[3] / 255];
+    };
+    const over = (fg, bg) => {
+      const a = fg[3];
+      return [
+        fg[0] * a + bg[0] * (1 - a),
+        fg[1] * a + bg[1] * (1 - a),
+        fg[2] * a + bg[2] * (1 - a),
+        1,
+      ];
+    };
+    const lum = ([r, g, b]) =>
+      [r, g, b]
+        .map(v => {
+          v /= 255;
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        })
+        .reduce((acc, c, i) => acc + c * [0.2126, 0.7152, 0.0722][i], 0);
+    const ratio = (c1, c2) => {
+      const l1 = lum(c1);
+      const l2 = lum(c2);
+      return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    };
+    const isHiddenBranch = el => {
+      for (let cur = el; cur && cur.nodeType === 1; cur = cur.parentElement) {
+        if (cur.hasAttribute('hidden') || cur.getAttribute('aria-hidden') === 'true') return true;
+        if (cur.classList.contains('sh-sr') || cur.classList.contains('sr')) return true;
+        if (cur.classList.contains('sh-gate') && cur.hidden) return true;
+        const cs = getComputedStyle(cur);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) <= 0.05) return true;
+      }
+      return false;
+    };
+    const effectiveBg = el => {
+      const layers = [];
+      let totalOpacity = 1;
+      for (let cur = el; cur && cur.nodeType === 1; cur = cur.parentElement) {
+        const cs = getComputedStyle(cur);
+        totalOpacity *= parseFloat(cs.opacity) || 1;
+        const bg = toRgba(cs.backgroundColor);
+        if (bg[3] > 0.01) layers.push(bg);
+      }
+      let out = [255, 255, 255, 1];
+      for (let i = layers.length - 1; i >= 0; i--) out = over(layers[i], out);
+      return { bg: out, totalOpacity };
+    };
+
+    const bad = [];
+    for (const el of document.body ? document.body.querySelectorAll('*') : []) {
+      if (SKIP_TAGS.has(el.tagName) || el.closest('svg')) continue;
+      let directText = '';
+      for (const n of el.childNodes) {
+        if (n.nodeType === 3) directText += n.textContent;
+      }
+      directText = directText.replace(/\s+/g, ' ').trim();
+      const ph = (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['hidden', 'radio', 'checkbox', 'button', 'submit', 'reset', 'file', 'image', 'range', 'color'].includes((el.type || 'text').toLowerCase())))
+        ? (el.getAttribute('placeholder') || '').replace(/\s+/g, ' ').trim()
+        : '';
+      const hasText = /\p{L}{2,}/u.test(directText);
+      const hasPlaceholder = ph.length > 0;
+      if (!hasText && !hasPlaceholder) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0 || isHiddenBranch(el)) continue;
+
+      const cs = getComputedStyle(el);
+      const { bg, totalOpacity } = effectiveBg(el);
+      if (hasText) {
+        const rawFg = toRgba(cs.color);
+        const fg = over([rawFg[0], rawFg[1], rawFg[2], rawFg[3] * totalOpacity], bg);
+        const cr = ratio(fg, bg);
+        const fs = parseFloat(cs.fontSize);
+        const fw = parseFloat(cs.fontWeight) || 400;
+        const isLarge = fs >= 24 || (fs >= 18.67 && fw >= 700);
+        const minCr = isLarge ? 3.0 : 4.5;
+        if (cr < minCr) {
+          bad.push({
+            tag: el.tagName.toLowerCase(),
+            className: typeof el.className === 'string' ? el.className : '',
+            fs: Math.round(fs * 10) / 10,
+            fw,
+            cr: Math.round(cr * 100) / 100,
+            minCr,
+            fg: cs.color,
+            txt: directText.slice(0, 40),
+          });
+        }
+      }
+      if (hasPlaceholder) {
+        const pcs = getComputedStyle(el, '::placeholder');
+        const parsedPhOp = parseFloat(pcs.opacity);
+        const phOpacity = pcs.opacity === '' || !Number.isFinite(parsedPhOp) ? 1 : parsedPhOp;
+        const rawPhFg = toRgba(pcs.color);
+        const phFg = over([rawPhFg[0], rawPhFg[1], rawPhFg[2], rawPhFg[3] * phOpacity * totalOpacity], bg);
+        const phCr = ratio(phFg, bg);
+        const phFs = parseFloat(pcs.fontSize) || parseFloat(cs.fontSize);
+        const phFw = parseFloat(pcs.fontWeight) || parseFloat(cs.fontWeight) || 400;
+        const phMinCr = 4.5;
+        if (phCr < phMinCr) {
+          bad.push({
+            tag: `${el.tagName.toLowerCase()}::placeholder`,
+            className: typeof el.className === 'string' ? el.className : '',
+            fs: Math.round(phFs * 10) / 10,
+            fw: phFw,
+            cr: Math.round(phCr * 100) / 100,
+            minCr: phMinCr,
+            fg: pcs.color,
+            txt: ph.slice(0, 40),
+          });
+        }
+      }
+    }
+    return bad;
+  });
+
+  assert.equal(
+    failures.length,
+    0,
+    `${label ? label + ': ' : ''}WCAG AA contrast failure(s): ${JSON.stringify(failures.slice(0, 5))}`
+  );
 }

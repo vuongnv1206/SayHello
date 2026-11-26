@@ -12,7 +12,7 @@
 import {
   clamp, ease, flicker, withTimeout, loadThree, createLife, makeRenderer,
   SHADER_TAIL, createPost, createPhotoLoader, clonePlate, scrollStops,
-  fpsGuard, barOnly, recoverContext, startLoop, disposeScene,
+  fpsGuard, barOnly, startLoop, disposeScene,
 } from '@sayhello/engine/client/stage3d.js';
 
 const PX = 1 / 400;            // 400px chữ DOM = 1 mét trong phòng
@@ -791,7 +791,10 @@ export async function runGallery(el, ctx, opts) {
 
     const loop = startLoop(life, frame);
     life.listen(document, 'visibilitychange', () => { if (!document.hidden) dirty = true; });
-    bindContextLoss(canvas, () => recoverContext(canvas, { teardown: () => life.teardown(), downgrade: () => ctx.downgrade('webglcontextlost'), retry: opts.retried ? null : () => runGallery(el, ctx, { ...opts, retried: true }) }));
+    bindContextLoss(canvas, () => {
+      life.teardown();
+      ctx.downgrade('webglcontextlost');
+    });
 
     /* ---------- Khởi động: đo bố cục, chờ ảnh đầu, biên dịch shader sau màn che, rồi bật đèn ---------- */
     css.render(scene, camera); // cho bản sao chữ vào trang để đo

@@ -8,6 +8,7 @@
   --ink: #1a1c1b;
   --ink-on-wall: #e9e6df;
   --dot: #d23a2a;
+  --dot-ink: #a82417;
   --sh-bg: var(--void); --sh-ink: var(--ink-on-wall); --sh-accent: var(--dot); --sh-accent-ink: #fff;
   --sh-panel: #151a19; --sh-soft: rgba(233, 230, 223, .22);
 }
@@ -230,8 +231,16 @@ html.ptl-3d #le-tan { background: color-mix(in srgb, var(--wall) 94%, transparen
 .theme-phong-trien-lam .sh-quick-btn.is-away { transform: translateY(calc(-100% - 24px)); }
 .theme-phong-trien-lam .sh-quick { border-radius: 0; background: var(--label); color: var(--ink); }
 .theme-phong-trien-lam .sh-quick .sh-btn { border-radius: 2px; }
+.theme-phong-trien-lam .sh-quick .sh-links a { color: var(--dot-ink); }
 .theme-phong-trien-lam .sh-quick-events li { background: rgba(26, 28, 27, .06); border-radius: 2px; }
 .theme-phong-trien-lam .sh-music { z-index: 40; }
+
+html[data-motion="lite"] #sanh.is-on .ptl-gwall,
+html[data-motion="lite"] #sanh.is-on .ptl-gglow { animation: none; opacity: 1; }
+html[data-motion="lite"] #sanh.is-on .ptl-ghost { animation: none; filter: none; }
+html[data-motion="lite"] .ptl-imgs img,
+html[data-motion="lite"] .ptl-stop.is-lit .ptl-imgs img { animation: none; filter: none; }
+html[data-motion="lite"] .ptl-dot.is-on { animation: none; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   #sanh.is-on .ptl-gwall, #sanh.is-on .ptl-gglow { animation: none; opacity: 1; }

@@ -46,7 +46,7 @@ body.sh { font: 16px/1.6 var(--f-body); background: radial-gradient(120% 60% at 
 .lever .arm { position: absolute; left: 10px; bottom: 30px; width: 70px; height: 8px; border-radius: 4px; background: #8b7765; transform-origin: 0 50%; transform: rotate(calc(-35deg + var(--pull, 0) * 70deg)); transition: transform .15s; }
 .lever .knob { position: absolute; right: -12px; top: -9px; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a7a, #b3261e); box-shadow: 0 4px 10px #0008; }
 .lever:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; border-radius: 12px; }
-.cover-hint { font: 13px/1.4 var(--f-mono); opacity: .7; margin: 8px 0 0; text-align: center; animation: blink 2.4s infinite; }
+.cover-hint { font: 13px/1.4 var(--f-mono); opacity: .78; margin: 8px 0 0; text-align: center; animation: blink 2.4s 2; }
 .cover-skip { margin: 8px 0 0; min-height: 40px; padding: 8px 16px; border: 1px solid var(--sh-soft); border-radius: 999px; background: transparent; color: var(--sh-ink); font: 500 13px/1.2 var(--f-body); cursor: pointer; }
 @media (max-width: 360px) { .lever { margin-left: 170px; } }
 
@@ -125,7 +125,7 @@ html.sh-open[data-motion=lite] .curtain { transition: transform 1.2s var(--sh-ea
 .slate dd { margin: 0; font-size: 18px; font-weight: 700; }
 .scene-card h3 { margin: 0 0 6px; font: italic 700 24px/1.2 var(--f-name); }
 .scene-card p { margin: 0; font-size: 15px; }
-.tc { position: absolute; right: 14px; bottom: 12px; font: 13px/1.1 var(--f-mono); opacity: .55; }
+.tc { position: absolute; right: 14px; bottom: 12px; font: 13px/1.1 var(--f-mono); opacity: .74; }
 
 /* ================= 5. Vé mời ================= */
 .tickets { display: grid; gap: 22px; max-width: 440px; margin: 0 auto; }
@@ -134,10 +134,10 @@ html.sh-open[data-motion=lite] .curtain { transition: transform 1.2s var(--sh-ea
 .ticket::before { top: -8px; } .ticket::after { bottom: -8px; }
 .ticket.main { outline: 2px solid var(--amber); outline-offset: -6px; }
 .tk-body { padding: 18px 16px; border-right: 2px dashed #24170f44; }
-.tk-brand { margin: 0; font: 13px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; opacity: .65; }
+.tk-brand { margin: 0; font: 13px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; opacity: .74; }
 .ticket h3 { margin: 8px 0 12px; font: 800 26px/1 var(--f-sign); text-transform: uppercase; letter-spacing: .03em; }
 .tk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tk-grid small { display: block; font: 13px/1.25 var(--f-mono); opacity: .6; text-transform: uppercase; }
+.tk-grid small { display: block; font: 13px/1.25 var(--f-mono); opacity: .74; text-transform: uppercase; }
 .tk-grid b { font: 700 20px/1.2 var(--f-mono); }
 .lunar { margin: 10px 0 0; font-size: 13px; font-style: italic; opacity: .75; }
 .ticket .v { margin: 10px 0 0; font-weight: 600; }
@@ -146,10 +146,11 @@ html.sh-open[data-motion=lite] .curtain { transition: transform 1.2s var(--sh-ea
 .tk-actions .sh-btn { min-height: 44px; padding: 10px 16px; font-size: 14px; }
 .tk-actions .sh-btn.ghost { color: var(--ink-dark); border-color: #24170f44; }
 .tk-stub { display: grid; align-content: center; justify-items: center; gap: 2px; padding: 10px 4px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; transition: transform .5s var(--sh-ease), opacity .5s; transform-origin: 0 100%; }
-.tk-stub small { font: 13px/1.15 var(--f-mono); opacity: .6; text-transform: uppercase; }
+.tk-stub small { font: 13px/1.15 var(--f-mono); opacity: .74; text-transform: uppercase; }
 .tk-stub b { font: 700 18px/1.2 var(--f-mono); }
 .tk-stub i { margin-top: 8px; padding: 6px 8px; border: 1px dashed #24170f66; border-radius: 6px; font: 600 13px/1 var(--f-body); font-style: normal; }
-.ticket.torn .tk-stub { transform: translate(14px, 10px) rotate(9deg); opacity: .5; }
+.ticket.torn .tk-stub { transform: translate(14px, 10px) rotate(9deg); opacity: 1; background: rgba(36, 28, 22, .06); }
+.ticket.torn .tk-stub i { border-style: solid; border-color: #24170f88; }
 .ticket.torn .tk-actions { max-height: 120px; opacity: 1; margin-top: 14px; }
 .leader-cd { max-width: 440px; margin: 40px auto 0; padding: 22px 12px; text-align: center; background: radial-gradient(circle, #2a231d, #15120f 70%); border: 1px solid var(--sh-soft); border-radius: 50% / 20%; }
 .leader-cd p { margin: 0 0 12px; font: 13px/1.2 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
@@ -229,4 +230,20 @@ html[data-motion=lite] .credits, #danh-de.is-static .credits { height: auto; mas
 @media (min-width: 720px) {
   .cast { grid-template-columns: 1fr 1fr; max-width: 680px; }
   .still.s1 { justify-self: start; margin-top: 80px; }
+}
+
+html[data-motion="lite"] .cover-hint,
+html[data-motion="lite"] .seat.mine,
+html[data-motion="lite"] .rolling .dust,
+html[data-motion="lite"] .rolling .reel {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-hint,
+  .seat.mine,
+  .rolling .dust,
+  .rolling .reel {
+    animation: none;
+  }
 }

@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import {
-  ROOT,
   readLegacyThemes,
   readLegacyInvite,
   discoverV2Themes,
@@ -135,7 +132,6 @@ export async function runTier1Topics({ browser, legacyUrl, webUrl, shotsDir, rec
           isMobile: vp.isMobile,
           hasTouch: vp.hasTouch,
         });
-        let pendingReason = '';
         try {
           const { page, tracker } = await session.newTrackedPage();
           await page.goto(`${webUrl}/v2/demo/${theme.id}/?k=${encodeURIComponent(guest)}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -147,15 +143,7 @@ export async function runTier1Topics({ browser, legacyUrl, webUrl, shotsDir, rec
 
           // Feature: Cover gate unlock & latency <= 900ms
           const gateTiming = await openV2Gate(page);
-          try {
-            assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `v2 ${theme.id} ${vp.name}` });
-          } catch (gateErr) {
-            if (theme.id === 'cuon-phim') {
-              pendingReason ||= 'M1: reduce cuon-phim cover gate lock to <= 900ms';
-            } else {
-              throw gateErr;
-            }
-          }
+          assertCoverGateTiming({ unlockMs: gateTiming.unlockMs, maxMs: 900, label: `v2 ${theme.id} ${vp.name}` });
 
           // Feature: Card-as-Centerpiece 5-second discoverability (before scrolling entire page)
           await assertFiveSecondDiscoverability(page, {
@@ -169,26 +157,8 @@ export async function runTier1Topics({ browser, legacyUrl, webUrl, shotsDir, rec
           });
 
           await scrollFullPage(page);
-          const cuonPhimMissingImagesDir = theme.id === 'cuon-phim' && !existsSync(join(ROOT, 'packages', 'themes', 'cuon-phim', 'images'));
-          try {
-            await assertVisibleImagesLoaded(page, `v2 ${theme.id} ${vp.name}`);
-          } catch (imgErr) {
-            if (cuonPhimMissingImagesDir && /\/_e\/themes\/cuon-phim\/images\//.test(imgErr.message)) {
-              pendingReason ||= 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
-            } else {
-              throw imgErr;
-            }
-          }
-
-          try {
-            assertSelfContainedAssets(tracker.trackedRequests, { themeId: theme.id, label: `v2 ${theme.id} ${vp.name}` });
-          } catch (assetErr) {
-            if (theme.id === 'cuon-phim' && cuonPhimMissingImagesDir) {
-              pendingReason ||= 'M1: bundle self-contained demo images in packages/themes/cuon-phim/images/';
-            } else {
-              throw assetErr;
-            }
-          }
+          await assertVisibleImagesLoaded(page, `v2 ${theme.id} ${vp.name}`);
+          assertSelfContainedAssets(tracker.trackedRequests, { themeId: theme.id, label: `v2 ${theme.id} ${vp.name}` });
 
           // Feature: #sh-quick safety net + Google Calendar & Maps links
           const quickBtn = await ensureQuickOpenVisible(page);
@@ -265,19 +235,7 @@ export async function runTier1Topics({ browser, legacyUrl, webUrl, shotsDir, rec
             }
           }
 
-          const badErrors = cuonPhimMissingImagesDir
-            ? tracker.allErrors().filter(e => !/\/_e\/themes\/cuon-phim\/images\//.test(e))
-            : tracker.allErrors();
-          assert.equal(badErrors.length, 0, `v2 ${theme.id} ${vp.name}: ${badErrors.join(' | ')}`);
-          if (cuonPhimMissingImagesDir && tracker.allErrors().length > 0) {
-            pendingReason ||= 'M1 F4: bundle demo images in packages/themes/cuon-phim/images/';
-          }
-
-          if (pendingReason) {
-            const err = new Error(`v2 ${theme.id} ${vp.name} pending M1 defect: ${pendingReason}`);
-            err.pendingMilestone = pendingReason;
-            throw err;
-          }
+          tracker.assertClean(`v2 ${theme.id} ${vp.name}`);
         } catch (err) {
           await saveFailureShot(session.ctx, shotsDir, `tier1-v2-${theme.id}-${vp.name}`, err);
           throw err;

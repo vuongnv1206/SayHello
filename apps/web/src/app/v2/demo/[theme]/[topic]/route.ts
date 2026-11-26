@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ theme: string; topic: string }> }
 ) {
   const { theme: id, topic } = await params;
-  const entry = THEMES[id];
+  const entry = Object.hasOwn(THEMES, id) ? THEMES[id] : undefined;
   if (!entry) {
     return new Response("Không có mẫu này", {
       status: 404,

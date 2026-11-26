@@ -66,7 +66,7 @@ export function bindServices(root, ctx) {
   if (cds.length) {
     const tick = () => cds.forEach(el => {
       const ms = Date.parse(el.dataset.target) - Date.now();
-      if (ms <= 0) { el.textContent = el.dataset.done; el.classList.add('is-done'); return; }
+      if (Number.isNaN(ms) || ms <= 0) { el.textContent = el.dataset.done || ''; el.classList.add('is-done'); return; }
       const v = [Math.floor(ms / 864e5), Math.floor(ms / 36e5) % 24, Math.floor(ms / 6e4) % 60, Math.floor(ms / 1e3) % 60];
       el.querySelectorAll('[data-u]').forEach(b => { const s = pad(v[+b.dataset.u]); if (b.textContent !== s) b.textContent = s; });
     });
