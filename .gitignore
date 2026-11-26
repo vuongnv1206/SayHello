@@ -11,3 +11,6 @@ test-results/
 .next/
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Mẫu đang viết dở, chuyển sang packages/themes/ khi đạt kiểm tra
+packages/themes-wip/

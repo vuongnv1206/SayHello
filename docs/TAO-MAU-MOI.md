@@ -140,3 +140,33 @@ export default composeInvitation({
    npm run test:e2e
    ```
 3. Kiểm tra bằng mắt ảnh chụp Playwright ở `320×568`, `390×844` và `1440×900` dựa trên **Rubric nhị phân 4 tiêu chí** trong `docs/TEMPLATES-AND-TOPICS.md`.
+
+---
+
+## 7. Làm mẫu song song (nhiều người, nhiều tác tử)
+
+Mỗi mẫu một người, chỉ viết trong thư mục của mình. Không sửa `packages/engine/`, `apps/`, `tests/`, tài liệu chung hay mẫu của người khác; cần đổi phần chung thì ghi yêu cầu vào báo cáo.
+
+1. Tạo khung: `node tests/new-theme.mjs <id> <bộ ảnh> <tên nhạc>`. Thư mục nằm ở `packages/themes-wip/<id>/` (git bỏ qua) nên mẫu dở không làm hỏng build.
+   - Bộ ảnh trong `assets/anh-minh-hoa/`: `ca-phe-phin`, `cuon-phim`, `den-long`, `khoa-tinh`, `khung-theu`, `song-hy`, `thiep-gap`, `thu-tay`, `tin-nhan`, `ve-may-bay`.
+   - Nhạc: `binh-minh`, `dao-buoc`, `hop-nhac`.
+2. Viết `theme.js` và `theme.css`. Mẫu tham khảo gần nhất: `packages/themes/the-len-may-bay/`, `packages/themes/album-nhac/`.
+3. Soát đến khi đạt hết: `node tests/preview-theme.mjs packages/themes-wip/<id> --shots <thư mục ảnh>` và `node --test packages/themes-wip/<id>/test/contract.test.js`. Xem ảnh chụp bằng mắt.
+4. Báo người tích hợp. Người tích hợp chuyển thư mục sang `packages/themes/`, chạy `npm test`, `npm run build`, smoke và E2E, rồi commit.
+
+### Chủ dự án đã chốt
+
+- Nhìn vào phải nhận ra ngay là **thiệp cưới**: lời mời trang trọng, tên cô dâu chú rể là nhân vật chính, ngày dương và âm lịch, địa điểm, hồi âm tìm thấy ngay.
+- Mỗi mẫu một **bố cục và tương tác riêng**, không chỉ đổi màu. Mỗi chủ đề đổi cả khung, chất liệu hoặc nhịp đọc bằng `html[data-topic="..."]`.
+- Đẹp, hiện đại, tinh tế. Tránh quê mùa, sến, chóng mặt; không vẽ đồ vật kiểu clip-art bằng CSS.
+
+### Lỗi hay gặp
+
+- Bộ chọn `h2` theo mẫu phải giới hạn trong cảnh, nếu không sẽ tràn sang ngăn "Thông tin nhanh" (`#sh-quick`) hoặc đè màu tên trên nền tối.
+- Chữ trên ảnh cần nền đặc (`background-color`) phía sau, không chỉ gradient.
+- Nút chọn trong form: giữ cách của engine (ô radio ẩn, `span` làm nút), chỉ đổi kiểu `span`.
+- `.sh-cd span` mặc định `opacity: .8`; đặt `opacity: 1` nếu chữ đã nhạt.
+- Mọi thứ có `transform: rotate` quá `6deg`, `infinite`, chữ dưới `13px`, hay tràn ngang ở `320px` đều bị test chặn.
+- Nút mở bìa (`data-open`) phải thấy được trên màn `320×568` và bấm được ngay; bìa mở xong trong `900ms`.
+- Git Bash đổi đối số bắt đầu bằng `/` thành đường dẫn Windows: dùng tên nhạc trần như trên.
+
