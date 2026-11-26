@@ -44,6 +44,6 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 - Đã bỏ luật "ảnh mỗi mẫu phải có MD5 duy nhất toàn repo" vì trái với việc dùng ảnh minh hoạ mặc định.
 - Đã bỏ các kiểm tra theo cột mốc (`R1`, `M1`–`M3`) và tài liệu lịch sử trong `docs/archive/`.
 
-- Kết quả sau khi cấu trúc lại: test engine 38/38, hợp đồng mẫu 30/30, build, lint và kiểm tra kiểu đạt. Smoke và E2E chỉ còn lỗi ở Photobooth (bìa lâu hơn `900ms`, lớp lấp lánh `infinite`, tương phản chữ `.dai-dau`, các bước hồi âm hết thời gian chờ).
+- Kết quả sau khi cấu trúc lại: test engine 38/38, hợp đồng mẫu 30/30, build, lint và kiểm tra kiểu đạt. Smoke và E2E chỉ còn lỗi ở Photobooth (bìa lâu hơn `900ms`, lớp lấp lánh `infinite`, tương phản chữ `.dai-dau`, form hồi âm không có ô lời chúc mà E2E mong đợi).
 - `packages/themes/to-hong/test/e2e.mjs` (chạy riêng) lỗi ở nút "Thông tin nhanh" nằm ngoài khung nhìn; lỗi đã có từ `b3ebf11`.
 - `docs/DESIGN-BRIEF.md` và `docs/CLAUDE-HANDOFF.md` agy đang sửa nên Claude chưa commit. Hai tệp này còn nhắc nhánh `redesign` và `docs/archive/`, cần agy cập nhật.
