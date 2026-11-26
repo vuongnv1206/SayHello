@@ -333,3 +333,48 @@
   .theme-song-gia .sg-knot-head { flex-direction: column; align-items: flex-start; }
   .theme-song-gia .sg-acc { grid-template-columns: 1fr; }
 }
+
+/* =================================================================
+   Chủ đề
+   ================================================================= */
+
+/* --- Gốm sứ: viền men đôi, chân dung trong lòng đĩa tròn --- */
+html[data-topic="gom-su"] .theme-song-gia :is(.sg-col, .sg-converge) {
+  border: 2px solid var(--sh-accent);
+  border-radius: 34px;
+  box-shadow: inset 0 0 0 5px var(--sh-surface), inset 0 0 0 6px color-mix(in srgb, var(--sh-accent) 55%, transparent);
+}
+html[data-topic="gom-su"] .theme-song-gia .sg-col { text-align: center; padding: 28px 22px; }
+html[data-topic="gom-su"] .theme-song-gia .sg-portrait { justify-items: center; }
+html[data-topic="gom-su"] .theme-song-gia .sg-portrait img {
+  width: min(100%, 320px);
+  aspect-ratio: 1;
+  object-position: 50% 30%;
+  border-radius: 50%;
+  border: 8px solid var(--sh-surface);
+  outline: 2px solid var(--sh-accent);
+}
+html[data-topic="gom-su"] .theme-song-gia .sg-kicker::before,
+html[data-topic="gom-su"] .theme-song-gia .sg-kicker::after { content: ""; display: inline-block; width: 7px; height: 7px; margin: 0 10px; border: 1px solid currentColor; transform: rotate(45deg); vertical-align: middle; }
+html[data-topic="gom-su"] .theme-song-gia .sg-ev-card { border-radius: 22px 22px 4px 4px; border-top: 3px solid var(--sh-accent); text-align: center; }
+html[data-topic="gom-su"] .theme-song-gia :is(.sg-ev-top, .sg-ev-links) { justify-content: center; }
+
+/* --- Hai thành phố: đường nối hai điểm, thẻ bản đồ, lịch lễ là chặng đường --- */
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-head::after {
+  content: "";
+  width: min(280px, 80%);
+  height: 12px;
+  margin-top: 8px;
+  background:
+    radial-gradient(circle at 6px 6px, var(--sh-accent) 0 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 6px) 6px, transparent 0 2px, var(--sh-accent) 3px 5px, transparent 6px),
+    repeating-linear-gradient(90deg, var(--sh-foil) 0 8px, transparent 8px 14px) center / calc(100% - 28px) 2px no-repeat;
+}
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-col { border-radius: 4px; border-width: 6px 1px 1px; border-top-color: var(--sh-accent); }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-portrait img { aspect-ratio: 4 / 3; object-position: 50% 30%; border-radius: 2px; }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-converge { border-radius: 4px; border-style: dashed; text-align: left; justify-items: start; }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-converge .sh-cd { justify-content: flex-start; }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-ev-grid { grid-template-columns: 1fr; position: relative; padding-left: 28px; gap: 14px; }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-ev-grid::before { content: ""; position: absolute; left: 8px; top: 10px; bottom: 10px; border-left: 2px dashed var(--sh-foil); }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-ev-card { position: relative; border-radius: 4px; }
+html[data-topic="hai-thanh-pho"] .theme-song-gia .sg-ev-card::before { content: ""; position: absolute; left: -28px; top: 24px; width: 10px; height: 10px; border-radius: 50%; border: 3px solid var(--sh-accent); background: var(--sh-bg); }

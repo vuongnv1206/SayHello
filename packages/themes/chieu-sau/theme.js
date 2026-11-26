@@ -204,7 +204,7 @@ export default defineTheme({
         return html`
           <div class="cs-spread cs-hero-spread">
             <div class="cs-media-col">
-              ${renderDepthFrame(heroPair, n.pair, fmt.dots(date).slice(0, 5), true)}
+              ${renderDepthFrame(heroPair, n.pair, fmt.short(date).slice(0, 5), true)}
             </div>
             <div class="cs-type-col">
               <p class="cs-kicker">${t.heroKicker} ${guest()}</p>

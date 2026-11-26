@@ -55,5 +55,8 @@ Vai trò (chủ dự án chốt ngày 26/11/2026): **agy chỉ đạo, Claude co
 - Dọn: bỏ emoji trong lời văn mặc định, `.seat.mine` ở Cuộn Phim hết nhấp nháy vô hạn, sửa test riêng của Tơ Hồng.
 - Kết quả: engine 38/38, hợp đồng mẫu 35/35, smoke 8/8 mẫu, E2E 157/157, lint, kiểu dữ liệu và build đạt.
 
-**Chưa làm từ `docs/DESIGN-BRIEF.md`, cần chủ dự án duyệt hướng trước:** dựng Thẻ Lên Máy Bay và Album Nhạc thành mẫu, 8 mẫu mới, làm topic khác nhau về cấu trúc ở 4 mẫu hiện có. Phần 4.2 của bản đề xuất còn yêu cầu ảnh MD5 duy nhất, luật này đã bỏ.
+- Bốn mẫu `thiep-gap-doi`, `chieu-sau`, `hop-ky-uc`, `song-gia`: mười chủ đề đã khác nhau về khung, chất liệu và bố cục (bảng trong `docs/TEMPLATES-AND-TOPICS.md`); thêm nếp gấp trên điện thoại, thanh ngăn thẻ sáng theo phần đang xem. E2E kiểm tra thêm khổ 320px cho từng chủ đề.
+- Khác bản đề xuất: Hộp Ký Ức không giấu nội dung theo tab, để khách thấy hồi âm và địa điểm ngay khi cuộn.
+
+**Chưa làm từ `docs/DESIGN-BRIEF.md`, cần chủ dự án chọn trước:** dựng Thẻ Lên Máy Bay và Album Nhạc thành mẫu, 8 mẫu mới. Chủ dự án đã dặn phải duyệt hướng trước khi dựng mẫu. Phần 4.2 của bản đề xuất còn yêu cầu ảnh MD5 duy nhất, luật này đã bỏ.
 

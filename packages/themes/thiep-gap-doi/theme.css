@@ -320,3 +320,118 @@
 @media (max-width: 600px) {
   .theme-thiep-gap-doi .fg-acc { grid-template-columns: 1fr; }
 }
+
+/* ===== Điện thoại: tờ giấy gấp nếp ===== */
+@media (max-width: 899px) {
+  .theme-thiep-gap-doi .fg-right { gap: 3px; }
+  .theme-thiep-gap-doi .fg-right > .fg-sheet {
+    padding: 30px 14px 24px;
+    border: 1px solid var(--sh-soft);
+    border-radius: 3px;
+    /* Bóng ở mép trên và quầng sáng ở mép dưới giả nếp gấp */
+    box-shadow: inset 0 14px 14px -14px rgba(0, 0, 0, 0.42), inset 0 -10px 12px -12px rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* =================================================================
+   Chủ đề: mỗi chủ đề một khung, một chất liệu và một nhịp đọc
+   ================================================================= */
+
+/* --- Sơn mài: hộp sơn, hai đường chỉ nhũ, ảnh vòm --- */
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-card {
+  border-radius: 2px;
+  outline: 1px solid color-mix(in srgb, var(--sh-foil) 70%, transparent);
+  outline-offset: -10px;
+  background:
+    radial-gradient(circle at var(--gx, 28%) var(--gy, 22%), color-mix(in srgb, var(--sh-foil) 20%, transparent), transparent 52%),
+    radial-gradient(1.5px 1.5px at 14% 78%, color-mix(in srgb, var(--sh-foil) 80%, transparent), transparent 70%),
+    radial-gradient(2px 2px at 83% 12%, color-mix(in srgb, var(--sh-foil) 70%, transparent), transparent 70%),
+    radial-gradient(1.5px 1.5px at 91% 64%, color-mix(in srgb, var(--sh-foil) 70%, transparent), transparent 70%),
+    radial-gradient(1px 1px at 22% 18%, #cfe8e2, transparent 70%),
+    var(--sh-surface);
+}
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-hero-plate {
+  border-radius: 50% 50% 4px 4px / 30% 30% 4px 4px;
+  border: 1px solid var(--sh-foil);
+  padding: 8px 8px 0;
+}
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-hero-plate img { aspect-ratio: 4 / 5; max-height: 560px; border-radius: 50% 50% 2px 2px / 28% 28% 2px 2px; }
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-hero-plate figcaption { justify-content: center; flex-wrap: wrap; text-align: center; }
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-ev-card {
+  text-align: center;
+  border-radius: 2px;
+  outline: 1px solid color-mix(in srgb, var(--sh-foil) 45%, transparent);
+  outline-offset: -7px;
+  padding: 24px 20px;
+}
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-ev-top { flex-direction: column; align-items: center; }
+html[data-topic="son-mai"] .theme-thiep-gap-doi .fg-ev-links { justify-content: center; }
+
+/* --- Giấy Dó: lá thư viết tay, căn trái, triện vuông, dòng kẻ --- */
+html[data-topic="giay-do"] .theme-thiep-gap-doi :is(.fg-card, .fg-fam-card, .fg-gift-sheet) {
+  background-image:
+    repeating-linear-gradient(96deg, rgba(120, 96, 60, 0.05) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(4deg, rgba(120, 96, 60, 0.04) 0 1px, transparent 1px 11px);
+}
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-card {
+  text-align: left;
+  border: 0;
+  border-left: 4px double var(--sh-accent);
+  border-radius: 1px 14px 3px 10px;
+}
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-crest {
+  margin: 0 0 12px;
+  width: 58px;
+  height: 58px;
+  border-radius: 6px;
+  background: var(--sh-accent);
+  color: var(--sh-accent-ink);
+  border: 2px solid var(--sh-accent);
+  outline: 1px solid var(--sh-accent-ink);
+  outline-offset: -6px;
+  transform: rotate(-4deg);
+}
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-rule { margin: 0; width: 100%; }
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-card-actions { justify-content: flex-start; }
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-card .sh-cd { justify-content: flex-start; }
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-hero-plate { border: 0; border-radius: 0; padding: 10px 10px 0; background: #fffdf8; color: #1f2421; box-shadow: 0 10px 24px -14px rgba(31, 36, 33, 0.5); }
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-ev-list { grid-template-columns: 1fr; gap: 0; }
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-ev-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+html[data-topic="giay-do"] .theme-thiep-gap-doi .fg-ev-card {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--sh-ink) 40%, transparent);
+  border-radius: 0;
+  padding: 18px 2px;
+}
+
+/* --- Lụa ngà: giấy can thoáng, đường chỉ dọc, lịch lễ dạng bảng --- */
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-card {
+  border: 0;
+  border-radius: 0;
+  gap: 26px;
+  padding-block: clamp(32px, 5vw, 64px);
+  box-shadow: inset 0 0 60px rgba(198, 169, 114, 0.16), 0 24px 50px -36px rgba(45, 41, 38, 0.5);
+}
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-crest { display: none; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-card-head::before { content: ""; display: block; width: 1px; height: 56px; margin: 0 auto 18px; background: var(--sh-foil); }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-names { font-weight: 400; letter-spacing: 0.04em; gap: 12px; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-hero-plate { border: 0; border-radius: 0; padding: clamp(14px, 3vw, 28px) clamp(14px, 3vw, 28px) 0; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-hero-plate img { aspect-ratio: 4 / 5; max-height: 600px; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-hero-plate figcaption { border-top: 0; justify-content: center; flex-wrap: wrap; letter-spacing: 0.06em; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-ev-list { grid-template-columns: 1fr; gap: 0; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-ev-card {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.3fr) minmax(0, 1fr);
+  column-gap: 16px;
+  align-content: start;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--sh-foil);
+  border-radius: 0;
+  padding: 22px 0;
+}
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-ev-card > * { grid-column: 2; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-ev-top { display: contents; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-ev-top h3 { grid-column: 2; grid-row: 1; }
+html[data-topic="lua-nga"] .theme-thiep-gap-doi .fg-ev-time { grid-column: 1; grid-row: 1 / span 3; font-variant-numeric: tabular-nums; line-height: 1.5; }

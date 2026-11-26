@@ -73,6 +73,27 @@ Hiện tại **4 template đầu tiên** đã được triển khai hoàn chỉn
 
 ---
 
+### Chủ đề khác nhau về cấu trúc
+
+Ngoài bảng màu và phông chữ, mỗi chủ đề của bốn mẫu trên có khung, chất liệu và nhịp đọc riêng, viết bằng `html[data-topic="..."]` ở cuối `theme.css`:
+
+| Mẫu | Chủ đề | Khác biệt cấu trúc |
+|---|---|---|
+| Thiệp Gấp Đôi | `son-mai` | Hai đường chỉ nhũ, ảnh vòm, lịch lễ căn giữa |
+| | `giay-do` | Lá thư căn trái, triện vuông, lịch lễ kẻ dòng |
+| | `lua-nga` | Đường chỉ dọc thay huy hiệu, lịch lễ dạng bảng giờ bên trái |
+| Chiều Sâu | `suong-da-lat` | Khung bo mềm tan vào sương, chữ căn giữa |
+| | `dem-sai-gon` | Dải phim đục lỗ, giờ lễ cỡ lớn kiểu cuống vé |
+| | `chang-vang-bien` | Ảnh ngang một cột, đường chân trời, lịch lễ theo hàng |
+| Hộp Ký Ức | `hop-nhung` | Viền chỉ đôi, ảnh vòm |
+| | `buu-thiep` | Viền thư máy bay, con tem, ảnh ngang có lề trắng |
+| Song Gia | `gom-su` | Viền men đôi, chân dung trong đĩa tròn |
+| | `hai-thanh-pho` | Đường nối hai điểm, lịch lễ là chặng đường |
+
+Trên điện thoại, các tờ của Thiệp Gấp Đôi có nếp gấp. Thanh ngăn thẻ của Hộp Ký Ức dính trên đầu và sáng theo phần đang xem; nội dung vẫn nằm đủ trên một trang.
+
+---
+
 ## 2. Các mẫu khác đang có
 
 | Mẫu | Ghi chú |

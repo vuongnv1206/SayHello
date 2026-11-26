@@ -630,6 +630,12 @@ export async function runTier2Bounds({ browser, webUrl, shotsDir, record }) {
           await page.locator('#sh-quick [data-sh="quick-close"]').first().click({ force: true });
           await page.locator('#sh-quick').waitFor({ state: 'hidden', timeout: 3000 });
 
+          // Mỗi chủ đề có bố cục riêng nên phải tự đứng được ở khổ hẹp nhất
+          await page.setViewportSize({ width: 320, height: 568 });
+          await page.waitForTimeout(200);
+          await assertNoHorizontalOverflow(page, `${label} 320px`);
+          await assertReadableVietnameseText(page, { minPx: 13, label: `${label} 320px` });
+
           tracker.assertClean(`${label} contrast`);
         } catch (err) {
           await saveFailureShot(session.ctx, shotsDir, `tier2-contrast-${theme.id}-${vId || 'default'}`, err);

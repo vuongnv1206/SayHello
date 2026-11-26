@@ -260,3 +260,65 @@ html[data-motion="lite"] .theme-chieu-sau .cs-big {
   .theme-chieu-sau .cs-fam-row,
   .theme-chieu-sau .cs-acc { grid-template-columns: 1fr; }
 }
+
+/* =================================================================
+   Chủ đề: mỗi chủ đề một khung ảnh và một bố cục
+   ================================================================= */
+
+/* --- Sương Đà Lạt: khung bo mềm tan vào sương, chữ căn giữa --- */
+html[data-topic="suong-da-lat"] .theme-chieu-sau .cs-frame { border: 0; border-radius: 44% 44% 26px 26px / 24% 24% 18px 18px; }
+html[data-topic="suong-da-lat"] .theme-chieu-sau .cs-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 34px 14px var(--sh-bg);
+}
+html[data-topic="suong-da-lat"] .theme-chieu-sau .cs-type-col { justify-items: center; text-align: center; }
+html[data-topic="suong-da-lat"] .theme-chieu-sau .cs-type-col > :is(.cs-venue-card, .cs-fam-row) { justify-self: stretch; }
+html[data-topic="suong-da-lat"] .theme-chieu-sau .cs-hero-cta { justify-content: center; }
+html[data-topic="suong-da-lat"] .theme-chieu-sau :is(.cs-venue-card, .cs-ev-card, .cs-story-card) { border: 0; border-radius: 26px; }
+html[data-topic="suong-da-lat"] .theme-chieu-sau .cs-ev-card { text-align: center; }
+html[data-topic="suong-da-lat"] .theme-chieu-sau :is(.cs-ev-head, .cs-ev-actions) { justify-content: center; }
+
+/* --- Đêm Sài Gòn 90s: dải phim đục lỗ, lịch lễ như cuống vé --- */
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-frame { border: 0; border-radius: 0; }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-frame::before,
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-frame::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 8px, #e9dcc4 8px 18px, transparent 18px 26px) center / 100% 9px no-repeat,
+    #050506;
+}
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-frame::before { top: 0; }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-frame::after { bottom: 0; }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau :is(.cs-date-line, .cs-ev-head span, .cs-frame-no) { font-variant-numeric: tabular-nums; }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau :is(.cs-venue-card, .cs-ev-card, .cs-story-card) { border-radius: 0; border-width: 0 0 0 6px; border-color: var(--sh-accent); }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-ev-head { flex-direction: column-reverse; align-items: flex-start; }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-ev-head span { font-size: 24px; letter-spacing: 0.02em; }
+html[data-topic="dem-sai-gon"] .theme-chieu-sau .cs-ev-actions { border-top: 1px dashed var(--sh-soft); padding-top: 14px; }
+
+/* --- Chạng Vạng Biển: ảnh ngang toàn khổ, đường chân trời, chữ nằm dưới --- */
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-frame { aspect-ratio: 4 / 3; border: 0; border-radius: 0; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-frame img { object-position: 50% 62%; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-type-col { justify-items: center; text-align: center; position: relative; padding-top: 26px; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-type-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--sh-foil) 18%, var(--sh-foil) 82%, transparent); }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-type-col > :is(.cs-venue-card, .cs-fam-row) { justify-self: stretch; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-venue-card { background: transparent; border-width: 1px 0; border-radius: 0; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-hero-cta { justify-content: center; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-events-grid { grid-template-columns: 1fr; gap: 0; }
+html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-ev-card { background: transparent; border-width: 1px 0 0; border-color: var(--sh-foil); border-radius: 0; padding-inline: 0; }
+@media (min-width: 900px) {
+  html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-spread { grid-template-columns: minmax(0, 1fr); width: min(1080px, 100%); }
+  html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-spread > :is(.cs-media-col, .cs-type-col) { order: 0; }
+  html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-frame { aspect-ratio: auto; height: min(54svh, 560px); }
+  html[data-topic="chang-vang-bien"] .theme-chieu-sau .cs-type-col { width: min(640px, 100%); justify-self: center; }
+}

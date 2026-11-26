@@ -142,7 +142,7 @@ export default defineTheme({
               <a class="jb-tab is-active" href="#jb-invite" data-tab="jb-invite">Thiệp Mời</a>
               <a class="jb-tab" href="#jb-deck" data-tab="jb-deck">Album (${cards.length})</a>
               <a class="jb-tab" href="#jb-events" data-tab="jb-events">Giờ &amp; Đường</a>
-              <a class="jb-tab" href="#hoi-am" data-tab="hoi-am">Xác Nhận &amp; Quà</a>
+              <a class="jb-tab" href="#hoi-am" data-tab="hoi-am">Hồi Âm &amp; Quà</a>
             </nav>
 
             <div class="jb-stage">
@@ -280,13 +280,24 @@ export default defineTheme({
           flipBtn.setAttribute('aria-pressed', String(flipped));
         });
 
+        // Thanh ngăn thẻ sáng theo phần đang xem; nội dung vẫn nằm đủ trên một trang để khách tìm nhanh
         const tabs = [...el.querySelectorAll('[data-tab]')];
-        tabs.forEach(tab => {
-          tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('is-active'));
-            tab.classList.add('is-active');
-          });
+        const activate = id => tabs.forEach(tab => {
+          const on = tab.dataset.tab === id;
+          tab.classList.toggle('is-active', on);
+          if (on) tab.setAttribute('aria-current', 'true'); else tab.removeAttribute('aria-current');
         });
+        tabs.forEach(tab => tab.addEventListener('click', () => activate(tab.dataset.tab)));
+        if ('IntersectionObserver' in window) {
+          const watch = new IntersectionObserver(entries => {
+            const hit = entries.find(entry => entry.isIntersecting);
+            if (hit) activate(hit.target.id);
+          }, { rootMargin: '-30% 0px -60% 0px' });
+          tabs.forEach(tab => {
+            const target = ctx.root.querySelector(`#${tab.dataset.tab}`);
+            if (target) watch.observe(target);
+          });
+        }
       },
     },
     {
